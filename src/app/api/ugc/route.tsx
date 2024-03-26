@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const db = client.db("impact");
 
     // Get all
-    const ugc = await db.collection("ugc").findOne({ _id: id });
+    const ugc = await db.collection("ugc").findOne({ code: id });
     return NextResponse.json(ugc);
   } catch (e) {
     console.error(e);
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest, res: any) {
     const db = client.db("impact");
 
     // Update
-    await db.collection("ugc").updateOne({ _id: id }, { $set: { name: name, description: description } });
+    await db.collection("ugc").updateOne({ code: id }, { $set: { name: name, description: description } });
     return NextResponse.json({ message: "Update ok" });
   } catch (e) {
     console.error(e);

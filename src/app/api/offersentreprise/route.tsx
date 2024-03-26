@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     const db = client.db("impact");
 
     // Get all
-    const entreprise = await db.collection("entreprise").findOne({ code: id });
-    return NextResponse.json(entreprise);
+    const offres = await db.collection("offres").find({ idEntreprise: id }).toArray();
+    return NextResponse.json(offres);
   } catch (e) {
     console.error(e);
     return new NextResponse("Error", { status: 401 });
