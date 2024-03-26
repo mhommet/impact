@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
   return(
         <ClerkProvider>
             <html lang="en">
+                <Navbar />
                 <body>{children}</body>
             </html>
         </ClerkProvider>

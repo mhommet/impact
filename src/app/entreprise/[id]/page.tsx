@@ -64,8 +64,9 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                       {entreprise.name}
                     </h2>
                     <div className="text-sm leading-normal mt-0 mb-2 text-gray-800 font-bold uppercase">
-                      <i className="fas fa-map-marker-alt mr-2 text-lg text-gray-800"></i>
-                      {entreprise.category}
+                    <span className="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-green-600/20">
+                          {entreprise.category}
+                        </span>
                     </div>
                     <div className="mb-2 text-gray-800 mt-10">
                       <i className="fas fa-briefcase mr-2 text-lg text-gray-800"></i>
@@ -74,7 +75,8 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                     <p className="mb-4 text-lg leading-relaxed text-gray-800">
                           {entreprise.description}
                     </p>
-                    <h3 className="mb-4 text-lg leading-relaxed text-gray-800">Mes offres</h3>
+                    <br/>
+                    <h1 className="mb-4 text-lg leading-relaxed text-gray-800">Mes offres</h1>
                   </div>
                   {Array.isArray(offres) && offres.length > 0 ? (
                 offres.map((offre) => (
