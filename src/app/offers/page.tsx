@@ -5,7 +5,7 @@ import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Navbar from "../components/navbar";
 import TopBar from "../components/topBar";
-import RestaurantImg from "./restaurant.png";
+import '@fortawesome/fontawesome-svg-core/styles.css'
 
 const App = () => {
   const [offers, setOffers] = useState("");
@@ -33,13 +33,13 @@ const App = () => {
   return (
     <div className="bg-white">
       <TopBar />
-      <div className="relative isolate px-6 pt-5 lg:px-8">
+      <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
         <div
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
         >
           <div
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#182F53] via-[#544697] to-[#90579F] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
             style={{
               clipPath:
                 "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
@@ -51,11 +51,11 @@ const App = () => {
             Les annonces à la une
           </h3>
           <div className="flex items-center justify-between space-x-4 mt-5">
-            {Array.isArray(offers) &&
-              offers.length > 0 &&
-              offers.map((offer) => (
+            {Array.isArray(offers) && offers.length > 0 && (
+              <>
+                <button className="rounded-full text-xl font-bold">&lt;</button>
                 <div
-                  key={offer.code}
+                  key={offers[offers.length - 1].code}
                   className="md:flex w-full md:w-3/4 lg:w-1/2 xl:w-1/3"
                 >
                   <div className="md:flex-shrink-0">
@@ -63,14 +63,14 @@ const App = () => {
                       width={100}
                       height={100}
                       className="h-48 w-full object-cover md:w-48"
-                      src={RestaurantImg}
+                      src={`/img/restaurant.png`}
                       alt="Restaurant image"
                     />
                   </div>
                   <div className="p-8">
                     <div className="flex justify-between items-center">
                       <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                        {offer.name}, Caen
+                        {offers[offers.length - 1].name}
                       </div>
                       <div>
                         <span className="inline-block bg-yellow-200 text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
@@ -82,7 +82,7 @@ const App = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="mt-2 text-gray-400">#{offer.category}</div>
+                    <div className="mt-2 text-gray-400">{offers[offers.length - 1].category}</div>
                     <div className="mt-2 flex justify-between items-center">
                       <button className="bg-purple-800 hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full">
                         Voir le brief
@@ -94,7 +94,9 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                <button className="rounded-full text-xl font-bold">&gt;</button>
+              </>
+            )}
           </div>
         </div>
         <div>
@@ -119,7 +121,7 @@ const App = () => {
             className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full"
           >
             {Array.isArray(offers) && offers.length > 0 ? (
-              offers.map((offer) => (
+              offers.map((offer, index) => (
                 <div
                   key={offer.id}
                   className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-full m-5 w-full"
@@ -130,14 +132,14 @@ const App = () => {
                         width={100}
                         height={100}
                         className="h-48 w-full object-cover md:w-48"
-                        src={RestaurantImg}
+                        src={`/img/restaurant${index}.png`}
                         alt="Restaurant image"
                       />
                     </div>
                     <div className="p-8">
                       <div className="flex justify-between items-center">
                         <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                          {offer.name}, Caen
+                          {offer.name}
                         </div>
                         <div>
                           <span className="inline-block bg-yellow-200 text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
@@ -150,7 +152,7 @@ const App = () => {
                         </div>
                       </div>
                       <div className="mt-2 text-gray-400">
-                        #{offer.category}
+                        {offer.category}
                       </div>
                       <div className="mt-2 flex justify-between items-center">
                         <button className="bg-purple-800 hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full">
