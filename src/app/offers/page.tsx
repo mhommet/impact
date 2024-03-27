@@ -5,7 +5,7 @@ import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Navbar from "../components/navbar";
 import TopBar from "../components/topBar";
-import '@fortawesome/fontawesome-svg-core/styles.css'
+import "@fortawesome/fontawesome-svg-core/styles.css";
 
 const App = () => {
   const [offers, setOffers] = useState("");
@@ -56,14 +56,14 @@ const App = () => {
                 <button className="rounded-full text-xl font-bold">&lt;</button>
                 <div
                   key={offers[offers.length - 1].code}
-                  className="md:flex w-full md:w-3/4 lg:w-1/2 xl:w-1/3"
+                  className="md:flex w-full md:w-3/4 lg:w-1/2 xl:w-1/3 shadow-md mb-10 rounded-md"
                 >
                   <div className="md:flex-shrink-0">
                     <Image
                       width={100}
                       height={100}
                       className="h-48 w-full object-cover md:w-48"
-                      src={`/img/restaurant.png`}
+                      src={`/img/restaurant${3}.png`}
                       alt="Restaurant image"
                     />
                   </div>
@@ -82,7 +82,9 @@ const App = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="mt-2 text-gray-400">{offers[offers.length - 1].category}</div>
+                    <div className="mt-2 text-gray-400">
+                      {offers[offers.length - 1].category}
+                    </div>
                     <div className="mt-2 flex justify-between items-center">
                       <button className="bg-purple-800 hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full">
                         Voir le brief
@@ -104,13 +106,13 @@ const App = () => {
             Ces annonces qui pourraient vous intéresser...
           </h3>
           <div className="flex items-center justify-between space-x-4 mt-5">
-            <button className="border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
               <span>🔤</span> Trier
             </button>
-            <button className="border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
               <span>🔎</span> Filtrer
             </button>
-            <button className="border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
               <span>🌍</span> Me géolocaliser
             </button>
           </div>
@@ -151,9 +153,7 @@ const App = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-gray-400">
-                        {offer.category}
-                      </div>
+                      <div className="mt-2 text-gray-400">{offer.category}</div>
                       <div className="mt-2 flex justify-between items-center">
                         <button className="bg-purple-800 hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full">
                           Voir le brief
