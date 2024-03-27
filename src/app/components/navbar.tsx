@@ -16,10 +16,9 @@ export default function Navbar() {
       [tooltipId]: !prevState[tooltipId],
     }));
   };
-
   return (
-    <div className="fixed z-50 w-full h-16 max-w-lg -translate-x-1/2 bg-white border border-gray-200 rounded-full bottom-4 left-1/2 dark:bg-gray-700 dark:border-gray-600">
-      <div className="grid h-full max-w-lg grid-cols-5 mx-auto"> {/* Adjusted grid to accommodate the new buttons */}
+    <div className="fixed z-50 h-20 w-screen bottom-0 border border-gray-200 dark:border-gray-600" style={{background: 'linear-gradient(to right, darkblue, darkmagenta)'}}>
+        <div className="grid h-full grid-cols-5"> {/* Adjusted grid to accommodate the new buttons */}
         <button
           data-tooltip-target="tooltip-home"
           type="button"

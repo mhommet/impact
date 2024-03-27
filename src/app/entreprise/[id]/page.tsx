@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Head from 'next/head';
 import Image from 'next/image';
+import Navbar from "@/app/components/navbar";
 
 export default function Entreprise({ params }: { params: { id: string } }) {
   const [entreprise, setEntreprise] = useState("");
@@ -116,6 +117,7 @@ export default function Entreprise({ params }: { params: { id: string } }) {
           </div>
         </div>
       </section>
+      <Navbar />
     </>
   );
 }
