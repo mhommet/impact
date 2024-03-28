@@ -1,11 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import "../globals.css";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Navbar from "../components/navbar";
 import TopBar from "../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import Link from "next/link";
+import {
+  faFilter,
+  faHeart,
+  faLocation,
+  faSort,
+  faStar,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const App = () => {
   const [offers, setOffers] = useState("");
@@ -31,7 +40,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="bg-white">
+    <div>
       <TopBar />
       <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
         <div
@@ -54,48 +63,67 @@ const App = () => {
             {Array.isArray(offers) && offers.length > 0 && (
               <>
                 <button className="rounded-full text-xl font-bold">&lt;</button>
-                <div
-                  key={offers[offers.length - 1].code}
-                  className="md:flex w-full md:w-3/4 lg:w-1/2 xl:w-1/3 shadow-md mb-10 rounded-md"
-                >
-                  <div className="md:flex-shrink-0">
-                    <Image
-                      width={100}
-                      height={100}
-                      className="h-48 w-full object-cover md:w-48"
-                      src={`/img/restaurant${3}.png`}
-                      alt="Restaurant image"
-                    />
+                <Link href={`/offer/${offers[offers.length - 1].code}`}>
+                  <div
+                    key={offers[offers.length - 1].code}
+                    className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full"
+                  >
+                    <div className="md:flex">
+                    <div className="md:flex-shrink-0 h-48 md:h-auto w-full overflow-hidden">
+                      <Image
+                        width={100}
+                        height={100}
+                        className="h-full w-full object-cover md:w-full"
+                        src={`/img/restaurant${3}.png`}
+                        alt="Restaurant image"
+                      />
+                    </div>
+                    </div>
+                    <div className="p-8">
+                      <div className="flex justify-between items-center">
+                        <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
+                          {offers[offers.length - 1].name}
+                        </div>
+                        <div>
+                          <span className="inline-block text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-gray-400">
+                        {offers[offers.length - 1].category}
+                      </div>
+                      <div className="mt-2 flex justify-between items-center">
+                        <button
+                          style={{ backgroundColor: "#90579F" }}
+                          className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full"
+                        >
+                          Voir le brief
+                        </button>
+                        <div>
+                          {/* Replace with your heart icon */}
+                          <span>
+                            <FontAwesomeIcon icon={faHeart} />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-8">
-                    <div className="flex justify-between items-center">
-                      <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                        {offers[offers.length - 1].name}
-                      </div>
-                      <div>
-                        <span className="inline-block bg-yellow-200 text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
-                          <span>⭐</span>
-                          <span>⭐</span>
-                          <span>⭐</span>
-                          <span>⭐</span>
-                          <span>⭐</span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mt-2 text-gray-400">
-                      {offers[offers.length - 1].category}
-                    </div>
-                    <div className="mt-2 flex justify-between items-center">
-                      <button className="bg-purple-800 hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full">
-                        Voir le brief
-                      </button>
-                      <div>
-                        {/* Replace with your heart icon */}
-                        <span>❤️</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                </Link>
                 <button className="rounded-full text-xl font-bold">&gt;</button>
               </>
             )}
@@ -107,13 +135,22 @@ const App = () => {
           </h3>
           <div className="flex items-center justify-between space-x-4 mt-5">
             <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
-              <span>🔤</span> Trier
+              <span className="text-gray-600">
+                <FontAwesomeIcon icon={faSort} />
+              </span>{" "}
+              Trier
             </button>
             <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
-              <span>🔎</span> Filtrer
+              <span className="text-gray-600">
+                <FontAwesomeIcon icon={faFilter} />
+              </span>{" "}
+              Filtrer
             </button>
             <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
-              <span>🌍</span> Me géolocaliser
+              <span className="text-gray-600">
+                <FontAwesomeIcon icon={faLocation} />
+              </span>{" "}
+              Me géolocaliser
             </button>
           </div>
         </div>
@@ -124,48 +161,63 @@ const App = () => {
           >
             {Array.isArray(offers) && offers.length > 0 ? (
               offers.map((offer, index) => (
-                <div
-                  key={offer.id}
-                  className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-full m-5 w-full"
-                >
-                  <div className="md:flex w-full md:w-3/4 lg:w-1/2 xl:w-1/3">
-                    <div className="md:flex-shrink-0">
-                      <Image
-                        width={100}
-                        height={100}
-                        className="h-48 w-full object-cover md:w-48"
-                        src={`/img/restaurant${index}.png`}
-                        alt="Restaurant image"
-                      />
-                    </div>
-                    <div className="p-8">
-                      <div className="flex justify-between items-center">
-                        <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                          {offer.name}
-                        </div>
-                        <div>
-                          <span className="inline-block bg-yellow-200 text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                          </span>
-                        </div>
+                <Link key={offer.id} href={`/offer/${offer.code}`}>
+                  <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
+                    <div className="md:flex">
+                      <div className="md:flex-shrink-0 h-48 md:h-auto">
+                        <Image
+                          width={100}
+                          height={100}
+                          className="h-full w-full object-cover md:w-full"
+                          src={`/img/restaurant${index}.png`}
+                          alt="Restaurant image"
+                        />
                       </div>
-                      <div className="mt-2 text-gray-400">{offer.category}</div>
-                      <div className="mt-2 flex justify-between items-center">
-                        <button className="bg-purple-800 hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full">
-                          Voir le brief
-                        </button>
-                        <div>
-                          {/* Replace with your heart icon */}
-                          <span>❤️</span>
+                      <div className="p-8">
+                        <div className="flex justify-between items-center">
+                          <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
+                            {offer.name}
+                          </div>
+                          <div>
+                            <span className="inline-block text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
+                              <span>
+                                <FontAwesomeIcon icon={faStar} />
+                              </span>
+                              <span>
+                                <FontAwesomeIcon icon={faStar} />
+                              </span>
+                              <span>
+                                <FontAwesomeIcon icon={faStar} />
+                              </span>
+                              <span>
+                                <FontAwesomeIcon icon={faStar} />
+                              </span>
+                              <span>
+                                <FontAwesomeIcon icon={faStar} />
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-gray-400">
+                          {offer.category}
+                        </div>
+                        <div className="mt-2 flex justify-between items-center">
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full"
+                          >
+                            Voir le brief
+                          </button>
+                          <div>
+                            <span className="text-red-600">
+                              <FontAwesomeIcon icon={faHeart} />
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
