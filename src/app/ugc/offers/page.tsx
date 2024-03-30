@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import "../../globals.css";
-import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Navbar from "../../components/navbar";
 import TopBar from "../../components/topBar";
@@ -18,8 +17,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const App = () => {
   const [offers, setOffers] = useState("");
-  // Getting the user
-  const { user } = useUser();
 
   interface offer {
     id: string;
