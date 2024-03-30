@@ -14,7 +14,7 @@ const Home: React.FC = () => {
           </a>
         </div>
         <div className="image-container">
-          <a href="/entreprise/profile/1">
+          <a href="/entreprise/offers">
             <Image
               src={"/img/entreprise.jpg"}
               alt="entreprise"

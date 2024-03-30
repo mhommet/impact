@@ -110,7 +110,7 @@ const App = () => {
                       <div className="mt-2 flex justify-between items-center">
                         <button
                           style={{ backgroundColor: "#90579F" }}
-                          className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full"
+                          className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
                         >
                           Voir le brief
                         </button>
@@ -134,19 +134,19 @@ const App = () => {
             Ces annonces qui pourraient vous intéresser...
           </h3>
           <div className="flex items-center justify-between space-x-4 mt-5">
-            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
               <span className="text-gray-600">
                 <FontAwesomeIcon icon={faSort} />
               </span>{" "}
               Trier
             </button>
-            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
               <span className="text-gray-600">
                 <FontAwesomeIcon icon={faFilter} />
               </span>{" "}
               Filtrer
             </button>
-            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
               <span className="text-gray-600">
                 <FontAwesomeIcon icon={faLocation} />
               </span>{" "}
@@ -204,7 +204,7 @@ const App = () => {
                         <div className="mt-2 flex justify-between items-center">
                           <button
                             style={{ backgroundColor: "#90579F" }}
-                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-sm rounded-full"
+                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
                           >
                             Voir le brief
                           </button>

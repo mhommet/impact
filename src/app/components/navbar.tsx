@@ -8,10 +8,16 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
+  const [path, setPath] = useState("");
 
-  if (window.location.pathname.startsWith("/ugc")) {
+  useEffect(() => {
+    setPath(window.location.pathname);
+  }, []);
+
+  if (path.startsWith("/ugc")) {
     return (
       <div
         className="fixed z-50 h-20 w-screen bottom-0"
@@ -40,7 +46,7 @@ export default function Navbar() {
         </div>
       </div>
     );
-  } else if (window.location.pathname.startsWith("/entreprise")) {
+  } else if (path.startsWith("/entreprise")) {
     return (
       <div
         className="fixed z-50 h-20 w-screen bottom-0"
@@ -49,7 +55,7 @@ export default function Navbar() {
         }}
       >
         <div className="grid h-full grid-cols-5 justify-center items-center">
-          <Link href="/offers">
+          <Link href="/entreprise/offers">
             <span className="icon text-3xl flex justify-center text-white">
               <FontAwesomeIcon icon={faHome} />
             </span>
