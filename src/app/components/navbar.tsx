@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendar,
+  faChartLine,
   faHome,
   faMessage,
   faSearch,
@@ -9,30 +10,64 @@ import {
 import Link from "next/link";
 
 export default function Navbar() {
-  return (
-    <div
-      className="fixed z-50 h-20 w-screen bottom-0"
-      style={{ background: "linear-gradient(to right, #0D1828, rgb(88, 45, 100))" }}
-    >
-      <div className="grid h-full grid-cols-5 justify-center items-center">
-        <Link href="/offers">
+
+  if (window.location.pathname.startsWith("/ugc")) {
+    return (
+      <div
+        className="fixed z-50 h-20 w-screen bottom-0"
+        style={{
+          background: "linear-gradient(to right, #0D1828, rgb(88, 45, 100))",
+        }}
+      >
+        <div className="grid h-full grid-cols-5 justify-center items-center">
+          <Link href="/ugc/offers">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faHome} />
+            </span>
+          </Link>
           <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faHome} />
+            <FontAwesomeIcon icon={faCalendar} />
           </span>
-        </Link>
-        <span className="icon text-3xl flex justify-center text-white">
-          <FontAwesomeIcon icon={faCalendar} />
-        </span>
-        <span className="icon text-3xl flex justify-center text-white">
-          <FontAwesomeIcon icon={faSearch} />
-        </span>
-        <span className="icon text-3xl flex justify-center text-white">
-          <FontAwesomeIcon icon={faMessage} />
-        </span>
-        <span className="icon text-3xl flex justify-center text-white">
-          <FontAwesomeIcon icon={faUser} />
-        </span>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faSearch} />
+          </span>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faMessage} />
+          </span>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faUser} />
+          </span>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else if (window.location.pathname.startsWith("/entreprise")) {
+    return (
+      <div
+        className="fixed z-50 h-20 w-screen bottom-0"
+        style={{
+          background: "linear-gradient(to right, #0D1828, rgb(88, 45, 100))",
+        }}
+      >
+        <div className="grid h-full grid-cols-5 justify-center items-center">
+          <Link href="/offers">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faHome} />
+            </span>
+          </Link>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faCalendar} />
+          </span>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faChartLine} />
+          </span>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faMessage} />
+          </span>
+          <span className="icon text-3xl flex justify-center text-white">
+            <FontAwesomeIcon icon={faUser} />
+          </span>
+        </div>
+      </div>
+    );
+  }
 }

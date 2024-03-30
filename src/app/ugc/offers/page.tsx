@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import "../globals.css";
+import "../../globals.css";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
-import Navbar from "../components/navbar";
-import TopBar from "../components/topBar";
+import Navbar from "../../components/navbar";
+import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import Link from "next/link";
 import {
@@ -63,7 +63,7 @@ const App = () => {
             {Array.isArray(offers) && offers.length > 0 && (
               <>
                 <button className="rounded-full text-xl font-bold">&lt;</button>
-                <Link href={`/offer/${offers[offers.length - 1].code}`}>
+                <Link href={`/ugc/offer/${offers[offers.length - 1].code}`}>
                   <div
                     key={offers[offers.length - 1].code}
                     className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full"
@@ -161,7 +161,7 @@ const App = () => {
           >
             {Array.isArray(offers) && offers.length > 0 ? (
               offers.map((offer, index) => (
-                <Link key={offer.id} href={`/offer/${offer.code}`}>
+                <Link key={offer.id} href={`/ugc/offer/${offer.code}`}>
                   <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
                     <div className="md:flex">
                       <div className="md:flex-shrink-0 h-48 md:h-auto">

@@ -1,8 +1,14 @@
+'use client';
 import React from "react";
 import Image from "next/image";
 import logo from "./logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faHeart } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+
+const redirect = () => {
+  window.location.href = "/";
+}
 
 const TopBar = () => {
   return (
@@ -12,10 +18,11 @@ const TopBar = () => {
     >
       <Image
         src={logo}
-        alt="UGC"
+        alt="LOGO"
         className="absolute left-8 w-1/10 h-auto filter invert"
         width={100}
         height={100}
+        onClick={redirect}
       />
       <div className="ml-auto flex space-x-4">
         <span className="text-2xl">

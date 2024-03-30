@@ -49,7 +49,7 @@ export default function Offer({ params }: { params: { id: string } }) {
             src={`/img/restaurant${3}.png`}
             alt="Restaurant image"
           />
-          <Link href="/offers">
+          <Link href="/ugc/offers">
             <button className="absolute top-2.5 left-2.5 bg-gray-400 bg-opacity-70 rounded-full border-0 w-10 h-10 flex items-center justify-center text-lg p-0">
               <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600" />
             </button>
@@ -58,14 +58,14 @@ export default function Offer({ params }: { params: { id: string } }) {
       </div>
       <div className="pb-20 mr-5 ml-5">
         <div className="flex items-center justify-between py-2">
-          <div className="text-xl text-gray-800 font-bold">{offer.name}</div>
+          <div className="text-xl text-gray-800 font-bold">{offer?.name}</div>
           <div className="flex items-center">
             <div className="mr-2">⭐️⭐️⭐️⭐️⭐️</div>
             <div>(15 avis)</div>
           </div>
         </div>
         <div className="flex justify-start mt-2">
-          {offer.category.split(" ").map((word, index) => (
+          {offer?.category.split(" ").map((word, index) => (
             <div
               key={index}
               style={{ backgroundColor: "#90579F" }}
@@ -109,7 +109,7 @@ export default function Offer({ params }: { params: { id: string } }) {
             style={{ whiteSpace: "pre-line" }}
             className="text-black text-left w-5/6 mx-auto"
           >
-            {offer.description}
+            {offer?.description}
           </p>
         </div>
         <div className="flex justify-between space-x-5 mt-10">

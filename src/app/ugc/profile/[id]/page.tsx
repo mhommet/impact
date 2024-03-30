@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Head from 'next/head';
 import Image from 'next/image';
 import Navbar from "@/app/components/navbar";
+import TopBar from "@/app/components/topBar";
 
 export default function Ugc({ params }: { params: { id: string } }) {
   const [ugc, setUgc] = useState("");
@@ -28,6 +29,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
         <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css" />
         <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" />
       </Head>
+      <TopBar />
       <section className="pt-16">
         <div className="w-full lg:full px-4 mx-auto shadow-xl">
           <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg mt-16">
@@ -63,7 +65,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 <>
                   <div className="text-center mt-12">
                     <h2 className="text-xl font-semibold leading-normal mb-2 text-gray-800">
-                      {ugc.name}
+                      {(ugc as ugc)?.name}
                     </h2>
                     <div className="text-sm leading-normal mt-0 mb-2 text-gray-800 font-bold uppercase">
                       <i className="fas fa-map-marker-alt mr-2 text-lg text-gray-800"></i>
@@ -78,7 +80,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                     <div className="flex flex-wrap justify-center">
                       <div className="w-full lg:w-9/12 px-4">
                         <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                          {ugc.description}
+                          {(ugc as ugc)?.description}
                         </p>
                       </div>
                     </div>
