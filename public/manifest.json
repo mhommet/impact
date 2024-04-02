@@ -3,29 +3,32 @@
   "short_name": "IMPACT",
   "theme_color": "#9013fe",
   "background_color": "#9013fe",
-  "display": "standalone",
-  "orientation": "portrait",
-  "scope": "/",
-  "start_url": "/",
+  "description": "impact ugc",
   "icons": [
     {
       "src": "icons/icon-16x16.png",
       "sizes": "16x16",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-32x32.png",
       "sizes": "32x32",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any maskable"
     }
   ],
-  "splash_pages": null
+  "display": "standalone",
+  "display_override": ["fullscreen", "minimal-ui"],
+  "orientation": "portrait",
+  "start_url": "/",
+  "id": "/",
+  "splash_pages": null,
+  "prefer_related_applications": true
 }

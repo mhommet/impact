@@ -9,6 +9,13 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "IMPACT",
   description: "Impact UGC",
+  manifest: "/manifest.json"
+};
+
+export const viewport = {
+  name: "viewport",
+  content: "width=device-width, initial-scale=1",
+  themeColor: "#000000"
 };
 
 export default function RootLayout({
