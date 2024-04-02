@@ -162,12 +162,14 @@ const App = () => {
                         <div className="mt-2 text-gray-400">
                           {offer.type}
                         </div>
+                        <Link key={offer.id} href={`/entreprise/stats`}>
                         <button
                           style={{ backgroundColor: "#90579F" }}
                           className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md mt-2"
                         >
                           Voir les statistiques
                         </button>
+                        </Link>
                       </div>
                       <div className="flex flex-col items-center justify-center ml-4 relative">
                         <div className="rounded-full overflow-hidden relative w-10 h-10">
