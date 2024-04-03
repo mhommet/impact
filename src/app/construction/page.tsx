@@ -12,7 +12,7 @@ export default function Construction() {
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center text-gray-700 dark:text-white mb-4">Oops! Cette page est en cours de construction...</h1>
         <p className="text-center text-gray-500 dark:text-gray-300 text-lg md:text-xl lg:text-2xl mb-8">Nous sommes actuellement en train de construire le site. Restez connectés!</p>
         <div className="flex space-x-4">
-        <a href="/" className="border-2 border-gray-800 text-black font-bold py-3 px-6 rounded dark:text-white dark:border-white">Revenir à l'accueil</a>
+        <a href="/" className="border-2 border-gray-800 text-black font-bold py-3 px-6 rounded dark:text-white dark:border-white">Revenir à l&apos;accueil</a>
         </div>
     </div>
     </>

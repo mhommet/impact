@@ -38,7 +38,7 @@ export default function HomeUgc() {
                                     className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
                                     style={{ flex: 1 }} 
                                 >
-                                    Commencer l'inscription
+                                    Commencer l&apos;inscription
                                 </button>
                             </Link>
                         </div>
