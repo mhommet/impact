@@ -8,13 +8,13 @@ const Home: React.FC = () => {
       <TopBar />
       <div className="gallery">
         <div className="image-container">
-          <a href="/ugc/offers">
+          <a href="/ugc/home">
             <Image src={"/img/ugc.jpg"} alt="ugc" width={1000} height={1000} />
             <h1 className="image-text">UGC</h1>
           </a>
         </div>
         <div className="image-container">
-          <a href="/entreprise/offers">
+          <a href="/entreprise/home">
             <Image
               src={"/img/entreprise.jpg"}
               alt="entreprise"

@@ -25,7 +25,7 @@ export default function Navbar() {
           background: "linear-gradient(to right, #0D1828, rgb(88, 45, 100))",
         }}
       >
-        <div className="grid h-full grid-cols-5 justify-center items-center">
+        <div className="grid h-full grid-cols-4 justify-center items-center">
           <Link href="/ugc/offers">
             <span className="icon text-3xl flex justify-center text-white">
               <FontAwesomeIcon icon={faHome} />
@@ -49,6 +49,7 @@ export default function Navbar() {
               <FontAwesomeIcon icon={faUser} />
             </span>
           </Link>
+
         </div>
       </div>
     );
