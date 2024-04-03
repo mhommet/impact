@@ -31,15 +31,24 @@ export default function Navbar() {
               <FontAwesomeIcon icon={faHome} />
             </span>
           </Link>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faCalendar} />
-          </span>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faMessage} />
-          </span>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faUser} />
-          </span>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faCalendar} />
+            </span>
+          </Link>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faMessage} />
+            </span>
+          </Link>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faUser} />
+            </span>
+          </Link>
         </div>
       </div>
     );
@@ -57,18 +66,30 @@ export default function Navbar() {
               <FontAwesomeIcon icon={faHome} />
             </span>
           </Link>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faCalendar} />
-          </span>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faChartLine} />
-          </span>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faMessage} />
-          </span>
-          <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faUser} />
-          </span>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faCalendar} />
+            </span>
+          </Link>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faChartLine} />
+            </span>
+          </Link>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faMessage} />
+            </span>
+          </Link>
+
+          <Link href="/construction">
+            <span className="icon text-3xl flex justify-center text-white">
+              <FontAwesomeIcon icon={faUser} />
+            </span>
+          </Link>
         </div>
       </div>
     );
