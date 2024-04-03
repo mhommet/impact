@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import emailjs from 'emailjs-com';
+import React, { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
+import emailjs, { EmailJSResponseStatus } from 'emailjs-com';
 
-const DemoRequestPopup = ({ onClose }) => {
-    const [email, setEmail] = useState('');
-    const popupRef = useRef();
+interface DemoRequestPopupProps {
+    onClose: () => void;
+}
+
+const DemoRequestPopup: React.FC<DemoRequestPopupProps> = ({ onClose }) => {
+    const [email, setEmail] = useState<string>('');
+    const popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (popupRef.current && !popupRef.current.contains(event.target)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
                 onClose();
             }
         };
@@ -21,15 +25,18 @@ const DemoRequestPopup = ({ onClose }) => {
         };
     }, [onClose]);
 
-    const sendEmail = (e) => {
+    const sendEmail = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        emailjs.sendForm('service_1sue7z5', 'template_iu1g8t4', e.target, '1qOCEgn7w3DjE8ZiZ', { user_email: email })
-            .then((result) => {
+        let target = e.currentTarget;
+        target.user_email.value = email;
+
+        emailjs.sendForm('service_1sue7z5', 'template_iu1g8t4', target, '1qOCEgn7w3DjE8ZiZ')
+            .then((result: EmailJSResponseStatus) => {
                 console.log("Email sent", result.text);
                 onClose();
-            }, (error) => {
-                console.log("Email sending error", error.text);
+            }, (error: Error) => {
+                console.log("Email sending error", error.message);
             });
     };
 
@@ -53,7 +60,7 @@ const DemoRequestPopup = ({ onClose }) => {
                         type="email"
                         className="text-white font-medium text-lg bg-transparent border-2 border-gray-600 rounded px-4 py-3 w-full mb-6"
                         placeholder="Entrez votre email"
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                         required
                     />
                     <input  type="submit" value="Faire la demande" className="font-semibold text-lg text-white bg-transparent border-2 border-white rounded py-3 px-6 transition-all duration-300 hover:bg-white hover:text-black" />
