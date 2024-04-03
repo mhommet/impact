@@ -35,9 +35,6 @@ export default function Navbar() {
             <FontAwesomeIcon icon={faCalendar} />
           </span>
           <span className="icon text-3xl flex justify-center text-white">
-            <FontAwesomeIcon icon={faSearch} />
-          </span>
-          <span className="icon text-3xl flex justify-center text-white">
             <FontAwesomeIcon icon={faMessage} />
           </span>
           <span className="icon text-3xl flex justify-center text-white">

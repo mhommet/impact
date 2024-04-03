@@ -3,8 +3,7 @@ import React from "react";
 import Image from "next/image";
 import logo from "./logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faHeart } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
+import { faBell, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 
 const redirect = () => {
   window.location.href = "/";
@@ -25,6 +24,9 @@ const TopBar = () => {
         onClick={redirect}
       />
       <div className="ml-auto flex space-x-4">
+        <span className="text-2xl">
+            <FontAwesomeIcon icon={faSearch} />
+          </span>
         <span className="text-2xl">
           <FontAwesomeIcon icon={faHeart} />
         </span>
