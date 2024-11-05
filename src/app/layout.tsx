@@ -1,31 +1,39 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type {Metadata} from "next";
+import {Inter} from "next/font/google";
 import "./globals.css";
-import { config } from "@fortawesome/fontawesome-svg-core";
+import {config} from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+
 config.autoAddCss = false;
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({subsets: ["latin"]});
+import {
+    ClerkProvider,
+} from '@clerk/nextjs'
 
 export const metadata: Metadata = {
-  title: "IMPACT",
-  description: "Impact UGC",
-  manifest: "/manifest.json"
+    title: "IMPACT",
+    description: "Impact UGC",
+    manifest: "/manifest.json"
 };
 
 export const viewport = {
-  name: "viewport",
-  content: "width=device-width, initial-scale=1",
-  themeColor: "#000000"
+    name: "viewport",
+    content: "width=device-width, initial-scale=1",
+    themeColor: "#000000"
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+    return (
+        <ClerkProvider>
+            <html lang="en">
+            <body>
+            {children}
+            </body>
+            </html>
+        </ClerkProvider>
+    );
 }
