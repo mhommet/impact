@@ -14,10 +14,13 @@ export async function middleware(req: NextRequest) {
 
     const token = req.cookies.get("token")?.value || ""; // Récupère la valeur brute du cookie
 
-
     if (!token) {
         console.error(`Token manquant pour la route ${pathname}. Redirection.`);
-        return NextResponse.redirect(new URL("/entreprise/login", req.url));
+        if (pathname.startsWith("/entreprise")) {
+            return NextResponse.redirect(new URL("/entreprise/login", req.url));
+        } else if (pathname.startsWith("/ugc")) {
+            return NextResponse.redirect(new URL("/ugc/login", req.url));
+        }
     }
 
     try {
@@ -26,17 +29,24 @@ export async function middleware(req: NextRequest) {
         if (pathname.startsWith("/entreprise") && payload.type !== "entreprise") {
             console.error(`Utilisateur non autorisé pour la route ${pathname}`);
             return NextResponse.redirect(new URL("/entreprise/login", req.url));
+        } else if (pathname.startsWith("/ugc") && payload.type !== "ugc") {
+            console.error(`Utilisateur non autorisé pour la route ${pathname}`);
+            return NextResponse.redirect(new URL("/ugc/login", req.url));
         }
 
         return NextResponse.next(); // Autorise l'accès
     } catch (error) {
         console.error(`Erreur JWT pour la route ${pathname} :`, error);
-        return NextResponse.redirect(new URL("/entreprise/login", req.url));
+        if (pathname.startsWith("/entreprise")) {
+            return NextResponse.redirect(new URL("/entreprise/login", req.url));
+        } else if (pathname.startsWith("/ugc")) {
+            return NextResponse.redirect(new URL("/ugc/login", req.url));
+        }
     }
 }
 
 export const config = {
     matcher: [
-        '/((?!_next|static|manifest.json|favicon.ico|sw.js|workbox-.*\\.js|img/.*|api/register|api/login|entreprise/login|entreprise/register|ugc/login|ugc/register|ugc/home|entreprise/home).*)',
+        '/((?!_next|static|manifest.json|favicon.ico|sw.js|workbox-.*\\.js|img/.*|api/register|api/login|entreprise/login|entreprise/register|ugc/login|ugc/register|entreprise/home|ugc/home|$).*)',
     ],
 };
