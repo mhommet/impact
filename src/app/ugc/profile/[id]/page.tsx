@@ -18,7 +18,6 @@ export default function Ugc({ params }: { params: { id: string } }) {
         const fetchUgc = async () => {
             const response = await fetch(`/api/ugc?id=${params.id}`);
             const data = await response.json();
-            console.log(data)
             setUgc(data);
         };
         fetchUgc();

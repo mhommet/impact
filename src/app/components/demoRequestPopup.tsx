@@ -33,10 +33,8 @@ const DemoRequestPopup: React.FC<DemoRequestPopupProps> = ({ onClose }) => {
 
         emailjs.sendForm('service_1sue7z5', 'template_iu1g8t4', target, '1qOCEgn7w3DjE8ZiZ')
             .then((result: EmailJSResponseStatus) => {
-                console.log("Email sent", result.text);
                 onClose();
             }, (error: Error) => {
-                console.log("Email sending error", error.message);
             });
     };
 

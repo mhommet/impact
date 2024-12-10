@@ -6,9 +6,6 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 
 config.autoAddCss = false;
 const inter = Inter({subsets: ["latin"]});
-import {
-    ClerkProvider,
-} from '@clerk/nextjs'
 
 export const metadata: Metadata = {
     title: "IMPACT",
@@ -28,12 +25,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ClerkProvider>
             <html lang="en">
             <body>
             {children}
             </body>
             </html>
-        </ClerkProvider>
     );
 }
