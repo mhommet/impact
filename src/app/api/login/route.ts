@@ -1,50 +1,56 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { MongoClient } from 'mongodb';
 
 const client = new MongoClient(process.env.MONGODB_URI || '');
-const NEXT_PUBLIC_JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET; // Utilisation sécurisée de la clé JWT
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
-    }
-
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Tous les champs sont requis.' });
-    }
-
-    // Détermine le type à partir de l'URL
-    const type = req.url.includes('/ugc/login') ? 'ugc' : 'entreprise';
-
+export async function POST(req: Request) {
     try {
+        const body = await req.json(); // Récupère les données du body
+        const { email, password } = body;
+
+        if (!email || !password) {
+            return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400 });
+        }
+
+        // Détermine le type à partir de l'URL
+        const type = req.url && req.url.includes('/ugc/login') ? 'ugc' : 'entreprise';
+
+        // Connexion à MongoDB
         await client.connect();
         const db = client.db('impact');
         const usersCollection = db.collection('users');
 
-        // Vérifiez si l'utilisateur existe
+        // Vérifie si l'utilisateur existe
         const user = await usersCollection.findOne({ email, type });
         if (!user) {
-            return res.status(401).json({ error: 'Email ou mot de passe incorrect ou type non valide.' });
+            return NextResponse.json(
+                { error: 'Email ou mot de passe incorrect ou type non valide.' },
+                { status: 401 }
+            );
         }
 
-        // Comparez le mot de passe
+        // Vérifie le mot de passe
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Email ou mot de passe incorrect.' });
+            return NextResponse.json({ error: 'Email ou mot de passe incorrect.' }, { status: 401 });
         }
 
-        // Génèrez un token JWT
-        const token = jwt.sign({ userId: user._id, type: user.type }, NEXT_PUBLIC_JWT_SECRET, {
+        // Vérifie si le secret JWT est défini
+        if (!JWT_SECRET) {
+            return NextResponse.json({ error: 'JWT secret is not defined.' }, { status: 500 });
+        }
+
+        // Génère un token JWT
+        const token = jwt.sign({ userId: user._id, type: user.type }, JWT_SECRET, {
             expiresIn: '1h',
         });
 
-        res.status(200).json({ token });
+        return NextResponse.json({ token }, { status: 200 });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erreur serveur.' });
+        return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
     }
 }

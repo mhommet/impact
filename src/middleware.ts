@@ -1,75 +1,59 @@
-import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
-const NEXT_PUBLIC_JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-// Liste des routes publiques
-const publicRoutes = [
-    '/',                  // Page d'accueil
-    '/ugc/home',          // Page UGC publique
-    '/entreprise/home',   // Page entreprise publique
-    '/entreprise/login',  // Page login entreprise
-    '/entreprise/register', // Page register entreprise
-    '/ugc/login',         // Page login UGC
-    '/ugc/register',      // Page register UGC
-    '/siret',             // Vérification SIRET
-    '/api/entreprise/login', // API login entreprise
-    '/api/entreprise/register', // API register entreprise
-    '/api/ugc/login',     // API login UGC
-    '/api/ugc/register',  // API register UGC
-    '/api/verify-siret',  // API vérification SIRET (ajoutée)
-    '/api/insee',
-];
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment variables.');
+}
 
-export function middleware(req) {
-    const { pathname } = req.nextUrl; // Récupère le chemin de la requête
+const secretKey = new TextEncoder().encode(JWT_SECRET);
 
-    // Autorise les routes publiques
-    if (publicRoutes.includes(pathname)) {
-        return NextResponse.next();
-    }
-
-    // Vérifie le token pour les autres routes
+export async function middleware(req: NextRequest) {
+    const { pathname } = req.nextUrl;
     const token = req.headers.get('authorization')?.split(' ')[1];
 
+    console.log(`Requête pour : ${pathname}`);
+    console.log(`Token reçu : ${token}`);
+
     if (!token) {
-        const redirectUrl = req.nextUrl.clone();
-
-        // Redirige vers les pages de connexion en fonction du préfixe de l'URL
-        if (pathname.startsWith('/ugc')) {
-            redirectUrl.pathname = '/ugc/login';
-        } else if (pathname.startsWith('/entreprise')) {
-            redirectUrl.pathname = '/entreprise/login';
-        } else {
-            redirectUrl.pathname = '/'; // Redirection par défaut
-        }
-
-        return NextResponse.redirect(redirectUrl);
+        console.log(`Token manquant pour la route ${pathname}. Redirection.`);
+        return redirectToLogin(pathname);
     }
 
     try {
-        const decoded = jwt.verify(token, NEXT_PUBLIC_JWT_SECRET);
-        req.user = decoded; // Ajoute les informations utilisateur si nécessaire
-        return NextResponse.next(); // Permet à la requête de continuer
-    } catch (error) {
-        const redirectUrl = req.nextUrl.clone();
+        const { payload } = await jwtVerify(token, secretKey);
+        console.log('Utilisateur authentifié :', payload);
 
-        // Redirige également en cas de token invalide
-        if (pathname.startsWith('/ugc')) {
-            redirectUrl.pathname = '/ugc/login';
-        } else if (pathname.startsWith('/entreprise')) {
-            redirectUrl.pathname = '/entreprise/login';
-        } else {
-            redirectUrl.pathname = '/'; // Redirection par défaut
+        if (pathname.startsWith('/entreprise') && payload.type !== 'entreprise') {
+            console.log(`Utilisateur non autorisé pour la route ${pathname}`);
+            return redirectToLogin(pathname);
         }
 
-        return NextResponse.redirect(redirectUrl);
+        return NextResponse.next();
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(`Erreur JWT pour la route ${pathname} :`, error.message);
+        } else {
+            console.error(`Erreur JWT pour la route ${pathname} :`, error);
+        }
+        return redirectToLogin(pathname);
     }
 }
 
-// Configuration des routes où le middleware est appliqué
+
+function redirectToLogin(pathname: string): NextResponse {
+    const redirectUrl = new URL('/entreprise/login', 'http://localhost:3000');
+
+    if (pathname.startsWith('/ugc')) {
+        redirectUrl.pathname = '/ugc/login';
+    }
+
+    console.log(`Redirection de ${pathname} vers ${redirectUrl.pathname}`);
+    return NextResponse.redirect(redirectUrl);
+}
 export const config = {
     matcher: [
-        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|png|jpe?g|gif|svg|ico|woff2?|ttf)).*)', // Applique le middleware à toutes les routes sauf les fichiers statiques
+        '/((?!_next|static|manifest.json|favicon.ico|sw.js|workbox-.*\\.js|img/.*|api/register|api/login|entreprise/login|entreprise/register|ugc/login|ugc/register|ugc/home|entreprise/home).*)',
     ],
 };

@@ -1,49 +1,52 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import bcrypt from "bcrypt";
-import { MongoClient } from "mongodb";
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+import clientPromise from '../../../../lib/mongodb';
 
-const client = new MongoClient(process.env.MONGODB_URI || "");
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
-    }
-
-    const { email, password, type, entrepriseId, ugcId } = req.body;
-
-    if (!email || !password || !type) {
-        return res.status(400).json({ error: 'Email, mot de passe et type sont requis.' });
-    }
-
+export async function POST(req: Request) {
     try {
-        await client.connect();
+        const body = await req.json(); // Récupère les données JSON du body
+        const { email, password, siret, type } = body;
+
+        if (!email || !password || !siret || !type) {
+            return NextResponse.json(
+                { error: 'Email, mot de passe et SIRET sont requis.' },
+                { status: 400 }
+            );
+        }
+
+        const client = await clientPromise;
         const db = client.db('impact');
         const usersCollection = db.collection('users');
 
-        // Vérifiez si l'utilisateur existe déjà
         const existingUser = await usersCollection.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ error: 'Cet email est déjà utilisé.' });
+            return NextResponse.json(
+                { error: 'Cet email est déjà utilisé.' },
+                { status: 400 }
+            );
         }
 
-        // Hachez le mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Créez l'utilisateur
         const user = {
             email,
             password: hashedPassword,
+            siret,
             type,
-            entrepriseId: type === 'entreprise' ? entrepriseId : null,
-            ugcId: type === 'ugc' ? ugcId : null,
-            isValidated: false,
+            createdAt: new Date(),
         };
 
         await usersCollection.insertOne(user);
 
-        res.status(201).json({ message: 'Utilisateur créé avec succès.' });
+        return NextResponse.json(
+            { message: 'Utilisateur créé avec succès.' },
+            { status: 201 }
+        );
     } catch (error) {
         console.error('Erreur serveur :', error);
-        res.status(500).json({ error: 'Erreur serveur.' });
+        return NextResponse.json(
+            { error: 'Erreur serveur.' },
+            { status: 500 }
+        );
     }
 }

@@ -26,6 +26,13 @@ const LoginPage = () => {
             if (response.ok) {
                 // Stocker le token dans le localStorage
                 localStorage.setItem('token', data.token);
+                console.log(localStorage.getItem('token'));
+                // Inclure automatiquement le token dans les en-têtes pour toutes les requêtes
+                fetch('/entreprise/offers', {
+                    headers: {
+                        Authorization: `Bearer ${data.token}`,
+                    },
+                });
 
                 // Redirection en fonction du type d'utilisateur
                 const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
