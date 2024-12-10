@@ -4,6 +4,8 @@ import TopBar from '@/app/components/topBar';
 import Navbar from '@/app/components/navbar'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useEffect } from 'react';
+import { loginFetch } from '@/helpers/loginFetch';
 
 export default function HomeEntreprise() {
     const [showPopup, setShowPopup] = useState(false);

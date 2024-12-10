@@ -25,21 +25,15 @@ const LoginPage = () => {
 
             if (response.ok) {
                 // Stocker le token dans le localStorage
-                localStorage.setItem('token', data.token);
-                console.log(localStorage.getItem('token'));
-                // Inclure automatiquement le token dans les en-têtes pour toutes les requêtes
-                fetch('/entreprise/offers', {
-                    headers: {
-                        Authorization: `Bearer ${data.token}`,
-                    },
-                });
-
+                const token = data.token;
+                document.cookie = `token=${token}; path=/;`;
+                localStorage.setItem("token", token);
+                
                 // Redirection en fonction du type d'utilisateur
-                const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
-                if (decodedToken.type === 'ugc') {
-                    router.push('/ugc/home');
-                } else if (decodedToken.type === 'entreprise') {
-                    router.push('/entreprise/home');
+                if (window.location.pathname.includes('/ugc')) {
+                    router.push('/ugc/offers');
+                } else {
+                    router.push('/entreprise/offers');
                 }
             } else {
                 setMessage(data.error || 'Erreur lors de la connexion.');
