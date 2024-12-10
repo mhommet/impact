@@ -64,7 +64,7 @@ const RegisterAndVerifyAccount = () => {
                 setMessage(errorText || 'Erreur lors de l\'inscription.');
             }
         } catch (error) {
-            setMessage(`Erreur de connexion avec le serveur : ${error.message}`);
+            setMessage(`Erreur de connexion avec le serveur : ${error}`);
         }
     };
        
@@ -107,7 +107,7 @@ const RegisterAndVerifyAccount = () => {
                             required
                         />
                     </label>
-                    <button type="submit">S'inscrire</button>
+                    <button type="submit">S&apos;inscrire</button>
                 </form>
             )}
 
