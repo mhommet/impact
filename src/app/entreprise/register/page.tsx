@@ -45,13 +45,20 @@ const RegisterAndVerifyAccount = () => {
         const type = window.location.pathname.includes('/ugc/register') ? 'ugc' : 'entreprise';
     
         try {
-            const response = await fetch(`/api/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password, siret, type }),
-            });
+            const response = await fetch(
+                `/api/register?type=${type}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        siret,
+                        email,
+                        password,
+                    }),
+                }
+            );
     
             const data = await response.json();
     
@@ -103,7 +110,7 @@ const RegisterAndVerifyAccount = () => {
                             required
                         />
                     </label>
-                    <button type="submit">S'inscrire</button>
+                    <button type="submit">S&aposinscrire</button>
                 </form>
             )}
 

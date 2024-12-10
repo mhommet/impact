@@ -14,12 +14,13 @@ const RegisterAndVerifyAccount = () => {
         setMessage('');
 
         try {
-            // Utilise GET pour transmettre le SIRET dans l'URL
-            const response = await fetch(`/api/verify-siret?siret=${siret}`, {
+            // .env NEXT_PUBLIC_INSEE_API_TOKEN
+            const token = process.env.NEXT_PUBLIC_INSEE_API_TOKEN;
+            const response = await fetch(`https://api.insee.fr/entreprises/sirene/siret/${siret}`, {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
-                },
+                    'Authorization': 'Bearer ' + token,
+                }
             });
 
             const data = await response.json();
@@ -31,7 +32,7 @@ const RegisterAndVerifyAccount = () => {
                 setMessage(data.error || 'Erreur lors de la vérification.');
             }
         } catch (error) {
-            setMessage(`Erreur de connexion avec le serveur : ${error.message}`);
+            setMessage(`Erreur de connexion avec le serveur : ${error}`);
         }
     };
 
@@ -39,27 +40,38 @@ const RegisterAndVerifyAccount = () => {
     const handleRegisterSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setMessage('');
-
+    
+        // Détermine le type en fonction de l'URL actuelle
+        const type = window.location.pathname.includes('/ugc/register') ? 'ugc' : 'entreprise';
+    
         try {
-            const response = await fetch(`/api/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password, siret }),
-            });
-
+            const response = await fetch(
+                `/api/register?type=${type}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        siret,
+                        email,
+                        password,
+                    }),
+                }
+            );
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 setMessage('Inscription réussie ! Vous pouvez maintenant vous connecter.');
             } else {
                 setMessage(data.error || 'Erreur lors de l\'inscription.');
             }
         } catch (error) {
-            setMessage(`Erreur de connexion avec le serveur : ${error.message}`);
+            setMessage(`Erreur de connexion avec le serveur : ${error}`);
         }
     };
+    
 
     return (
         <div>
@@ -98,7 +110,7 @@ const RegisterAndVerifyAccount = () => {
                             required
                         />
                     </label>
-                    <button type="submit">S'inscrire</button>
+                    <button type="submit">S&aposinscrire</button>
                 </form>
             )}
 
