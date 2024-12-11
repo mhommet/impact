@@ -9,14 +9,11 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { email, password } = body;
+        const { email, password, type } = body;
 
         if (!email || !password) {
             return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400 });
         }
-
-        // Détermine le type
-        const type = req.url?.includes('/ugc/login') ? 'ugc' : 'entreprise';
 
         // Connexion MongoDB
         const client = await clientPromise;

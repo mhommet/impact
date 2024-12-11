@@ -1,11 +1,8 @@
 "use client"
 import DemoRequestPopup from '../../components/demoRequestPopup';
 import TopBar from '@/app/components/topBar';
-import Navbar from '@/app/components/navbar'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useEffect } from 'react';
-import { loginFetch } from '@/helpers/loginFetch';
 
 export default function HomeEntreprise() {
     const [showPopup, setShowPopup] = useState(false);
@@ -34,7 +31,15 @@ export default function HomeEntreprise() {
                             >
                                 Demander une démo
                             </button>
-                            <Link href="/entreprise/offers">
+                            <Link href="/entreprise/login">
+                                <button
+                                    className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
+                                    style={{ flex: 1 }} 
+                                >
+                                    Se connecter
+                                </button>
+                            </Link>
+                            <Link href="/entreprise/register">
                                 <button
                                     className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
                                     style={{ flex: 1 }} 
