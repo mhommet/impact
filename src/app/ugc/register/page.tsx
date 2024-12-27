@@ -66,7 +66,7 @@ const RegisterAndVerifyAccount = () => {
                 }, 2000);
             } else {
                 const errorText = await response.text(); // Récupère les erreurs brutes
-                setMessage(errorText?.error || 'Erreur lors de l\'inscription.');
+                setMessage(errorText || 'Erreur lors de l\'inscription.');
             }
         } catch (error) {
             setMessage(`Erreur de connexion avec le serveur : ${error}`);
