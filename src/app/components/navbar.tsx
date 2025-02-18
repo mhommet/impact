@@ -24,13 +24,21 @@ export default function Navbar() {
 
   useEffect(() => {
     setPath(window.location.pathname);
-    // Récupérer l'ID depuis le token
-    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-    if (token) {
-      const decoded = jwtDecode<CustomJwtPayload>(token);
-      setUserId(decoded.userId);
+    // Récupérer l'userId depuis le localStorage
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
     }
   }, []);
+
+  // Protection contre les valeurs null/undefined
+  const profileLink = userId 
+    ? path.startsWith("/ugc") 
+      ? `/ugc/profile/${userId}`
+      : `/entreprise/profile/${userId}`
+    : path.startsWith("/ugc") 
+      ? "/ugc/profile/edit"
+      : "/entreprise/profile/edit";
 
   if (path.startsWith("/ugc")) {
     return (
@@ -59,7 +67,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <Link href={userId ? `/ugc/profile/${userId}` : "/ugc/profile/edit"}>
+          <Link href={profileLink}>
             <span className="icon text-3xl flex justify-center text-white">
               <FontAwesomeIcon icon={faUser} />
             </span>
@@ -100,7 +108,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <Link href="/construction">
+          <Link href={profileLink}>
             <span className="icon text-3xl flex justify-center text-white">
               <FontAwesomeIcon icon={faUser} />
             </span>

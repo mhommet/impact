@@ -39,8 +39,11 @@ export async function POST(req: Request) {
             expiresIn: '1h',
         });
 
-        // Retourne le token dans un cookie HTTP
-        const response = NextResponse.json({ success: true });
+        // Retourne le token dans un cookie HTTP et l'userId dans la réponse
+        const response = NextResponse.json({ 
+            success: true,
+            userId: user._id 
+        });
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

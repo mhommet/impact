@@ -10,28 +10,24 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { jwtDecode } from "jwt-decode";
 
-interface JwtPayload {
+interface CustomJwtPayload {
   userId: string;
   type: string;
 }
 
-interface UgcProfile {
+interface EntrepriseProfile {
   code: string;
   name: string;
   description: string;
+  category: string;
   location: string;
-  title: string;
-  profileImage: string;
-  socialLinks: {
-    instagram?: string;
-    tiktok?: string;
-    pinterest?: string;
-    youtube?: string;
-  };
-  portfolio: {
-    contracts: number;
-    photos: number;
-    comments: number;
+  siret: string;
+  logo: string;
+  website?: string;
+  stats: {
+    offersPublished: number;
+    activeOffers: number;
+    totalCandidates: number;
   };
 }
 
@@ -40,18 +36,19 @@ export default function EditProfile() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [profile, setProfile] = useState<UgcProfile>({
+  const [profile, setProfile] = useState<EntrepriseProfile>({
     code: "",
     name: "",
     description: "",
+    category: "",
     location: "",
-    title: "",
-    profileImage: "",
-    socialLinks: {},
-    portfolio: {
-      contracts: 0,
-      photos: 0,
-      comments: 0
+    siret: "",
+    logo: "",
+    website: "",
+    stats: {
+      offersPublished: 0,
+      activeOffers: 0,
+      totalCandidates: 0
     }
   });
 
@@ -59,7 +56,7 @@ export default function EditProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/ugc/current`);
+        const response = await fetch(`/api/entreprise/current`);
         if (response.ok) {
           const data = await response.json();
           setProfile(data);
@@ -71,23 +68,12 @@ export default function EditProfile() {
     fetchProfile();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (name.startsWith("social.")) {
-      const socialNetwork = name.split(".")[1];
-      setProfile(prev => ({
-        ...prev,
-        socialLinks: {
-          ...prev.socialLinks,
-          [socialNetwork]: value
-        }
-      }));
-    } else {
-      setProfile(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setProfile(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,7 +82,7 @@ export default function EditProfile() {
     setError("");
 
     try {
-      const response = await fetch("/api/ugc", {
+      const response = await fetch("/api/entreprise", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +97,7 @@ export default function EditProfile() {
       // Récupérer l'userId depuis le localStorage
       const userId = localStorage.getItem("userId");
       if (userId) {
-        router.push(`/ugc/profile/${userId}`);
+        router.push(`/entreprise/profile/${userId}`);
       } else {
         throw new Error("UserId non trouvé");
       }
@@ -127,13 +113,13 @@ export default function EditProfile() {
       <TopBar />
       <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
         <div className="flex items-center mb-6">
-          <Link href={`/ugc/profile/${profile.code}`} className="mr-4">
+          <Link href={`/entreprise/profile/${profile.code}`} className="mr-4">
             <button className="bg-gray-200 rounded-full p-2">
               <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600" />
             </button>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">
-            Modifier mon profil
+            Modifier le profil de l&apos;entreprise
           </h1>
         </div>
 
@@ -145,23 +131,23 @@ export default function EditProfile() {
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
           <div>
-            <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700">
-              Image de profil (URL)
+            <label htmlFor="logo" className="block text-sm font-medium text-gray-700">
+              Logo (URL)
             </label>
             <input
               type="text"
-              id="profileImage"
-              name="profileImage"
-              value={profile.profileImage}
+              id="logo"
+              name="logo"
+              value={profile.logo}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-              placeholder="URL de votre image de profil"
+              placeholder="URL de votre logo"
             />
           </div>
 
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Nom complet
+              Nom de l&apos;entreprise
             </label>
             <input
               type="text"
@@ -175,19 +161,24 @@ export default function EditProfile() {
           </div>
 
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Titre professionnel
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+              Secteur d&apos;activité
             </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
+            <select
+              id="category"
+              name="category"
               required
-              value={profile.title}
+              value={profile.category}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-              placeholder="ex: Créateur de contenu UGC"
-            />
+            >
+              <option value="">Sélectionnez un secteur</option>
+              <option value="Restaurant">Restaurant</option>
+              <option value="Mode">Mode</option>
+              <option value="Beauté">Beauté</option>
+              <option value="Sport">Sport</option>
+              <option value="Technologie">Technologie</option>
+            </select>
           </div>
 
           <div>
@@ -206,8 +197,23 @@ export default function EditProfile() {
           </div>
 
           <div>
+            <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+              Site web
+            </label>
+            <input
+              type="url"
+              id="website"
+              name="website"
+              value={profile.website}
+              onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              placeholder="https://www.example.com"
+            />
+          </div>
+
+          <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Bio
+              Description
             </label>
             <textarea
               id="description"
@@ -217,71 +223,8 @@ export default function EditProfile() {
               onChange={handleChange}
               rows={4}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              placeholder="Présentez votre entreprise..."
             />
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Réseaux sociaux</h3>
-            
-            <div>
-              <label htmlFor="social.instagram" className="block text-sm font-medium text-gray-700">
-                Instagram
-              </label>
-              <input
-                type="text"
-                id="social.instagram"
-                name="social.instagram"
-                value={profile.socialLinks.instagram || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                placeholder="@votre_compte"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="social.tiktok" className="block text-sm font-medium text-gray-700">
-                TikTok
-              </label>
-              <input
-                type="text"
-                id="social.tiktok"
-                name="social.tiktok"
-                value={profile.socialLinks.tiktok || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                placeholder="@votre_compte"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="social.pinterest" className="block text-sm font-medium text-gray-700">
-                Pinterest
-              </label>
-              <input
-                type="text"
-                id="social.pinterest"
-                name="social.pinterest"
-                value={profile.socialLinks.pinterest || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                placeholder="@votre_compte"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="social.youtube" className="block text-sm font-medium text-gray-700">
-                YouTube
-              </label>
-              <input
-                type="text"
-                id="social.youtube"
-                name="social.youtube"
-                value={profile.socialLinks.youtube || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                placeholder="@votre_compte"
-              />
-            </div>
           </div>
 
           <div className="flex justify-end">

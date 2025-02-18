@@ -24,45 +24,46 @@ export async function GET(req: NextRequest) {
 
     try {
       const { payload } = await jwtVerify(token, secretKey);
-      if (payload.type !== "ugc") {
-        return new NextResponse("Non autorisé - UGC uniquement", { status: 403 });
+      if (payload.type !== "entreprise") {
+        return new NextResponse("Non autorisé - Entreprises uniquement", { status: 403 });
       }
 
-      const ugcId = payload.userId;
-      if (!ugcId) {
-        return new NextResponse("ID UGC non trouvé", { status: 400 });
+      const entrepriseId = payload.userId;
+      if (!entrepriseId || typeof entrepriseId !== 'string') {
+        return new NextResponse("ID entreprise non trouvé ou invalide", { status: 400 });
       }
 
       const client = await clientPromise;
       const db = client.db("impact");
 
       // Chercher le profil ou en créer un nouveau s'il n'existe pas
-      let ugc = await db.collection("ugc").findOne({ code: ugcId });
+      let entreprise = await db.collection("entreprise").findOne({ code: entrepriseId });
       
-      if (!ugc) {
+      if (!entreprise) {
         // Créer un profil par défaut
-        const newUgc = {
+        const newEntreprise = {
           _id: new ObjectId(),
-          code: ugcId,
+          code: entrepriseId,
           name: "",
           description: "",
+          category: "",
           location: "",
-          title: "",
-          profileImage: DEFAULT_PROFILE_IMAGE,
-          socialLinks: {},
-          portfolio: {
-            contracts: 0,
-            photos: 0,
-            comments: 0
+          siret: "",
+          logo: DEFAULT_PROFILE_IMAGE,
+          website: "",
+          stats: {
+            offersPublished: 0,
+            activeOffers: 0,
+            totalCandidates: 0
           },
           createdAt: new Date()
         };
         
-        await db.collection("ugc").insertOne(newUgc);
-        ugc = newUgc;
+        await db.collection("entreprise").insertOne(newEntreprise);
+        entreprise = newEntreprise;
       }
 
-      return NextResponse.json(ugc);
+      return NextResponse.json(entreprise);
     } catch (error) {
       return new NextResponse("Token invalide", { status: 401 });
     }

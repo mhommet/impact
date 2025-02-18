@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "../../../../lib/mongodb";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
+const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export async function GET(req: NextRequest) {
   // Getting params
-  const seachParams = req.nextUrl.searchParams;
-  const id = seachParams.get("id");
+  const searchParams = req.nextUrl.searchParams;
+  const id = searchParams.get("id");
   try {
     // Handle missing id
-    if (id == 'undefined' || !id) {
+    if (!id) {
       return new NextResponse("No id", { status: 401 });
     }
 
@@ -24,30 +33,60 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest, res: any) {
-  // Getting params
-  const searchParams = req.nextUrl.searchParams;
-  const id = searchParams.get("id");
-  const name = searchParams.get("name");
-  const description = searchParams.get("description");
-  const category = searchParams.get("category");
-
+export async function POST(req: NextRequest) {
   try {
-    // Initialize MongoDB
-    const client = await clientPromise;
-    const db = client.db("impact");
+    // Vérifier l'authentification
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
 
-    // Finding by id
-    const entreprise = await db.collection("entreprise").findOne({ code: id });
-    if (!entreprise) {
-      return new NextResponse("Entreprise not found", { status: 401 });
+    if (!token) {
+      return new NextResponse("Non autorisé", { status: 401 });
     }
 
-    // Update
-    await db.collection("entreprise").updateOne({ code: id }, { $set: { name: name, description: description, category: category } });
-    return NextResponse.json({ message: "Update ok" });
+    try {
+      const { payload } = await jwtVerify(token, secretKey);
+      if (payload.type !== "entreprise") {
+        return new NextResponse("Non autorisé - Entreprises uniquement", { status: 403 });
+      }
+
+      const entrepriseId = payload.userId;
+      if (!entrepriseId) {
+        return new NextResponse("ID entreprise non trouvé", { status: 400 });
+      }
+
+      const data = await req.json();
+      const client = await clientPromise;
+      const db = client.db("impact");
+
+      const updateData = {
+        code: entrepriseId, // Utiliser l'ID du token comme code
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        location: data.location,
+        siret: data.siret,
+        logo: data.logo,
+        website: data.website,
+        stats: data.stats || {
+          offersPublished: 0,
+          activeOffers: 0,
+          totalCandidates: 0
+        },
+        updatedAt: new Date()
+      };
+
+      await db.collection("entreprise").updateOne(
+        { code: entrepriseId },
+        { $set: updateData },
+        { upsert: true } // Créer le document s'il n'existe pas
+      );
+
+      return NextResponse.json({ message: "Profil mis à jour avec succès" });
+    } catch (error) {
+      return new NextResponse("Token invalide", { status: 401 });
+    }
   } catch (e) {
-    console.error(e);
-    return new NextResponse("Error", { status: 501 });
+    console.error("Erreur lors de la mise à jour du profil:", e);
+    return new NextResponse("Erreur serveur", { status: 500 });
   }
 }

@@ -99,7 +99,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 <div className="w-full px-4 flex justify-center">
                   <div className="relative w-40 h-40 -mt-16">
                     <Image
-                      src={profile.profileImage || "/img/default-profile.png"}
+                      src={profile.profileImage || "https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png"}
                       alt="Photo de profil"
                       fill
                       style={{ objectFit: "cover" }}
