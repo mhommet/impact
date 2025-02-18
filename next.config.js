@@ -9,7 +9,12 @@ const withPWA = require('next-pwa')({
 const nextConfig = withPWA({
     reactStrictMode: false,
     images: {
-        domains: ['images.unsplash.com'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**',
+            },
+        ],
     },
 });
 

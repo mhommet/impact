@@ -9,12 +9,27 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+
+interface CustomJwtPayload {
+  userId: string;
+  type: string;
+  iat?: number;
+  exp?: number;
+}
 
 export default function Navbar() {
   const [path, setPath] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setPath(window.location.pathname);
+    // Récupérer l'ID depuis le token
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (token) {
+      const decoded = jwtDecode<CustomJwtPayload>(token);
+      setUserId(decoded.userId);
+    }
   }, []);
 
   if (path.startsWith("/ugc")) {
@@ -44,12 +59,11 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <Link href="/construction">
+          <Link href={userId ? `/ugc/profile/${userId}` : "/ugc/profile/edit"}>
             <span className="icon text-3xl flex justify-center text-white">
               <FontAwesomeIcon icon={faUser} />
             </span>
           </Link>
-
         </div>
       </div>
     );
