@@ -25,11 +25,29 @@ export async function GET(req: NextRequest) {
     const db = client.db("impact");
 
     // Get all
-    const ugc = await db.collection("ugc").findOne({ code: id });
+    const ugc = await db.collection("ugc").findOne(
+      { code: id },
+      {
+        projection: {
+          name: 1,
+          description: 1,
+          location: 1,
+          title: 1,
+          profileImage: 1,
+          socialLinks: 1,
+          portfolio: 1
+        }
+      }
+    );
+
+    if (!ugc) {
+      return new NextResponse("Profil non trouvé", { status: 404 });
+    }
+
     return NextResponse.json(ugc);
   } catch (e) {
     console.error(e);
-    return new NextResponse("Error", { status: 401 });
+    return new NextResponse("Error", { status: 500 });
   }
 }
 

@@ -53,16 +53,12 @@ export default function Ugc({ params }: { params: { id: string } }) {
           const data = await response.json();
           setProfile(data);
         } else if (response.status === 404) {
-          // Si le profil n'existe pas, rediriger vers la page d'édition
-          router.push("/ugc/profile/edit");
+          router.push("/404");
         }
 
         // Vérifier si c'est le profil de l'utilisateur courant
-        const currentResponse = await fetch("/api/ugc/current");
-        if (currentResponse.ok) {
-          const currentData = await currentResponse.json();
-          setIsCurrentUser(currentData.code === params.id);
-        }
+        const storedUserId = localStorage.getItem("userId");
+        setIsCurrentUser(storedUserId === params.id);
       } catch (error) {
         console.error("Erreur lors du chargement du profil:", error);
       }
@@ -115,7 +111,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                     style={{ backgroundColor: "#90579F" }}
                     className="text-white p-3 rounded-full w-12 h-12 flex items-center justify-center hover:bg-purple-700 transition-colors duration-200"
                   >
-                    <FontAwesomeIcon icon={faPencilAlt} />
+                    <FontAwesomeIcon icon={faPencilAlt as IconProp} />
                   </button>
                 </Link>
               )}

@@ -12,7 +12,12 @@ const secretKey = new TextEncoder().encode(JWT_SECRET);
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    const token = req.cookies.get("token")?.value || ""; // Récupère la valeur brute du cookie
+    // Permettre l'accès public aux profils UGC
+    if (pathname.match(/^\/ugc\/profile\/[^/]+$/) && !pathname.includes('/edit')) {
+        return NextResponse.next();
+    }
+
+    const token = req.cookies.get("token")?.value || "";
 
     if (!token) {
         console.error(`Token manquant pour la route ${pathname}. Redirection.`);
@@ -34,7 +39,7 @@ export async function middleware(req: NextRequest) {
             return NextResponse.redirect(new URL("/ugc/login", req.url));
         }
 
-        return NextResponse.next(); // Autorise l'accès
+        return NextResponse.next();
     } catch (error) {
         console.error(`Erreur JWT pour la route ${pathname} :`, error);
         if (pathname.startsWith("/entreprise")) {
