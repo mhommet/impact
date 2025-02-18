@@ -24,6 +24,7 @@ export default function Candidatures({ params }: { params: { id: string } }) {
   const [candidatures, setCandidatures] = useState<Candidature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCandidatures = async () => {
@@ -43,6 +44,38 @@ export default function Candidatures({ params }: { params: { id: string } }) {
 
     fetchCandidatures();
   }, [params.id]);
+
+  const updateCandidatureStatus = async (candidatureId: string, newStatus: "pending" | "accepted" | "rejected") => {
+    setUpdating(candidatureId);
+    try {
+      const response = await fetch('/api/candidatures/status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          candidatureId,
+          status: newStatus
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour du statut');
+      }
+
+      // Mettre à jour l'état local avec le type correct
+      setCandidatures(candidatures.map(candidature => 
+        candidature._id === candidatureId 
+          ? { ...candidature, status: newStatus }
+          : candidature
+      ));
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError('Erreur lors de la mise à jour du statut');
+    } finally {
+      setUpdating(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -99,19 +132,38 @@ export default function Candidatures({ params }: { params: { id: string } }) {
                     </p>
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
-                    Candidature reçue le{" "}
-                    {new Date(candidature.createdAt).toLocaleDateString()}
-                  </span>
-                  <Link href={`/ugc/profile/${candidature.ugcId}`}>
-                    <button
-                      style={{ backgroundColor: "#90579F" }}
-                      className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
-                    >
-                      Voir le profil
-                    </button>
-                  </Link>
+                <div className="flex flex-col space-y-2 mt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">
+                      Statut: {candidature.status}
+                    </span>
+                    <Link href={`/ugc/profile/${candidature.ugcId}`}>
+                      <button
+                        style={{ backgroundColor: "#90579F" }}
+                        className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
+                      >
+                        Voir le profil
+                      </button>
+                    </Link>
+                  </div>
+                  {candidature.status === 'pending' && (
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => updateCandidatureStatus(candidature._id, 'accepted')}
+                        disabled={updating === candidature._id}
+                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-200 disabled:opacity-50"
+                      >
+                        {updating === candidature._id ? 'En cours...' : 'Accepter'}
+                      </button>
+                      <button
+                        onClick={() => updateCandidatureStatus(candidature._id, 'rejected')}
+                        disabled={updating === candidature._id}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-200 disabled:opacity-50"
+                      >
+                        Refuser
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

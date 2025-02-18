@@ -17,6 +17,7 @@ import {
 import { faPencilAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { useAuth } from "@/hooks/useAuth";
 
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's imported above
 
@@ -40,9 +41,27 @@ interface UgcProfile {
   };
 }
 
+interface Candidature {
+  _id: string;
+  offerCode: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
+  offerInfo: {
+    name: string;
+    category: string;
+    description: string;
+    reward: string;
+    entrepriseInfo: {
+      name: string;
+      logo: string;
+    };
+  };
+}
+
 export default function Ugc({ params }: { params: { id: string } }) {
   const [profile, setProfile] = useState<UgcProfile | null>(null);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [candidatures, setCandidatures] = useState<Candidature[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,6 +85,26 @@ export default function Ugc({ params }: { params: { id: string } }) {
     fetchProfile();
   }, [params.id, router]);
 
+  useEffect(() => {
+    const fetchCandidatures = async () => {
+      if (isCurrentUser) {
+        try {
+          const response = await fetch('/api/candidatures/me');
+          if (response.ok) {
+            const data = await response.json();
+            setCandidatures(data);
+          }
+        } catch (error) {
+          console.error("Erreur lors du chargement des candidatures:", error);
+        }
+      }
+    };
+
+    if (isCurrentUser) {
+      fetchCandidatures();
+    }
+  }, [isCurrentUser]);
+
   if (!profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -73,6 +112,28 @@ export default function Ugc({ params }: { params: { id: string } }) {
       </div>
     );
   }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return 'text-green-600';
+      case 'rejected':
+        return 'text-red-600';
+      default:
+        return 'text-yellow-600';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return 'Acceptée';
+      case 'rejected':
+        return 'Refusée';
+      default:
+        return 'En attente';
+    }
+  };
 
   return (
     <>
@@ -209,10 +270,95 @@ export default function Ugc({ params }: { params: { id: string } }) {
                   <span className="text-sm text-gray-500">Commentaires</span>
                 </div>
               </div>
+              {isCurrentUser && (
+                <div className="mt-10 border-t border-gray-200">
+                  <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
+                    Mes candidatures récentes
+                  </h2>
+                  <div className="px-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+                      {candidatures.slice(0, 3).map((candidature) => (
+                        <div
+                          key={candidature._id}
+                          className="bg-white rounded-lg shadow-md overflow-hidden"
+                        >
+                          <div className="p-6">
+                            <div className="flex items-center mb-4">
+                              <div className="relative w-16 h-16 mr-4">
+                                <Image
+                                  src={candidature.offerInfo.entrepriseInfo.logo || "/img/default-company.png"}
+                                  alt={`Logo de ${candidature.offerInfo.entrepriseInfo.name}`}
+                                  fill
+                                  className="rounded-full object-cover"
+                                />
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-semibold">
+                                  {candidature.offerInfo.name}
+                                </h3>
+                                <p className="text-gray-600">
+                                  {candidature.offerInfo.entrepriseInfo.name}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              <p className="text-gray-600">{candidature.offerInfo.category}</p>
+                              <p className="text-purple-600 font-semibold mt-2">
+                                {candidature.offerInfo.reward}
+                              </p>
+                            </div>
+                            <div className="flex justify-between items-center mt-4">
+                              <span className={`text-sm font-medium ${getStatusColor(candidature.status)}`}>
+                                {getStatusText(candidature.status)}
+                              </span>
+                              <Link href={`/ugc/offer/${candidature.offerCode}`}>
+                                <button
+                                  style={{ backgroundColor: "#90579F" }}
+                                  className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
+                                >
+                                  Voir l&apos;offre
+                                </button>
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {candidatures.length > 3 && (
+                      <div className="text-center mb-8">
+                        <Link href="/ugc/candidatures">
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
+                          >
+                            Voir toutes mes candidatures
+                          </button>
+                        </Link>
+                      </div>
+                    )}
+                    {candidatures.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">
+                          Vous n&apos;avez pas encore postulé à des offres.
+                        </p>
+                        <Link href="/ugc/offers">
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200 mt-4"
+                          >
+                            Voir les offres disponibles
+                          </button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
+      
       <Navbar />
     </>
   );
