@@ -1,12 +1,45 @@
 "use client"
 import DemoRequestPopup from '../../components/demoRequestPopup';
 import TopBar from '@/app/components/topBar';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+
+interface Offer {
+    name: string;
+    category: string;
+    description: string;
+    reward: string;
+    createdAt: string;
+    code: string;
+}
 
 export default function HomeEntreprise() {
     const [showPopup, setShowPopup] = useState(false);
+    const [offers, setOffers] = useState<Offer[]>([]);
     
+    useEffect(() => {
+        const fetchOffers = async () => {
+            try {
+                // Récupérer d'abord l'entreprise courante
+                const entrepriseResponse = await fetch('/api/entreprise/current');
+                if (!entrepriseResponse.ok) {
+                    throw new Error('Failed to fetch current entreprise');
+                }
+                const entrepriseData = await entrepriseResponse.json();
+                
+                // Utiliser l'ID de l'entreprise pour récupérer ses offres
+                const offersResponse = await fetch(`/api/offersentreprise?id=${entrepriseData.code}`);
+                if (offersResponse.ok) {
+                    const data = await offersResponse.json();
+                    setOffers(data);
+                }
+            } catch (error) {
+                console.error("Erreur lors du chargement des offres:", error);
+            }
+        };
+        fetchOffers();
+    }, []);
+
     return (
         <div>
             <TopBar />

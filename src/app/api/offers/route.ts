@@ -39,7 +39,20 @@ export async function GET(req: NextRequest) {
           .sort({ createdAt: -1 })
           .toArray();
 
-        return NextResponse.json(offers);
+        // Pour chaque offre, compter le nombre de candidatures
+        const offersWithCandidatesCount = await Promise.all(
+          offers.map(async (offer) => {
+            const candidatesCount = await db.collection("candidatures").countDocuments({
+              offerCode: offer.code
+            });
+            return {
+              ...offer,
+              candidatesCount
+            };
+          })
+        );
+
+        return NextResponse.json(offersWithCandidatesCount);
       }
       
       // Si c'est un UGC, on renvoie toutes les offres non archivées
@@ -49,7 +62,20 @@ export async function GET(req: NextRequest) {
           .sort({ createdAt: -1 })
           .toArray();
 
-        return NextResponse.json(offers);
+        // Pour chaque offre, compter le nombre de candidatures
+        const offersWithCandidatesCount = await Promise.all(
+          offers.map(async (offer) => {
+            const candidatesCount = await db.collection("candidatures").countDocuments({
+              offerCode: offer.code
+            });
+            return {
+              ...offer,
+              candidatesCount
+            };
+          })
+        );
+
+        return NextResponse.json(offersWithCandidatesCount);
       }
 
       return new NextResponse("Type d'utilisateur non autorisé", { status: 403 });

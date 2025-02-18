@@ -14,7 +14,7 @@ import {
   faPinterest,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
-import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
@@ -87,6 +87,12 @@ export default function Ugc({ params }: { params: { id: string } }) {
         />
       </Head>
       <TopBar />
+      <button 
+        onClick={() => router.back()}
+        className="absolute top-20 left-4 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className="w-6 h-6 text-gray-600" />
+      </button>
       <section className="pt-16 mb-24">
         <div className="w-full lg:full px-4 mx-auto">
           <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg mt-16">

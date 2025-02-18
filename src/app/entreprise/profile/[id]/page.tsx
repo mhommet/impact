@@ -177,50 +177,13 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              <div className="mt-10 py-10 border-t border-gray-200 text-center">
+              <div className="mt-10 border-t border-gray-200">
                 <div className="flex flex-wrap justify-center">
                   <div className="w-full lg:w-9/12 px-4">
                     <p className="mb-4 text-lg leading-relaxed text-gray-800">
                       {entrepriseData.description}
                     </p>
                   </div>
-                </div>
-              </div>
-
-              <div className="mt-10 border-t border-gray-200">
-                <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
-                  Offres en cours
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
-                  {offers.map((offer) => (
-                    <div
-                      key={offer.code}
-                      className="bg-white rounded-lg shadow-md overflow-hidden"
-                    >
-                      <div className="p-6">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                          {offer.name}
-                        </h3>
-                        <p className="text-gray-600 mb-2">{offer.category}</p>
-                        <p className="text-gray-500 text-sm mb-4">
-                          {offer.description.substring(0, 150)}...
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-purple-600 font-semibold">
-                            {offer.reward}
-                          </span>
-                          <Link href={`/entreprise/offers/${offer.code}`}>
-                            <button
-                              style={{ backgroundColor: "#90579F" }}
-                              className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
-                            >
-                              Voir détails
-                            </button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>

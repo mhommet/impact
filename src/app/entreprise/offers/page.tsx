@@ -20,6 +20,7 @@ const App = () => {
         createdAt: string;
         entrepriseId: string;
         archived: boolean;
+        candidatesCount?: number;
     }
 
     const [offers, setOffers] = useState<Offer[]>([]);
@@ -96,6 +97,19 @@ const App = () => {
                                     <div className="mt-2 text-gray-400">{offer.category}</div>
                                     <div className="mt-2 text-sm text-gray-500">{offer.description}</div>
                                     <div className="mt-2 font-semibold text-purple-600">{offer.reward}</div>
+                                    <div className="flex justify-between items-center mt-4">
+                                        <div className="text-sm text-gray-500">
+                                            <span className="font-semibold">{offer.candidatesCount || 0}</span> candidat{offer.candidatesCount !== 1 ? 's' : ''}
+                                        </div>
+                                        <Link href={`/entreprise/offers/${offer.code}`}>
+                                            <button
+                                                style={{ backgroundColor: "#90579F" }}
+                                                className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
+                                            >
+                                                Voir détails
+                                            </button>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))
