@@ -111,7 +111,7 @@ export default function Offer({ params }: { params: { id: string } }) {
               <p>
                 Découvrez notre restaurant, un havre culinaire où la tradition
                 rencontre la modernité dans une atmosphère conviviale. Notre équipe
-                incarne des valeurs d'excellence, d'authenticité et de passion pour
+                incarne des valeurs d&apos;excellence, d&apos;authenticité et de passion pour
                 offrir une expérience unique. Embarquez pour une aventure
                 gastronomique exceptionnelle, où chaque membre est essentiel à notre
                 succès.
