@@ -52,6 +52,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!_next|static|manifest.json|favicon.ico|sw.js|workbox-.*\\.js|img/.*|api/register|api/login|api/verify-siret|entreprise/login|entreprise/register|ugc/login|ugc/register|entreprise/home|ugc/home|$).*)',
+        '/((?!_next|static|manifest.json|favicon.ico|sw.js|workbox-.*\\.js|img/.*|api/register|api/login|api/verify-siret|entreprise/login|entreprise/register|ugc/login|ugc/register|entreprise/home|ugc/home|mentions-legales|$).*)',
     ],
 };

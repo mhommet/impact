@@ -73,6 +73,11 @@ export default function Navbar() {
             </span>
           </Link>
         </div>
+        <div className="absolute bottom-24 w-full text-center">
+          <Link href="/mentions-legales" className="text-white text-sm hover:underline">
+            Mentions légales
+          </Link>
+        </div>
       </div>
     );
   } else if (path.startsWith("/entreprise")) {
@@ -112,6 +117,11 @@ export default function Navbar() {
             <span className="icon text-3xl flex justify-center text-white">
               <FontAwesomeIcon icon={faUser} />
             </span>
+          </Link>
+        </div>
+        <div className="absolute bottom-24 w-full text-center">
+          <Link href="/mentions-legales" className="text-white text-sm hover:underline">
+            Mentions légales
           </Link>
         </div>
       </div>
