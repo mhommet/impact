@@ -24,8 +24,9 @@ const LoginPage = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Stocker l'userId dans le localStorage
+                // Stocker l'userId et le token dans le localStorage
                 localStorage.setItem("userId", data.userId);
+                localStorage.setItem("token", data.token);
                 
                 // Redirection en fonction du type d'utilisateur
                 if (window.location.pathname.includes('/ugc')) {
