@@ -27,9 +27,10 @@ const TopBar = () => {
       <Image
         src={logo}
         alt="LOGO"
-        className="absolute left-8 w-1/10 h-auto filter invert"
+        className="absolute left-8 filter invert"
         width={100}
-        height={100}
+        height={40}
+        style={{ objectFit: "contain", width: "auto", height: "40px" }}
         onClick={redirect}
       />
       <div className="ml-auto flex space-x-4">

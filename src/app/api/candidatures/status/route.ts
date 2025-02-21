@@ -3,6 +3,7 @@ import clientPromise from "../../../../../lib/mongodb";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import { ObjectId } from "mongodb";
+import { OfferStatus } from "@/types/offer";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -38,6 +39,13 @@ export async function PUT(req: NextRequest) {
     // Convertir l'ID en ObjectId
     const objectId = new ObjectId(candidatureId);
 
+    // Récupérer la candidature pour obtenir le code de l'offre
+    const candidature = await db.collection("candidatures").findOne({ _id: objectId });
+    if (!candidature) {
+      return new NextResponse("Candidature non trouvée", { status: 404 });
+    }
+
+    // Mettre à jour le statut de la candidature
     const result = await db.collection("candidatures").updateOne(
       { _id: objectId },
       { $set: { status, updatedAt: new Date() } }
@@ -45,6 +53,14 @@ export async function PUT(req: NextRequest) {
 
     if (result.matchedCount === 0) {
       return new NextResponse("Candidature non trouvée", { status: 404 });
+    }
+
+    // Si la candidature est acceptée, mettre à jour le statut de l'offre à IN_PROGRESS
+    if (status === 'accepted') {
+      await db.collection("offres").updateOne(
+        { code: candidature.offerCode },
+        { $set: { status: OfferStatus.IN_PROGRESS } }
+      );
     }
 
     return NextResponse.json({ message: "Statut mis à jour avec succès" });

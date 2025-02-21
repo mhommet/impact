@@ -17,7 +17,8 @@ import {
 import { faPencilAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent, Typography, Rating, Box, Avatar, Grid, Divider } from '@mui/material';
+import { loginFetch } from '@/helpers/loginFetch';
 
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's imported above
 
@@ -58,52 +59,79 @@ interface Candidature {
   };
 }
 
+interface Rating {
+  rating: number;
+  comment: string;
+  name: string;
+  logo?: string;
+}
+
+interface Collaboration {
+  _id: string;
+  title: string;
+  description: string;
+  completedAt: string;
+  entrepriseRating: Rating;
+}
+
+interface Profile {
+  name: string;
+  email: string;
+  bio: string;
+  skills: string[];
+  profileImage?: string;
+  averageRating: number;
+  location: string;
+  title: string;
+  socialLinks: {
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+  };
+}
+
 export default function Ugc({ params }: { params: { id: string } }) {
-  const [profile, setProfile] = useState<UgcProfile | null>(null);
-  const [isCurrentUser, setIsCurrentUser] = useState(false);
-  const [candidatures, setCandidatures] = useState<Candidature[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const router = useRouter();
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/ugc?id=${params.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data);
-        } else if (response.status === 404) {
-          router.push("/404");
+        const response = await loginFetch(`/api/ugc/${params.id}`);
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération du profil');
         }
+        const data = await response.json();
+        setProfile(data);
 
         // Vérifier si c'est le profil de l'utilisateur courant
         const storedUserId = localStorage.getItem("userId");
         setIsCurrentUser(storedUserId === params.id);
       } catch (error) {
-        console.error("Erreur lors du chargement du profil:", error);
+        console.error('Erreur:', error);
+        router.push('/ugc/login');
       }
     };
-    fetchProfile();
-  }, [params.id, router]);
 
-  useEffect(() => {
-    const fetchCandidatures = async () => {
-      if (isCurrentUser) {
-        try {
-          const response = await fetch('/api/candidatures/me');
-          if (response.ok) {
-            const data = await response.json();
-            setCandidatures(data);
-          }
-        } catch (error) {
-          console.error("Erreur lors du chargement des candidatures:", error);
+    const fetchCollaborations = async () => {
+      try {
+        const response = await loginFetch(`/api/ugc/${params.id}/collaborations`);
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des collaborations');
         }
+        const data = await response.json();
+        setCollaborations(data);
+      } catch (error) {
+        console.error('Erreur:', error);
       }
     };
 
-    if (isCurrentUser) {
-      fetchCandidatures();
-    }
-  }, [isCurrentUser]);
+    fetchProfile();
+    fetchCollaborations();
+  }, [params.id, router]);
 
   if (!profile) {
     return (
@@ -245,7 +273,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 <div className="flex flex-wrap justify-center">
                   <div className="w-full lg:w-9/12 px-4">
                     <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                      {profile.description}
+                      {profile.bio}
                     </p>
                   </div>
                 </div>
@@ -360,6 +388,135 @@ export default function Ugc({ params }: { params: { id: string } }) {
       </section>
       
       <Navbar />
+
+      <Box sx={{ p: 3 }}>
+        <Card sx={{ mb: 4 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Avatar 
+                src={profile.profileImage} 
+                sx={{ width: 100, height: 100, mr: 3 }}
+              />
+              <Box>
+                <Typography variant="h4">{profile.name}</Typography>
+                <Typography variant="subtitle1" color="text.secondary">
+                  {profile.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {profile.location}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <Rating value={profile.averageRating} readOnly precision={0.5} />
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    ({profile.averageRating.toFixed(1)})
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              {profile.bio}
+            </Typography>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>Compétences:</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {profile.skills.map((skill, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      px: 2,
+                      py: 0.5,
+                      borderRadius: 1,
+                    }}
+                  >
+                    {skill}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+            {profile.socialLinks && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>Liens:</Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {profile.socialLinks.linkedin && (
+                    <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                      LinkedIn
+                    </a>
+                  )}
+                  {profile.socialLinks.github && (
+                    <a href={profile.socialLinks.github} target="_blank" rel="noopener noreferrer">
+                      GitHub
+                    </a>
+                  )}
+                  {profile.socialLinks.portfolio && (
+                    <a href={profile.socialLinks.portfolio} target="_blank" rel="noopener noreferrer">
+                      Portfolio
+                    </a>
+                  )}
+                </Box>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+
+        <Typography variant="h5" sx={{ mb: 3 }}>
+          Collaborations Récentes
+        </Typography>
+        <Grid container spacing={3}>
+          {collaborations.map((collab) => (
+            <Grid item xs={12} key={collab._id}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    {collab.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    {collab.description}
+                  </Typography>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+                    Complétée le: {new Date(collab.completedAt).toLocaleDateString()}
+                  </Typography>
+                  {collab.entrepriseRating && (
+                    <>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        Évaluation de l&apos;entreprise:
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar 
+                          src={collab.entrepriseRating.logo} 
+                          sx={{ width: 40, height: 40, mr: 2 }}
+                        />
+                        <Box>
+                          <Typography variant="subtitle1">
+                            {collab.entrepriseRating.name}
+                          </Typography>
+                          <Rating 
+                            value={collab.entrepriseRating.rating} 
+                            readOnly 
+                            precision={0.5} 
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            {collab.entrepriseRating.comment}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+          {collaborations.length === 0 && (
+            <Grid item xs={12}>
+              <Typography variant="body1" color="text.secondary" align="center">
+                Aucune collaboration pour le moment.
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Box>
     </>
   );
 }

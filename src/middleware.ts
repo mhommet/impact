@@ -17,7 +17,14 @@ export async function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    const token = req.cookies.get("token")?.value || "";
+    // Vérifier d'abord le cookie
+    const cookieToken = req.cookies.get("token")?.value;
+    // Puis vérifier l'en-tête Authorization
+    const authHeader = req.headers.get('authorization');
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    
+    // Utiliser le premier token valide trouvé
+    const token = cookieToken || bearerToken || "";
 
     if (!token) {
         console.error(`Token manquant pour la route ${pathname}. Redirection.`);

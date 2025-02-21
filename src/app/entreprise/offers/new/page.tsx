@@ -180,7 +180,7 @@ export default function NewOffer() {
               style={{ backgroundColor: "#90579F" }}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
             >
-              {isSubmitting ? "Publication en cours..." : "Publier l&apos;offre"}
+              {isSubmitting ? "Publication en cours..." : "Publier l'offre"}
             </button>
           </div>
         </form>

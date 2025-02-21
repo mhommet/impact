@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "../../../../lib/mongodb";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
+import { OfferStatus } from "@/types/offer";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -12,23 +13,63 @@ const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export async function GET(req: NextRequest) {
   try {
-    // Vérifier l'authentification
+    // Vérifier l'authentification dans les cookies et l'en-tête Authorization
     const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
+    const cookieToken = cookieStore.get("token")?.value;
+    const authHeader = req.headers.get('authorization');
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    
+    // Utiliser le premier token valide trouvé
+    const token = cookieToken || bearerToken;
 
     if (!token) {
+      console.error("Token manquant dans la requête");
       return new NextResponse("Non autorisé", { status: 401 });
     }
 
     try {
       const { payload } = await jwtVerify(token, secretKey);
+      console.log("Type d'utilisateur:", payload.type);
       
       // Initialize MongoDB
       const client = await clientPromise;
       const db = client.db("impact");
 
+      // Si c'est un UGC, on renvoie toutes les offres non archivées et actives
+      if (payload.type === "ugc") {
+        console.log("Récupération des offres pour UGC");
+        const offers = await db.collection("offres")
+          .find({ 
+            archived: { $ne: true },  // Modifié pour inclure les documents sans champ archived
+            $or: [
+              { status: "active" },
+              { status: { $exists: false } }  // Inclure les documents sans champ status
+            ]
+          })
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        console.log(`Nombre d'offres trouvées: ${offers.length}`);
+
+        // Pour chaque offre, compter le nombre de candidatures
+        const offersWithCandidatesCount = await Promise.all(
+          offers.map(async (offer) => {
+            const candidatesCount = await db.collection("candidatures").countDocuments({
+              offerCode: offer.code
+            });
+            return {
+              ...offer,
+              candidatesCount
+            };
+          })
+        );
+
+        return NextResponse.json(offersWithCandidatesCount);
+      }
+      
       // Si c'est une entreprise, on ne renvoie que ses offres
       if (payload.type === "entreprise") {
+        console.log("Récupération des offres pour entreprise");
         const entrepriseId = payload.userId;
         if (!entrepriseId) {
           return new NextResponse("ID entreprise non trouvé", { status: 400 });
@@ -39,7 +80,6 @@ export async function GET(req: NextRequest) {
           .sort({ createdAt: -1 })
           .toArray();
 
-        // Pour chaque offre, compter le nombre de candidatures
         const offersWithCandidatesCount = await Promise.all(
           offers.map(async (offer) => {
             const candidatesCount = await db.collection("candidatures").countDocuments({
@@ -47,30 +87,8 @@ export async function GET(req: NextRequest) {
             });
             return {
               ...offer,
-              candidatesCount
-            };
-          })
-        );
-
-        return NextResponse.json(offersWithCandidatesCount);
-      }
-      
-      // Si c'est un UGC, on renvoie toutes les offres non archivées
-      if (payload.type === "ugc") {
-        const offers = await db.collection("offres")
-          .find({ archived: false })
-          .sort({ createdAt: -1 })
-          .toArray();
-
-        // Pour chaque offre, compter le nombre de candidatures
-        const offersWithCandidatesCount = await Promise.all(
-          offers.map(async (offer) => {
-            const candidatesCount = await db.collection("candidatures").countDocuments({
-              offerCode: offer.code
-            });
-            return {
-              ...offer,
-              candidatesCount
+              candidatesCount,
+              status: offer.status || OfferStatus.CREATED
             };
           })
         );
@@ -80,6 +98,7 @@ export async function GET(req: NextRequest) {
 
       return new NextResponse("Type d'utilisateur non autorisé", { status: 403 });
     } catch (error) {
+      console.error("Erreur de vérification du token:", error);
       return new NextResponse("Token invalide", { status: 401 });
     }
   } catch (e) {
@@ -128,8 +147,11 @@ export async function POST(req: NextRequest) {
       ...offerData,
       code,
       createdAt: new Date(),
-      entrepriseId, // Utiliser l'ID récupéré du token JWT
-      archived: false
+      entrepriseId,
+      status: OfferStatus.CREATED,
+      completedAt: null,
+      ugcRating: null,
+      entrepriseRating: null
     };
 
     // Initialize MongoDB

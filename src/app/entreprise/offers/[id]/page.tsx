@@ -8,18 +8,31 @@ import { faArrowLeft, faUsers } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 
 interface Offer {
+  _id: string;
   name: string;
   description: string;
   category: string;
   reward: string;
   code: string;
   createdAt: string;
+  candidatures?: Array<{
+    _id: string;
+    status: string;
+    createdAt: string;
+    ugcInfo: {
+      code: string;
+      name: string;
+      profileImage: string;
+      title: string;
+    };
+  }>;
 }
 
 export default function OfferDetails({ params }: { params: { id: string } }) {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -39,6 +52,44 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
 
     fetchOffer();
   }, [params.id]);
+
+  const handleUpdateStatus = async (candidatureId: string, newStatus: 'accepted' | 'rejected') => {
+    setUpdating(candidatureId);
+    try {
+      const response = await fetch('/api/candidatures/status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          candidatureId,
+          status: newStatus
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour du statut');
+      }
+
+      // Mettre à jour l'état local
+      setOffer(prevOffer => {
+        if (!prevOffer) return null;
+        return {
+          ...prevOffer,
+          candidatures: prevOffer.candidatures?.map(candidature =>
+            candidature._id === candidatureId
+              ? { ...candidature, status: newStatus }
+              : candidature
+          )
+        };
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError('Erreur lors de la mise à jour du statut');
+    } finally {
+      setUpdating(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -71,15 +122,6 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
               Détails de l&apos;offre
             </h1>
           </div>
-          <Link href={`/entreprise/offers/${params.id}/candidatures`}>
-            <button
-              style={{ backgroundColor: "#90579F" }}
-              className="flex items-center px-4 py-2 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
-            >
-              <FontAwesomeIcon icon={faUsers} className="mr-2" />
-              Voir les candidatures
-            </button>
-          </Link>
         </div>
 
         {error && (
@@ -120,6 +162,73 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
             <div className="mt-4 text-sm text-gray-500">
               Publiée le {new Date(offer.createdAt).toLocaleDateString()}
             </div>
+
+            {/* Affichage des candidatures */}
+            {offer.candidatures && offer.candidatures.length > 0 && (
+              <div className="mt-8 border-t border-gray-200 pt-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Candidatures ({offer.candidatures.length})
+                </h3>
+                <div className="space-y-4">
+                  {offer.candidatures.map((candidature) => (
+                    <div key={candidature._id} className="flex items-start p-4 bg-gray-50 rounded-lg">
+                      <img
+                        src={candidature.ugcInfo.profileImage}
+                        alt={`Photo de ${candidature.ugcInfo.name}`}
+                        className="w-12 h-12 rounded-full object-cover mr-4"
+                      />
+                      <div className="flex-grow">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-semibold">{candidature.ugcInfo.name}</h4>
+                            <p className="text-gray-600">{candidature.ugcInfo.title}</p>
+                            <p className="text-sm text-gray-500">
+                              Candidature envoyée le {new Date(candidature.createdAt).toLocaleDateString()}
+                            </p>
+                            <span className={`inline-block px-2 py-1 text-sm rounded mt-2 ${
+                              candidature.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              candidature.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {candidature.status === 'pending' ? 'En attente' :
+                               candidature.status === 'accepted' ? 'Acceptée' : 'Refusée'}
+                            </span>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Link href={`/ugc/profile/${candidature.ugcInfo.code}`}>
+                              <button
+                                style={{ backgroundColor: "#90579F" }}
+                                className="px-3 py-1 text-white text-sm rounded hover:bg-purple-700 transition-colors duration-200"
+                              >
+                                Voir le profil
+                              </button>
+                            </Link>
+                            {candidature.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleUpdateStatus(candidature._id, 'accepted')}
+                                  disabled={updating === candidature._id}
+                                  className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors duration-200 disabled:opacity-50"
+                                >
+                                  {updating === candidature._id ? 'En cours...' : 'Accepter'}
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateStatus(candidature._id, 'rejected')}
+                                  disabled={updating === candidature._id}
+                                  className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors duration-200 disabled:opacity-50"
+                                >
+                                  {updating === candidature._id ? 'En cours...' : 'Refuser'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

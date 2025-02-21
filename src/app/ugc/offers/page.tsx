@@ -14,6 +14,7 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { loginFetch } from "@/helpers/loginFetch";
 
 interface Offer {
   id: string;
@@ -24,12 +25,20 @@ interface Offer {
   reward: string;
 }
 
+const getRestaurantImage = (index: number) => {
+  // Utiliser seulement les images de 0 à 2 en boucle
+  const imageIndex = index % 3;
+  return `/img/restaurant${imageIndex}.png`;
+};
+
 const App = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOffers, setFilteredOffers] = useState<Offer[]>([]);
   const [showCategoryFilter, setShowCategoryFilter] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Get unique categories
   const categories = Array.from(new Set(offers.map(offer => offer.category)));
@@ -37,12 +46,22 @@ const App = () => {
   // Fetching offers
   useEffect(() => {
     const fetchOffers = async () => {
-      const response = await fetch(`/api/offers`);
-      const data = await response.json();
-      setOffers(data);
-      setFilteredOffers(data);
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await loginFetch('/api/offers');
+        setOffers(data);
+        setFilteredOffers(data);
+      } catch (error) {
+        console.error('Erreur:', error);
+        setError("Une erreur est survenue lors de la récupération des offres. Veuillez réessayer plus tard.");
+        setOffers([]);
+        setFilteredOffers([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    fetchOffers()
+    fetchOffers();
   }, []);
 
   // Filter offers based on search term and category
@@ -104,7 +123,7 @@ const App = () => {
                         width={100}
                         height={100}
                         className="h-full w-full object-cover md:w-full"
-                        src={`/img/restaurant${3}.png`}
+                        src={getRestaurantImage(3)}
                         alt="Restaurant image"
                       />
                     </div>
@@ -253,89 +272,92 @@ const App = () => {
           )}
         </div>
         <div className="flex justify-between">
-          <ul
-            role="list"
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full"
-          >
-            {Array.isArray(filteredOffers) && filteredOffers.length > 0 ? (
-              filteredOffers.map((offer, index) => (
-                <Link key={offer.id} href={`/ugc/offer/${offer.code}`}>
-                  <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
-                    <div className="md:flex">
-                      <div className="md:flex-shrink-0 h-48 md:h-auto">
-                        <Image
-                          width={100}
-                          height={100}
-                          className="h-full w-full object-cover md:w-full"
-                          src={`/img/restaurant${index}.png`}
-                          alt="Restaurant image"
-                        />
-                      </div>
-                      <div className="p-8">
-                        <div className="flex justify-between items-center">
-                          <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
-                            {offer.name}
-                          </div>
-                          <div>
-                            <span className="inline-block text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                            </span>
-                          </div>
+          {isLoading ? (
+            <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+              <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+              <h2 className="text-center text-white text-xl font-semibold">Chargement...</h2>
+              <p className="w-1/3 text-center text-white">
+                Les offres sont en train de charger, cela peut prendre quelques secondes, veuillez garder la page ouverte.
+              </p>
+            </div>
+          ) : error ? (
+            <div className="col-span-full text-center py-8">
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong className="font-bold">Erreur ! </strong>
+                <span className="block sm:inline">{error}</span>
+              </div>
+            </div>
+          ) : (
+            <ul role="list" className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full">
+              {filteredOffers.length > 0 ? (
+                filteredOffers.map((offer, index) => (
+                  <Link key={offer.id} href={`/ugc/offer/${offer.code}`}>
+                    <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
+                      <div className="md:flex">
+                        <div className="md:flex-shrink-0 h-48 md:h-auto">
+                          <Image
+                            width={100}
+                            height={100}
+                            className="h-full w-full object-cover md:w-full"
+                            src={getRestaurantImage(index)}
+                            alt="Restaurant image"
+                          />
                         </div>
-                        <div className="mt-2 text-gray-400">
-                          {offer.category}
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                          <button
-                            style={{ backgroundColor: "#90579F" }}
-                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
-                          >
-                            Voir le brief
-                          </button>
-                          <div>
-                            <span className="text-red-600">
-                              <FontAwesomeIcon icon={faHeart} />
-                            </span>
+                        <div className="p-8">
+                          <div className="flex justify-between items-center">
+                            <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
+                              {offer.name}
+                            </div>
+                            <div>
+                              <span className="inline-block text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
+                                <span>
+                                  <FontAwesomeIcon icon={faStar} />
+                                </span>
+                                <span>
+                                  <FontAwesomeIcon icon={faStar} />
+                                </span>
+                                <span>
+                                  <FontAwesomeIcon icon={faStar} />
+                                </span>
+                                <span>
+                                  <FontAwesomeIcon icon={faStar} />
+                                </span>
+                                <span>
+                                  <FontAwesomeIcon icon={faStar} />
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-gray-400">
+                            {offer.category}
+                          </div>
+                          <div className="mt-2 flex justify-between items-center">
+                            <button
+                              style={{ backgroundColor: "#90579F" }}
+                              className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
+                            >
+                              Voir le brief
+                            </button>
+                            <div>
+                              <span className="text-red-600">
+                                <FontAwesomeIcon icon={faHeart} />
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8">
-                {searchTerm ? (
-                  <p className="text-gray-500">Aucune offre ne correspond à votre recherche.</p>
-                ) : (
-                  <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
-                    <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                    <h2 className="text-center text-white text-xl font-semibold">
-                      Chargement...
-                    </h2>
-                    <p className="w-1/3 text-center text-white">
-                      Les offres sont en train de charger, cela peut prendre
-                      quelques secondes, veuillez garder la page ouverte.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-          </ul>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <p className="text-gray-500">
+                    {searchTerm ? "Aucune offre ne correspond à votre recherche." : "Aucune offre disponible pour le moment."}
+                  </p>
+                </div>
+              )}
+            </ul>
+          )}
         </div>
       </div>
       <div
