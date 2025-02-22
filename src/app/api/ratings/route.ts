@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "../../../../lib/mongodb";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import { ObjectId } from "mongodb";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {

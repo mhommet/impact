@@ -36,9 +36,22 @@ interface EntrepriseRating {
   };
 }
 
+interface Collaboration {
+  _id: string;
+  completedAt: string;
+  offerName: string;
+  ugcInfo: {
+    code: string;
+    name: string;
+    profileImage: string;
+    title: string;
+  };
+}
+
 export default function Entreprise({ params }: { params: { id: string } }) {
   const [profile, setProfile] = useState<EntrepriseProfile | null>(null);
   const [ratings, setRatings] = useState<EntrepriseRating[]>([]);
+  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const router = useRouter();
 
@@ -57,11 +70,18 @@ export default function Entreprise({ params }: { params: { id: string } }) {
         const storedUserCode = localStorage.getItem("userCode");
         setIsCurrentUser(storedUserCode === params.id);
 
-        // Récupérer les avis
-        const ratingsResponse = await fetch(`/api/ratings?userId=${params.id}&type=entreprise`);
+        // Récupérer les avis (limités aux 5 plus récents)
+        const ratingsResponse = await fetch(`/api/ratings?userId=${params.id}&type=entreprise&limit=5`);
         if (ratingsResponse.ok) {
           const ratingsData = await ratingsResponse.json();
           setRatings(ratingsData);
+        }
+
+        // Récupérer les collaborations récentes
+        const collaborationsResponse = await fetch(`/api/entreprise/${params.id}/collaborations`);
+        if (collaborationsResponse.ok) {
+          const collaborationsData = await collaborationsResponse.json();
+          setCollaborations(collaborationsData);
         }
       } catch (error) {
         console.error("Erreur:", error);
@@ -177,10 +197,47 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
+              {/* Section des collaborations récentes */}
+              <div className="mt-10 border-t border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
+                  Collaborations Récentes
+                </h2>
+                <div className="flex flex-wrap gap-6 justify-center px-6">
+                  {collaborations && collaborations.length > 0 ? (
+                    collaborations.map((collab) => (
+                      <div key={collab._id} className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-64">
+                        <div className="relative w-20 h-20 mb-2">
+                          <Image
+                            src={collab.ugcInfo.profileImage}
+                            alt={collab.ugcInfo.name}
+                            fill
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                        <h3 className="font-semibold text-center">{collab.ugcInfo.name}</h3>
+                        <p className="text-sm text-gray-500 text-center mb-2">{collab.ugcInfo.title}</p>
+                        <Link href={`/ugc/profile/${collab.ugcInfo.code}`}>
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors duration-200"
+                          >
+                            Voir le profil
+                          </button>
+                        </Link>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Aucune collaboration récente.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Section des avis */}
               <div className="mt-10 border-t border-gray-200 pb-10">
                 <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
-                  Avis des UGC
+                  Avis Récents
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6">
                   {ratings && ratings.length > 0 ? (

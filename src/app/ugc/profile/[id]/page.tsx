@@ -186,17 +186,6 @@ export default function Ugc({ params }: { params: { id: string } }) {
 
     setSubmitting(true);
     try {
-      console.log('Selected collaboration (full object):', selectedCollaboration);
-      console.log('Selected collaboration entrepriseInfo:', selectedCollaboration.entrepriseInfo);
-      console.log('Selected collaboration entrepriseId:', selectedCollaboration.entrepriseId);
-      console.log('Envoi de l\'avis avec les données:', {
-        offerId: selectedCollaboration.offerCode,
-        toId: selectedCollaboration.entrepriseInfo.code,
-        rating: newRating.rating,
-        comment: newRating.comment,
-        type: "entreprise"
-      });
-
       const response = await fetch("/api/ratings", {
         method: "POST",
         headers: {
@@ -409,8 +398,44 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              {/* Section des avis */}
+              {/* Section des collaborations récentes */}
               <div className="mt-10 border-t border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
+                  Collaborations Récentes
+                </h2>
+                <div className="flex flex-wrap gap-6 justify-center px-6 pb-10">
+                  {collaborations.length > 0 ? (
+                    collaborations.map((collab) => (
+                      <div key={collab._id} className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-64">
+                        <div className="relative w-20 h-20 mb-2">
+                          <Image
+                            src={collab.entrepriseInfo.logo || "/img/default-company.png"}
+                            alt={collab.entrepriseInfo.name}
+                            fill
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                        <h3 className="font-semibold text-center">{collab.entrepriseInfo.name}</h3>
+                        <p className="text-sm text-gray-500 text-center mb-2">{collab.title}</p>
+                        <Link href={`/entreprise/profile/${collab.entrepriseInfo.code}`}>
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors duration-200"
+                          >
+                            Voir le profil
+                          </button>
+                        </Link>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Aucune collaboration récente.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+                            {/* Section des avis */}
+                            <div className="mt-10 border-t border-gray-200">
                 <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
                   Avis des entreprises
                 </h2>
@@ -447,63 +472,6 @@ export default function Ugc({ params }: { params: { id: string } }) {
                   ) : (
                     <div className="col-span-2 text-center py-8">
                       <p className="text-gray-500">Aucun avis pour le moment.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Section des collaborations récentes */}
-              <div className="mt-10 border-t border-gray-200">
-                <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
-                  Collaborations Récentes
-                </h2>
-                <div className="px-6">
-                  {collaborations.length > 0 ? (
-                    collaborations.map((collab) => (
-                      <div key={collab._id} className="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <div className="flex items-center mb-4">
-                          <div className="relative w-12 h-12 mr-4">
-                            <Image
-                              src={collab.entrepriseInfo.logo || "/img/default-company.png"}
-                              alt={collab.entrepriseInfo.name}
-                              fill
-                              className="rounded-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-lg">{collab.title}</h3>
-                            <p className="text-sm text-gray-500">{collab.entrepriseInfo.name}</p>
-                          </div>
-                        </div>
-                        <p className="text-gray-600 mb-4">{collab.description}</p>
-                        <p className="text-sm text-gray-500 mb-4">
-                          Complétée le {new Date(collab.completedAt).toLocaleDateString()}
-                        </p>
-                        {collab.rating ? (
-                          <div className="border-t border-gray-200 pt-4 mt-4">
-                            <p className="font-semibold mb-2">Votre avis :</p>
-                            <div className="flex items-center mb-2">
-                              <Rating value={collab.rating.rating} readOnly />
-                            </div>
-                            <p className="text-gray-600 italic">&ldquo;{collab.rating.comment}&rdquo;</p>
-                          </div>
-                        ) : isCurrentUser && (
-                          <button
-                            onClick={() => {
-                              setSelectedCollaboration(collab);
-                              setIsModalOpen(true);
-                            }}
-                            style={{ backgroundColor: "#90579F" }}
-                            className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
-                          >
-                            Laisser un avis
-                          </button>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">Aucune collaboration pour le moment.</p>
                     </div>
                   )}
                 </div>

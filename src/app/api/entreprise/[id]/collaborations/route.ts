@@ -14,7 +14,6 @@ export async function GET(
       .aggregate([
         {
           $match: {
-            ugcId: params.id,
             status: "accepted"
           }
         },
@@ -30,38 +29,41 @@ export async function GET(
           $unwind: "$offer"
         },
         {
-          $lookup: {
-            from: "entreprise",
-            localField: "offer.entrepriseId",
-            foreignField: "code",
-            as: "entrepriseInfo"
+          $match: {
+            "offer.entrepriseId": params.id
           }
         },
         {
-          $unwind: "$entrepriseInfo"
+          $lookup: {
+            from: "ugc",
+            localField: "ugcId",
+            foreignField: "code",
+            as: "ugcInfo"
+          }
         },
-        // Grouper par entreprise pour éviter les doublons
+        {
+          $unwind: "$ugcInfo"
+        },
+        // Grouper par UGC pour éviter les doublons
         {
           $sort: { updatedAt: -1 }
         },
         {
           $group: {
-            _id: "$entrepriseInfo.code",
+            _id: "$ugcId",
             lastCollaboration: { $first: "$$ROOT" }
           }
         },
         {
           $project: {
             _id: "$lastCollaboration._id",
-            title: "$lastCollaboration.offer.name",
-            description: "$lastCollaboration.offer.description",
             completedAt: "$lastCollaboration.updatedAt",
-            offerCode: "$lastCollaboration.offerCode",
-            entrepriseId: "$lastCollaboration.entrepriseInfo.code",
-            entrepriseInfo: {
-              name: "$lastCollaboration.entrepriseInfo.name",
-              logo: "$lastCollaboration.entrepriseInfo.logo",
-              code: "$lastCollaboration.entrepriseInfo.code"
+            offerName: "$lastCollaboration.offer.name",
+            ugcInfo: {
+              code: "$lastCollaboration.ugcInfo.code",
+              name: "$lastCollaboration.ugcInfo.name",
+              profileImage: "$lastCollaboration.ugcInfo.profileImage",
+              title: "$lastCollaboration.ugcInfo.title"
             }
           }
         },
