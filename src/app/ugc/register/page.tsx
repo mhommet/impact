@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 
 const RegisterAndVerifyAccount = () => {
     const [siret, setSiret] = useState('');
@@ -91,6 +92,9 @@ const RegisterAndVerifyAccount = () => {
                                 required
                                 className="w-full px-3 py-2 mt-1 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
+                            <Link href="/ugc/resources" className="block mt-2 text-sm text-purple-600 hover:text-purple-800">
+                                Vous n&apos;avez pas de numéro de SIRET ?
+                            </Link>
                         </div>
                         <button
                             type="submit"
