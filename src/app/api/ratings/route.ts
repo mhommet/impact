@@ -122,8 +122,40 @@ export async function GET(req: NextRequest) {
     const db = client.db("impact");
 
     const ratings = await db.collection("ratings")
-      .find({ toId: userId, type })
-      .sort({ createdAt: -1 })
+      .aggregate([
+        {
+          $match: { 
+            toId: userId, 
+            type 
+          }
+        },
+        {
+          $lookup: {
+            from: "ugc",
+            localField: "fromId",
+            foreignField: "code",
+            as: "ugcInfo"
+          }
+        },
+        {
+          $unwind: "$ugcInfo"
+        },
+        {
+          $project: {
+            rating: 1,
+            comment: 1,
+            createdAt: 1,
+            "ugcInfo": {
+              name: "$ugcInfo.name",
+              profileImage: "$ugcInfo.profileImage",
+              title: "$ugcInfo.title"
+            }
+          }
+        },
+        {
+          $sort: { createdAt: -1 }
+        }
+      ])
       .toArray();
 
     return NextResponse.json(ratings);

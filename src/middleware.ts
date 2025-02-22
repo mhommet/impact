@@ -12,9 +12,10 @@ const secretKey = new TextEncoder().encode(JWT_SECRET);
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    // Permettre l'accès public aux profils UGC et leurs collaborations
+    // Permettre l'accès public aux profils UGC et entreprise et leurs collaborations
     if ((pathname.match(/^\/ugc\/profile\/[^/]+$/) && !pathname.includes('/edit')) ||
-        pathname.match(/^\/api\/ugc\/[^/]+\/collaborations$/)) {
+        pathname.match(/^\/api\/ugc\/[^/]+\/collaborations$/) ||
+        (pathname.match(/^\/entreprise\/profile\/[^/]+$/) && !pathname.includes('/edit'))) {
         return NextResponse.next();
     }
 
