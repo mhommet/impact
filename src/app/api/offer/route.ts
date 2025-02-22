@@ -79,6 +79,7 @@ export async function GET(req: NextRequest, res: any) {
                 ugcId: 1,
                 status: 1,
                 createdAt: 1,
+                "ugcInfo._id": 1,
                 "ugcInfo.name": 1,
                 "ugcInfo.profileImage": 1,
                 "ugcInfo.title": 1

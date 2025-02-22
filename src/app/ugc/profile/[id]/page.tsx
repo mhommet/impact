@@ -18,7 +18,6 @@ import { faPencilAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { Card, CardContent, Typography, Rating, Box, Avatar, Grid, Divider } from '@mui/material';
-import { loginFetch } from '@/helpers/loginFetch';
 
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's imported above
 
@@ -76,19 +75,38 @@ interface Collaboration {
 
 interface Profile {
   name: string;
-  email: string;
-  bio: string;
-  skills: string[];
+  email?: string;
+  bio?: string;
+  skills?: string[];
   profileImage?: string;
-  averageRating: number;
-  location: string;
-  title: string;
-  socialLinks: {
+  averageRating?: number;
+  location?: string;
+  title?: string;
+  socialLinks?: {
     twitter?: string;
     linkedin?: string;
     github?: string;
     portfolio?: string;
+    instagram?: string;
+    tiktok?: string;
+    pinterest?: string;
+    youtube?: string;
   };
+  portfolio?: {
+    contracts: number;
+    photos: number;
+    comments: number;
+  };
+  ratings?: Array<{
+    rating: number;
+    comment: string;
+    createdAt: string;
+    entrepriseInfo: {
+      name: string;
+      logo: string;
+    };
+  }>;
+  candidatures?: Candidature[];
 }
 
 export default function Ugc({ params }: { params: { id: string } }) {
@@ -100,7 +118,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await loginFetch(`/api/ugc/${params.id}`);
+        const response = await fetch(`/api/ugc/${params.id}`);
         if (!response.ok) {
           throw new Error('Erreur lors de la récupération du profil');
         }
@@ -109,7 +127,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
 
         // Vérifier si c'est le profil de l'utilisateur courant
         const storedUserId = localStorage.getItem("userId");
-        setIsCurrentUser(storedUserId === params.id);
+        setIsCurrentUser(storedUserId === data._id);
       } catch (error) {
         console.error('Erreur:', error);
         router.push('/ugc/login');
@@ -118,7 +136,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
 
     const fetchCollaborations = async () => {
       try {
-        const response = await loginFetch(`/api/ugc/${params.id}/collaborations`);
+        const response = await fetch(`/api/ugc/${params.id}/collaborations`);
         if (!response.ok) {
           throw new Error('Erreur lors de la récupération des collaborations');
         }
@@ -221,7 +239,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 </div>
                 <div className="mb-2 text-gray-700 mt-4">{profile.title}</div>
                 <div className="flex justify-center space-x-4 mt-6">
-                  {profile.socialLinks.instagram && (
+                  {profile.socialLinks?.instagram && (
                     <a
                       href={`https://instagram.com/${profile.socialLinks.instagram}`}
                       target="_blank"
@@ -234,7 +252,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                       />
                     </a>
                   )}
-                  {profile.socialLinks.tiktok && (
+                  {profile.socialLinks?.tiktok && (
                     <a
                       href={`https://tiktok.com/@${profile.socialLinks.tiktok}`}
                       target="_blank"
@@ -244,7 +262,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                       <FontAwesomeIcon icon={faTiktok as IconProp} size="2x" />
                     </a>
                   )}
-                  {profile.socialLinks.pinterest && (
+                  {profile.socialLinks?.pinterest && (
                     <a
                       href={`https://pinterest.com/${profile.socialLinks.pinterest}`}
                       target="_blank"
@@ -257,7 +275,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                       />
                     </a>
                   )}
-                  {profile.socialLinks.youtube && (
+                  {profile.socialLinks?.youtube && (
                     <a
                       href={`https://youtube.com/@${profile.socialLinks.youtube}`}
                       target="_blank"
@@ -281,23 +299,117 @@ export default function Ugc({ params }: { params: { id: string } }) {
               <div className="flex justify-center py-4 lg:pt-4 pt-8 border-t border-gray-200">
                 <div className="mr-4 p-3 text-center">
                   <span className="text-xl font-bold block uppercase tracking-wide text-gray-700">
-                    {profile.portfolio.contracts}
+                    {profile.portfolio?.contracts || 0}
                   </span>
                   <span className="text-sm text-gray-500">Contrats</span>
                 </div>
                 <div className="mr-4 p-3 text-center">
                   <span className="text-xl font-bold block uppercase tracking-wide text-gray-700">
-                    {profile.portfolio.photos}
+                    {profile.portfolio?.photos || 0}
                   </span>
                   <span className="text-sm text-gray-500">Photos</span>
                 </div>
                 <div className="lg:mr-4 p-3 text-center">
                   <span className="text-xl font-bold block uppercase tracking-wide text-gray-700">
-                    {profile.portfolio.comments}
+                    {profile.portfolio?.comments || 0}
                   </span>
                   <span className="text-sm text-gray-500">Commentaires</span>
                 </div>
               </div>
+
+              {/* Section des avis */}
+              <div className="mt-10 border-t border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
+                  Avis des entreprises
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6">
+                  {profile.ratings && profile.ratings.length > 0 ? (
+                    profile.ratings.map((rating, index) => (
+                      <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex items-center mb-4">
+                          <div className="relative w-12 h-12 mr-4">
+                            <Image
+                              src={rating.entrepriseInfo.logo}
+                              alt={rating.entrepriseInfo.name}
+                              fill
+                              className="rounded-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold">{rating.entrepriseInfo.name}</h3>
+                            <p className="text-sm text-gray-500">
+                              {new Date(rating.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={i < rating.rating ? "text-yellow-400" : "text-gray-300"}>
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-gray-600">{rating.comment}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-8">
+                      <p className="text-gray-500">Aucun avis pour le moment.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section des collaborations récentes */}
+              <div className="mt-10 border-t border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
+                  Collaborations Récentes
+                </h2>
+                <div className="px-6">
+                  {collaborations.length > 0 ? (
+                    collaborations.map((collab) => (
+                      <div key={collab._id} className="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h3 className="text-xl font-semibold mb-2">{collab.title}</h3>
+                        <p className="text-gray-600 mb-4">{collab.description}</p>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Complétée le: {new Date(collab.completedAt).toLocaleDateString()}
+                        </p>
+                        {collab.entrepriseRating && (
+                          <div className="border-t border-gray-200 pt-4 mt-4">
+                            <p className="font-semibold mb-3">Évaluation de l&apos;entreprise:</p>
+                            <div className="flex items-center">
+                              <div className="relative w-12 h-12 mr-4">
+                                <Image
+                                  src={collab.entrepriseRating.logo || "/img/default-company.png"}
+                                  alt={collab.entrepriseRating.name}
+                                  fill
+                                  className="rounded-full object-cover"
+                                />
+                              </div>
+                              <div>
+                                <p className="font-semibold">{collab.entrepriseRating.name}</p>
+                                <div className="flex items-center my-1">
+                                  {[...Array(5)].map((_, i) => (
+                                    <span key={i} className={i < collab.entrepriseRating.rating ? "text-yellow-400" : "text-gray-300"}>
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                                <p className="text-gray-600">{collab.entrepriseRating.comment}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Aucune collaboration pour le moment.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {isCurrentUser && (
                 <div className="mt-10 border-t border-gray-200">
                   <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
@@ -305,7 +417,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                   </h2>
                   <div className="px-6">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-                      {candidatures.slice(0, 3).map((candidature) => (
+                      {profile.candidatures?.slice(0, 3).map((candidature) => (
                         <div
                           key={candidature._id}
                           className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -352,7 +464,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                         </div>
                       ))}
                     </div>
-                    {candidatures.length > 3 && (
+                    {profile.candidatures && profile.candidatures.length > 3 && (
                       <div className="text-center mb-8">
                         <Link href="/ugc/candidatures">
                           <button
@@ -364,7 +476,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                         </Link>
                       </div>
                     )}
-                    {candidatures.length === 0 && (
+                    {(profile.candidatures && profile.candidatures.length === 0) && (
                       <div className="text-center py-8">
                         <p className="text-gray-500">
                           Vous n&apos;avez pas encore postulé à des offres.
@@ -388,135 +500,6 @@ export default function Ugc({ params }: { params: { id: string } }) {
       </section>
       
       <Navbar />
-
-      <Box sx={{ p: 3 }}>
-        <Card sx={{ mb: 4 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <Avatar 
-                src={profile.profileImage} 
-                sx={{ width: 100, height: 100, mr: 3 }}
-              />
-              <Box>
-                <Typography variant="h4">{profile.name}</Typography>
-                <Typography variant="subtitle1" color="text.secondary">
-                  {profile.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {profile.location}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                  <Rating value={profile.averageRating} readOnly precision={0.5} />
-                  <Typography variant="body2" sx={{ ml: 1 }}>
-                    ({profile.averageRating.toFixed(1)})
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              {profile.bio}
-            </Typography>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Compétences:</Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {profile.skills.map((skill, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      bgcolor: 'primary.main',
-                      color: 'white',
-                      px: 2,
-                      py: 0.5,
-                      borderRadius: 1,
-                    }}
-                  >
-                    {skill}
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-            {profile.socialLinks && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="h6" sx={{ mb: 1 }}>Liens:</Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  {profile.socialLinks.linkedin && (
-                    <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
-                      LinkedIn
-                    </a>
-                  )}
-                  {profile.socialLinks.github && (
-                    <a href={profile.socialLinks.github} target="_blank" rel="noopener noreferrer">
-                      GitHub
-                    </a>
-                  )}
-                  {profile.socialLinks.portfolio && (
-                    <a href={profile.socialLinks.portfolio} target="_blank" rel="noopener noreferrer">
-                      Portfolio
-                    </a>
-                  )}
-                </Box>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
-
-        <Typography variant="h5" sx={{ mb: 3 }}>
-          Collaborations Récentes
-        </Typography>
-        <Grid container spacing={3}>
-          {collaborations.map((collab) => (
-            <Grid item xs={12} key={collab._id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
-                    {collab.title}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    {collab.description}
-                  </Typography>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
-                    Complétée le: {new Date(collab.completedAt).toLocaleDateString()}
-                  </Typography>
-                  {collab.entrepriseRating && (
-                    <>
-                      <Divider sx={{ my: 2 }} />
-                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                        Évaluation de l&apos;entreprise:
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar 
-                          src={collab.entrepriseRating.logo} 
-                          sx={{ width: 40, height: 40, mr: 2 }}
-                        />
-                        <Box>
-                          <Typography variant="subtitle1">
-                            {collab.entrepriseRating.name}
-                          </Typography>
-                          <Rating 
-                            value={collab.entrepriseRating.rating} 
-                            readOnly 
-                            precision={0.5} 
-                          />
-                          <Typography variant="body2" color="text.secondary">
-                            {collab.entrepriseRating.comment}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-          {collaborations.length === 0 && (
-            <Grid item xs={12}>
-              <Typography variant="body1" color="text.secondary" align="center">
-                Aucune collaboration pour le moment.
-              </Typography>
-            </Grid>
-          )}
-        </Grid>
-      </Box>
     </>
   );
 }

@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(offersWithCandidatesCount);
       }
       
-      // Si c'est une entreprise, on ne renvoie que ses offres
+      // Si c'est une entreprise, on renvoie toutes les offres de l'entreprise
       if (payload.type === "entreprise") {
         console.log("Récupération des offres pour entreprise");
         const entrepriseId = payload.userId;
@@ -75,25 +75,50 @@ export async function GET(req: NextRequest) {
           return new NextResponse("ID entreprise non trouvé", { status: 400 });
         }
 
+        // Récupérer toutes les offres de l'entreprise
         const offers = await db.collection("offres")
           .find({ entrepriseId })
           .sort({ createdAt: -1 })
           .toArray();
 
-        const offersWithCandidatesCount = await Promise.all(
+        // Pour chaque offre, compter le nombre de candidatures et ajouter les informations du UGC qui a complété l'offre
+        const offersWithDetails = await Promise.all(
           offers.map(async (offer) => {
             const candidatesCount = await db.collection("candidatures").countDocuments({
               offerCode: offer.code
             });
+
+            // Si l'offre est complétée, récupérer les informations du UGC
+            let ugcInfo = null;
+            if (offer.status === OfferStatus.COMPLETED) {
+              const acceptedCandidature = await db.collection("candidatures")
+                .findOne({
+                  offerCode: offer.code,
+                  status: "accepted"
+                });
+
+              if (acceptedCandidature) {
+                const ugc = await db.collection("ugc").findOne({ code: acceptedCandidature.ugcId });
+                if (ugc) {
+                  ugcInfo = {
+                    name: ugc.name,
+                    profileImage: ugc.profileImage,
+                    title: ugc.title
+                  };
+                }
+              }
+            }
+
             return {
               ...offer,
               candidatesCount,
-              status: offer.status || OfferStatus.CREATED
+              status: offer.status || OfferStatus.CREATED,
+              ugcInfo
             };
           })
         );
 
-        return NextResponse.json(offersWithCandidatesCount);
+        return NextResponse.json(offersWithDetails);
       }
 
       return new NextResponse("Type d'utilisateur non autorisé", { status: 403 });

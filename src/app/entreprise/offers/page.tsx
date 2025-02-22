@@ -9,10 +9,13 @@ import { loginFetch } from "@/helpers/loginFetch";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { Offer, OfferStatus } from "@/types/offer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const App = () => {
   useAuth();
-  const [offers, setOffers] = useState<Offer[]>([]);
+  const [activeOffers, setActiveOffers] = useState<Offer[]>([]);
+  const [completedOffers, setCompletedOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -31,7 +34,11 @@ const App = () => {
         }
 
         const data = await loginFetch('/api/offers');
-        setOffers(data);
+        // Séparer les offres actives et complétées
+        setActiveOffers(data.filter((offer: Offer) => offer.status !== OfferStatus.COMPLETED));
+        setCompletedOffers(data.filter((offer: Offer) => offer.status === OfferStatus.COMPLETED));
+        console.log('Offres actives:', data.filter((offer: Offer) => offer.status !== OfferStatus.COMPLETED));
+        console.log('Offres complétées:', data.filter((offer: Offer) => offer.status === OfferStatus.COMPLETED));
       } catch (err) {
         const error = err as Error;
         console.error('Erreur:', error);
@@ -56,6 +63,7 @@ const App = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
           offerId,
@@ -68,13 +76,19 @@ const App = () => {
       }
 
       // Mettre à jour l'état local
-      setOffers(prevOffers =>
-        prevOffers.map(offer =>
-          offer._id === offerId
-            ? { ...offer, status: newStatus }
-            : offer
-        )
-      );
+      if (newStatus === OfferStatus.COMPLETED) {
+        // Déplacer l'offre des actives vers les complétées
+        setActiveOffers(prevOffers => prevOffers.filter(offer => offer._id !== offerId));
+        setCompletedOffers(prevOffers => [...prevOffers, { ...activeOffers.find(o => o._id === offerId)!, status: newStatus }]);
+      } else {
+        setActiveOffers(prevOffers =>
+          prevOffers.map(offer =>
+            offer._id === offerId
+              ? { ...offer, status: newStatus }
+              : offer
+          )
+        );
+      }
     } catch (error) {
       console.error('Erreur:', error);
       setError('Erreur lors de la mise à jour du statut');
@@ -121,25 +135,86 @@ const App = () => {
     );
   }
 
+  const OfferCard = ({ offer }: { offer: Offer }) => (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {offer.name}
+            </h3>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {offer.category.split(" ").map((cat, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                >
+                  {cat}
+                </span>
+              ))}
+            </div>
+          </div>
+          <span
+            className={`px-2 py-1 rounded-full text-sm ${getStatusBadgeClass(
+              offer.status
+            )}`}
+          >
+            {getStatusText(offer.status)}
+          </span>
+        </div>
+
+        <p className="text-gray-600 mb-4 line-clamp-2">{offer.description}</p>
+
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-500">
+            {offer.candidatesCount} candidature{offer.candidatesCount !== 1 && "s"}
+          </span>
+          <Link href={`/entreprise/offers/${offer._id}`}>
+            <button
+              style={{ backgroundColor: "#90579F" }}
+              className="px-4 py-2 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
+            >
+              Voir les détails
+            </button>
+          </Link>
+        </div>
+
+        {offer.status === OfferStatus.COMPLETED && offer.ugcInfo && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600 mb-2">Réalisée par :</p>
+            <div className="flex items-center">
+              <div className="relative w-10 h-10 mr-3">
+                <Image
+                  src={offer.ugcInfo.profileImage}
+                  alt={`Photo de ${offer.ugcInfo.name}`}
+                  fill
+                  className="rounded-full object-cover"
+                />
+              </div>
+              <div>
+                <p className="font-medium">{offer.ugcInfo.name}</p>
+                <p className="text-sm text-gray-600">{offer.ugcInfo.title}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div>
       <TopBar />
       <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-gray-900 text-xl font-bold">
-            Vos annonces en ligne
-          </h3>
-          <Link 
-            href={{
-              pathname: "/entreprise/offers/new",
-              query: { reloadOffers: "true" }
-            }}
-          >
+          <h1 className="text-2xl font-bold text-gray-900">Vos annonces en ligne</h1>
+          <Link href="/entreprise/offers/new">
             <button
               style={{ backgroundColor: "#90579F" }}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              className="flex items-center px-4 py-2 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
             >
-              Créer une nouvelle offre
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Nouvelle annonce
             </button>
           </Link>
         </div>
@@ -150,65 +225,27 @@ const App = () => {
           </div>
         )}
 
-        <div className="space-y-4">
-          {offers.map((offer) => (
-            <div key={offer._id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <h4 className="text-xl font-semibold text-gray-900">
-                    {offer.name}
-                  </h4>
-                  <p className="text-gray-600">{offer.description}</p>
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 text-sm rounded-full ${getStatusBadgeClass(offer.status)}`}>
-                      {getStatusText(offer.status)}
-                    </span>
-                    {offer.candidatures && (
-                      <span className="text-sm text-gray-500">
-                        {offer.candidatures.length} candidat(s)
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Link href={`/entreprise/offers/${offer._id}`}>
-                    <button
-                      style={{ backgroundColor: "#90579F" }}
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                    >
-                      Voir les détails
-                    </button>
-                  </Link>
-                  {offer.status === OfferStatus.IN_PROGRESS && (
-                    <button
-                      onClick={() => handleUpdateStatus(offer._id, OfferStatus.PENDING_VALIDATION)}
-                      disabled={updating === offer._id}
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-md hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                    >
-                      {updating === offer._id ? 'En cours...' : 'Demander validation'}
-                    </button>
-                  )}
-                  {offer.status === OfferStatus.PENDING_VALIDATION && (
-                    <button
-                      onClick={() => handleUpdateStatus(offer._id, OfferStatus.COMPLETED)}
-                      disabled={updating === offer._id}
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      {updating === offer._id ? 'En cours...' : 'Terminer'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {activeOffers.map((offer) => (
+            <OfferCard key={offer._id} offer={offer} />
           ))}
-          {offers.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">
-                Aucune offre active pour le moment.
-              </p>
+          {activeOffers.length === 0 && (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              Aucune annonce active pour le moment.
             </div>
           )}
         </div>
+
+        {completedOffers.length > 0 && (
+          <>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Vos offres passées</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {completedOffers.map((offer) => (
+                <OfferCard key={offer._id} offer={offer} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
       <Navbar />
     </div>

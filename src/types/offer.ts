@@ -32,6 +32,12 @@ export interface Offer {
   createdAt: string;
   completedAt?: string;
   entrepriseId: string;
+  candidatesCount: number;
+  ugcInfo?: {
+    name: string;
+    profileImage: string;
+    title: string;
+  };
   candidatures?: Array<{
     _id: string;
     status: string;

@@ -15,72 +15,64 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
+    const client = await clientPromise;
+    const db = client.db("impact");
 
-    if (!token) {
-      return new NextResponse("Non autorisé", { status: 401 });
-    }
-
-    try {
-      await jwtVerify(token, secretKey);
-      const client = await clientPromise;
-      const db = client.db("impact");
-
-      // Récupérer les candidatures complétées de l'UGC
-      const collaborations = await db.collection("candidatures")
-        .aggregate([
-          {
-            $match: {
-              ugcId: params.id,
-              status: "completed"
-            }
-          },
-          {
-            $lookup: {
-              from: "offers",
-              localField: "offerCode",
-              foreignField: "code",
-              as: "offer"
-            }
-          },
-          {
-            $lookup: {
-              from: "entreprise",
-              localField: "entrepriseId",
-              foreignField: "code",
-              as: "entreprise"
-            }
-          },
-          {
-            $project: {
-              _id: 1,
-              title: { $arrayElemAt: ["$offer.title", 0] },
-              description: { $arrayElemAt: ["$offer.description", 0] },
-              completedAt: "$completedAt",
-              entrepriseRating: {
-                rating: "$entrepriseRating",
-                comment: "$entrepriseComment",
-                name: { $arrayElemAt: ["$entreprise.name", 0] },
-                logo: { $arrayElemAt: ["$entreprise.logo", 0] }
-              }
-            }
-          },
-          {
-            $sort: { completedAt: -1 }
-          },
-          {
-            $limit: 5
+    // Récupérer les candidatures complétées de l'UGC
+    const collaborations = await db.collection("candidatures")
+      .aggregate([
+        {
+          $match: {
+            ugcId: params.id,
+            status: "completed"
           }
-        ])
-        .toArray();
+        },
+        {
+          $lookup: {
+            from: "offres",
+            localField: "offerCode",
+            foreignField: "code",
+            as: "offer"
+          }
+        },
+        {
+          $lookup: {
+            from: "entreprise",
+            localField: "entrepriseId",
+            foreignField: "code",
+            as: "entreprise"
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            title: { $arrayElemAt: ["$offer.title", 0] },
+            description: { $arrayElemAt: ["$offer.description", 0] },
+            completedAt: "$completedAt",
+            entrepriseRating: {
+              rating: "$entrepriseRating",
+              comment: "$entrepriseComment",
+              name: { $arrayElemAt: ["$entreprise.name", 0] },
+              logo: { $arrayElemAt: ["$entreprise.logo", 0] }
+            }
+          }
+        },
+        {
+          $sort: { completedAt: -1 }
+        },
+        {
+          $limit: 5
+        }
+      ])
+      .toArray();
 
-      return NextResponse.json(collaborations);
-    } catch (error) {
-      return new NextResponse("Token invalide", { status: 401 });
+    if (!collaborations) {
+      return NextResponse.json({ message: "Aucune collaboration trouvée" }, { status: 404 });
     }
+
+    return NextResponse.json(collaborations);
   } catch (e) {
     console.error("Erreur lors de la récupération des collaborations:", e);
-    return new NextResponse("Erreur serveur", { status: 500 });
+    return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
   }
 } 
