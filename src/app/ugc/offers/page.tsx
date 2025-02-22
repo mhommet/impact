@@ -23,6 +23,13 @@ interface Offer {
   description: string;
   category: string;
   reward: string;
+  location: string;
+  distance?: number;
+}
+
+interface Coordinates {
+  lat: number;
+  lon: number;
 }
 
 const getRestaurantImage = (index: number) => {
@@ -39,22 +46,90 @@ const App = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [isGeolocActive, setIsGeolocActive] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(1000);
+  const [showDistanceFilter, setShowDistanceFilter] = useState(false);
+  const [cityCoordinatesCache, setCityCoordinatesCache] = useState<{[key: string]: Coordinates}>({});
+  const [allOffers, setAllOffers] = useState<Offer[]>([]);
+  const [ugcLocation, setUgcLocation] = useState<string | null>(null);
 
   // Get unique categories
   const categories = Array.from(new Set(offers.map(offer => offer.category)));
 
-  // Fetching offers
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    console.log("Position utilisateur:", {lat: lat1, lon: lon1});
+    console.log("Position offre:", {lat: lat2, lon: lon2});
+    
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = Math.round(R * c);
+    
+    console.log(`Distance calculée entre ${lat1},${lon1} et ${lat2},${lon2}: ${distance}km`);
+    return distance;
+  };
+
+  const getCityCoordinates = async (address: string): Promise<Coordinates> => {
+    if (cityCoordinatesCache[address]) {
+      console.log("Utilisation du cache pour", address, cityCoordinatesCache[address]);
+      return cityCoordinatesCache[address];
+    }
+
+    try {
+      const params = new URLSearchParams({
+        format: 'json',
+        q: address,
+        countrycodes: 'fr',
+        addressdetails: '1',
+        limit: '1',
+        'accept-language': 'fr'
+      });
+
+      console.log("URL de recherche:", `https://nominatim.openstreetmap.org/search?${params}`);
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?${params}`
+      );
+      const data = await response.json();
+      
+      console.log("Réponse Nominatim complète:", data);
+      
+      if (data && data[0]) {
+        const coords = {
+          lat: parseFloat(data[0].lat),
+          lon: parseFloat(data[0].lon)
+        };
+        console.log("Coordonnées trouvées pour", address, ":", coords);
+        setCityCoordinatesCache(prev => ({ ...prev, [address]: coords }));
+        return coords;
+      }
+      throw new Error("Adresse non trouvée");
+    } catch (error) {
+      console.error("Erreur lors de la géolocalisation de l'adresse:", error);
+      throw error;
+    }
+  };
+
+  // Modifier useEffect pour fetchOffers
   useEffect(() => {
     const fetchOffers = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const data = await loginFetch('/api/offers');
+        setAllOffers(data); // Garder toutes les offres
         setOffers(data);
         setFilteredOffers(data);
       } catch (error) {
         console.error('Erreur:', error);
         setError("Une erreur est survenue lors de la récupération des offres. Veuillez réessayer plus tard.");
+        setAllOffers([]);
         setOffers([]);
         setFilteredOffers([]);
       } finally {
@@ -63,6 +138,93 @@ const App = () => {
     };
     fetchOffers();
   }, []);
+
+  const handleGeolocation = async () => {
+    setIsLoading(true);
+    try {
+      const data = await loginFetch('/api/ugc/current');
+      console.log("Données UGC reçues:", data);
+      
+      if (!data || !data.location) {
+        setError("Veuillez définir votre localisation dans votre profil");
+        setIsGeolocActive(false);
+        return;
+      }
+
+      setUgcLocation(data.location);
+      await processGeolocation(data.location);
+      setIsGeolocActive(true);
+    } catch (error) {
+      console.error("Erreur lors de la récupération de la localisation:", error);
+      setError("Impossible de récupérer votre localisation");
+      setIsGeolocActive(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const processGeolocation = async (location: string) => {
+    try {
+      console.log("Récupération des coordonnées pour:", location);
+      const coordinates = await getCityCoordinates(location);
+      console.log("Coordonnées obtenues:", coordinates);
+      setUserLocation(coordinates);
+      await updateOffersWithDistance(coordinates);
+    } catch (error) {
+      console.error("Erreur lors de la géolocalisation:", error);
+      setError("Impossible de déterminer votre localisation");
+      setIsGeolocActive(false);
+    }
+  };
+
+  const updateOffersWithDistance = async (userCoords: Coordinates) => {
+    console.log("Position UGC:", userCoords);
+
+    const offersWithDistances = await Promise.all(
+      allOffers.filter(offer => offer.location).map(async (offer) => {
+        try {
+          console.log(`Calcul distance pour l'offre "${offer.name}" à ${offer.location}`);
+          const coordinates = await getCityCoordinates(offer.location);
+          console.log(`Coordonnées obtenues pour ${offer.name}:`, coordinates);
+
+          const distance = calculateDistance(
+            userCoords.lat,
+            userCoords.lon,
+            coordinates.lat,
+            coordinates.lon
+          );
+          
+          console.log(`Distance finale pour ${offer.name}: ${distance}km`);
+          return { ...offer, distance };
+        } catch (error) {
+          console.error(`Erreur pour l'offre ${offer.name}:`, error);
+          return null;
+        }
+      })
+    );
+
+    // Filtrer les offres nulles et celles dépassant la distance maximale
+    const validOffers = offersWithDistances
+      .filter((offer): offer is Offer & { distance: number } => 
+        offer !== null && 
+        offer.distance !== undefined && 
+        offer.distance <= maxDistance
+      )
+      .sort((a, b) => a.distance - b.distance);
+
+    console.log("Offres triées finales:", validOffers);
+    setOffers(validOffers);
+    setFilteredOffers(validOffers);
+  };
+
+  const handleMaxDistanceChange = async (newDistance: number) => {
+    setMaxDistance(newDistance);
+    if (isGeolocActive && userLocation) {
+      setIsLoading(true);
+      await updateOffersWithDistance(userLocation);
+      setIsLoading(false);
+    }
+  };
 
   // Filter offers based on search term and category
   useEffect(() => {
@@ -86,6 +248,13 @@ const App = () => {
   const resetFilters = () => {
     setSelectedCategory("");
     setSearchTerm("");
+  };
+
+  const disableGeolocation = () => {
+    setIsGeolocActive(false);
+    setUserLocation(null);
+    setOffers(allOffers);
+    setFilteredOffers(allOffers);
   };
 
   return (
@@ -120,11 +289,12 @@ const App = () => {
                     <div className="md:flex">
                     <div className="md:flex-shrink-0 h-48 md:h-auto w-full overflow-hidden">
                       <Image
-                        width={100}
-                        height={100}
+                        width={400}
+                        height={300}
                         className="h-full w-full object-cover md:w-full"
                         src={getRestaurantImage(3)}
                         alt="Restaurant image"
+                        priority
                       />
                     </div>
                     </div>
@@ -229,12 +399,49 @@ const App = () => {
                   </div>
                 )}
               </div>
-              <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
-                <span className="text-gray-600">
-                  <FontAwesomeIcon icon={faLocation} />
-                </span>{" "}
-                Me géolocaliser
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowDistanceFilter(!showDistanceFilter)}
+                  className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${isGeolocActive ? 'bg-purple-100' : ''}`}
+                >
+                  Distance max: {maxDistance}km
+                </button>
+                {showDistanceFilter && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 p-4">
+                    <input
+                      type="range"
+                      min="10"
+                      max="200"
+                      step="10"
+                      value={maxDistance}
+                      onChange={(e) => handleMaxDistanceChange(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="text-center mt-2">{maxDistance} km</div>
+                  </div>
+                )}
+              </div>
+              {isGeolocActive ? (
+                <button 
+                  onClick={disableGeolocation}
+                  className="text-white bg-purple-600 px-2 py-1 flex items-center rounded-md"
+                >
+                  <span className="text-white">
+                    <FontAwesomeIcon icon={faLocation} />
+                  </span>{" "}
+                  Désactiver la géoloc
+                </button>
+              ) : (
+                <button 
+                  onClick={handleGeolocation}
+                  className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md"
+                >
+                  <span className="text-gray-600">
+                    <FontAwesomeIcon icon={faLocation} />
+                  </span>{" "}
+                  Me géolocaliser
+                </button>
+              )}
             </div>
           </div>
           {(selectedCategory || searchTerm) && (
@@ -271,6 +478,17 @@ const App = () => {
             </div>
           )}
         </div>
+        {isGeolocActive && (
+          <div className="mt-4 bg-purple-100 text-purple-800 px-4 py-2 rounded-md flex items-center justify-between">
+            <span>Géolocalisation active - Les offres sont triées par distance</span>
+            <button 
+              onClick={handleGeolocation}
+              className="text-purple-600 hover:text-purple-800"
+            >
+              Réinitialiser
+            </button>
+          </div>
+        )}
         <div className="flex justify-between">
           {isLoading ? (
             <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
@@ -296,8 +514,8 @@ const App = () => {
                       <div className="md:flex">
                         <div className="md:flex-shrink-0 h-48 md:h-auto">
                           <Image
-                            width={100}
-                            height={100}
+                            width={400}
+                            height={300}
                             className="h-full w-full object-cover md:w-full"
                             src={getRestaurantImage(index)}
                             alt="Restaurant image"
@@ -329,7 +547,8 @@ const App = () => {
                             </div>
                           </div>
                           <div className="mt-2 text-gray-400">
-                            {offer.category}
+                            {offer.category} - {offer.location}
+                            {offer.distance !== undefined && ` (${offer.distance}km)`}
                           </div>
                           <div className="mt-2 flex justify-between items-center">
                             <button

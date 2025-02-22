@@ -15,6 +15,12 @@ interface JwtPayload {
   type: string;
 }
 
+interface AddressSuggestion {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 interface UgcProfile {
   code: string;
   name: string;
@@ -40,6 +46,8 @@ export default function EditProfile() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [profile, setProfile] = useState<UgcProfile>({
     code: "",
     name: "",
@@ -88,6 +96,42 @@ export default function EditProfile() {
         [name]: value
       }));
     }
+  };
+
+  const handleLocationSearch = async (searchTerm: string) => {
+    if (searchTerm.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}, France&limit=5`
+      );
+      const data = await response.json();
+      setAddressSuggestions(data);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Erreur lors de la recherche d'adresse:", error);
+    }
+  };
+
+  const handleLocationSelect = (suggestion: AddressSuggestion) => {
+    setProfile(prev => ({
+      ...prev,
+      location: suggestion.display_name
+    }));
+    setShowSuggestions(false);
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setProfile(prev => ({
+      ...prev,
+      location: value
+    }));
+    handleLocationSearch(value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -190,7 +234,7 @@ export default function EditProfile() {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label htmlFor="location" className="block text-sm font-medium text-gray-700">
               Localisation
             </label>
@@ -199,10 +243,24 @@ export default function EditProfile() {
               id="location"
               name="location"
               value={profile.location}
-              onChange={handleChange}
+              onChange={handleLocationChange}
+              onFocus={() => profile.location.length >= 3 && setShowSuggestions(true)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-              placeholder="ex: Paris, France"
+              placeholder="Commencez à taper une adresse..."
             />
+            {showSuggestions && addressSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
+                {addressSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="cursor-pointer hover:bg-purple-50 px-4 py-2"
+                    onClick={() => handleLocationSelect(suggestion)}
+                  >
+                    {suggestion.display_name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

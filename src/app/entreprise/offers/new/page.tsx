@@ -9,15 +9,25 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
+interface AddressSuggestion {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 export default function NewOffer() {
   useAuth(); // Vérifie si l'utilisateur est connecté
   const router = useRouter();
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
 
   const [formData, setFormData] = useState({
     name: "",
     category: "",
     description: "",
     reward: "",
+    location: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,6 +41,67 @@ export default function NewOffer() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleLocationSearch = async (searchTerm: string) => {
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    if (searchTerm.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    // Attendre 300ms après la dernière frappe avant de lancer la recherche
+    const timeout = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?` + 
+          new URLSearchParams({
+            format: 'json',
+            q: searchTerm,
+            countrycodes: 'fr',
+            addressdetails: '1',
+            limit: '5',
+            featuretype: 'city,street,house',
+            'accept-language': 'fr'
+          })
+        );
+        const data = await response.json();
+        setAddressSuggestions(data);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Erreur lors de la recherche d'adresse:", error);
+      }
+    }, 300);
+
+    setSearchTimeout(timeout);
+  };
+
+  const handleLocationSelect = (suggestion: AddressSuggestion) => {
+    // Formater l'adresse de manière plus concise
+    const address = suggestion.display_name
+      .split(',')
+      .slice(0, 3) // Prendre les 3 premiers éléments (numéro, rue, ville)
+      .join(',')
+      .trim();
+      
+    setFormData(prev => ({
+      ...prev,
+      location: address
+    }));
+    setShowSuggestions(false);
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      location: value
+    }));
+    handleLocationSearch(value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -141,6 +212,36 @@ export default function NewOffer() {
               <option value="Sport">Sport</option>
               <option value="Technologie">Technologie</option>
             </select>
+          </div>
+
+          <div className="relative">
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+              Adresse de l&apos;établissement
+            </label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              required
+              value={formData.location}
+              onChange={handleLocationChange}
+              onFocus={() => formData.location.length >= 3 && setShowSuggestions(true)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              placeholder="Commencez à taper une adresse..."
+            />
+            {showSuggestions && addressSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
+                {addressSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="cursor-pointer hover:bg-purple-50 px-4 py-2"
+                    onClick={() => handleLocationSelect(suggestion)}
+                  >
+                    {suggestion.display_name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

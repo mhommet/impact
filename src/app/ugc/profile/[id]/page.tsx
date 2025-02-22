@@ -434,12 +434,12 @@ export default function Ugc({ params }: { params: { id: string } }) {
                   )}
                 </div>
               </div>
-                            {/* Section des avis */}
-                            <div className="mt-10 border-t border-gray-200">
+              {/* Section des avis */}
+              <div className="mt-10 border-t border-gray-200">
                 <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
                   Avis des entreprises
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 pb-10">
                   {profile.ratings && profile.ratings.length > 0 ? (
                     profile.ratings.map((rating, index) => (
                       <div key={index} className="bg-white rounded-lg shadow-md p-6">

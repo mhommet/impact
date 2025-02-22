@@ -38,18 +38,71 @@ export async function GET(req: NextRequest) {
       // Si c'est un UGC, on renvoie toutes les offres non archivées et actives
       if (payload.type === "ugc") {
         console.log("Récupération des offres pour UGC");
-        const offers = await db.collection("offres")
-          .find({ 
-            archived: { $ne: true },  // Modifié pour inclure les documents sans champ archived
+        
+        // Vérifier d'abord les offres sans agrégation
+        const simpleOffers = await db.collection("offres")
+          .find({
+            archived: { $ne: true },
             $or: [
               { status: "active" },
-              { status: { $exists: false } }  // Inclure les documents sans champ status
+              { status: "created" },
+              { status: { $exists: false } }
             ]
-          })
-          .sort({ createdAt: -1 })
-          .toArray();
+          }).toArray();
+        
+        console.log("Offres trouvées (sans agrégation):", simpleOffers.length);
+        if (simpleOffers.length > 0) {
+          console.log("Exemple d'offre:", simpleOffers[0]);
+        }
 
-        console.log(`Nombre d'offres trouvées: ${offers.length}`);
+        const offers = await db.collection("offres")
+          .aggregate([
+            {
+              $match: {
+                archived: { $ne: true },
+                $or: [
+                  { status: "active" },
+                  { status: "created" },
+                  { status: { $exists: false } }
+                ]
+              }
+            },
+            {
+              $lookup: {
+                from: "entreprise",
+                localField: "entrepriseId",
+                foreignField: "code",
+                as: "entrepriseInfo"
+              }
+            },
+            {
+              $unwind: {
+                path: "$entrepriseInfo",
+                preserveNullAndEmptyArrays: true
+              }
+            },
+            {
+              $project: {
+                _id: 1,
+                code: 1,
+                name: 1,
+                description: 1,
+                category: 1,
+                reward: 1,
+                createdAt: 1,
+                entrepriseId: 1,
+                location: 1
+              }
+            },
+            {
+              $sort: { createdAt: -1 }
+            }
+          ]).toArray();
+
+        console.log(`Nombre d'offres trouvées (avec agrégation): ${offers.length}`);
+        if (offers.length > 0) {
+          console.log("Exemple d'offre avec agrégation:", offers);
+        }
 
         // Pour chaque offre, compter le nombre de candidatures
         const offersWithCandidatesCount = await Promise.all(
