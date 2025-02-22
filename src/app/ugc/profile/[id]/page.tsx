@@ -70,7 +70,17 @@ interface Collaboration {
   title: string;
   description: string;
   completedAt: string;
-  entrepriseRating: Rating;
+  offerCode: string;
+  entrepriseId: string;
+  entrepriseInfo: {
+    name: string;
+    logo: string;
+    code: string;
+  };
+  rating: {
+    rating: number;
+    comment: string;
+  } | null;
 }
 
 interface Profile {
@@ -112,24 +122,39 @@ interface Profile {
 export default function Ugc({ params }: { params: { id: string } }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
+  const [selectedCollaboration, setSelectedCollaboration] = useState<Collaboration | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newRating, setNewRating] = useState<{ rating: number; comment: string }>({ rating: 0, comment: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [isCurrentUser, setIsCurrentUser] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log('Fetching profile for id:', params.id);
+        if (!params.id) {
+          console.error('No ID provided');
+          router.push('/ugc/login');
+          return;
+        }
+
         const response = await fetch(`/api/ugc/${params.id}`);
         if (!response.ok) {
+          console.error('Error response:', response.status, await response.text());
           throw new Error('Erreur lors de la récupération du profil');
         }
         const data = await response.json();
+        console.log('Profile data:', data);
         setProfile(data);
 
         // Vérifier si c'est le profil de l'utilisateur courant
-        const storedUserId = localStorage.getItem("userId");
-        setIsCurrentUser(storedUserId === data._id);
+        const storedUserCode = localStorage.getItem("userCode");
+        console.log('Stored user code:', storedUserCode, 'Current profile id:', params.id);
+        setIsCurrentUser(storedUserCode === params.id);
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Error fetching profile:', error);
         router.push('/ugc/login');
       }
     };
@@ -141,6 +166,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
           throw new Error('Erreur lors de la récupération des collaborations');
         }
         const data = await response.json();
+        console.log('Collaborations data:', data);
         setCollaborations(data);
       } catch (error) {
         console.error('Erreur:', error);
@@ -150,6 +176,72 @@ export default function Ugc({ params }: { params: { id: string } }) {
     fetchProfile();
     fetchCollaborations();
   }, [params.id, router]);
+
+  const handleRatingSubmit = async () => {
+    if (!selectedCollaboration) return;
+    if (!newRating.rating || !newRating.comment) {
+      setError("Veuillez fournir une note et un commentaire");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      console.log('Selected collaboration (full object):', selectedCollaboration);
+      console.log('Selected collaboration entrepriseInfo:', selectedCollaboration.entrepriseInfo);
+      console.log('Selected collaboration entrepriseId:', selectedCollaboration.entrepriseId);
+      console.log('Envoi de l\'avis avec les données:', {
+        offerId: selectedCollaboration.offerCode,
+        toId: selectedCollaboration.entrepriseInfo.code,
+        rating: newRating.rating,
+        comment: newRating.comment,
+        type: "entreprise"
+      });
+
+      const response = await fetch("/api/ratings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          offerId: selectedCollaboration.offerCode,
+          toId: selectedCollaboration.entrepriseInfo.code,
+          rating: newRating.rating,
+          comment: newRating.comment,
+          type: "entreprise"
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de l'envoi de l'avis");
+      }
+
+      // Mettre à jour la collaboration dans la liste
+      setCollaborations(prevCollabs =>
+        prevCollabs.map(collab =>
+          collab._id === selectedCollaboration._id
+            ? {
+                ...collab,
+                rating: {
+                  rating: newRating.rating,
+                  comment: newRating.comment
+                }
+              }
+            : collab
+        )
+      );
+
+      // Fermer le modal et réinitialiser
+      setIsModalOpen(false);
+      setSelectedCollaboration(null);
+      setNewRating({ rating: 0, comment: "" });
+    } catch (err) {
+      console.error('Error submitting rating:', err);
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (!profile) {
     return (
@@ -369,36 +461,43 @@ export default function Ugc({ params }: { params: { id: string } }) {
                   {collaborations.length > 0 ? (
                     collaborations.map((collab) => (
                       <div key={collab._id} className="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h3 className="text-xl font-semibold mb-2">{collab.title}</h3>
+                        <div className="flex items-center mb-4">
+                          <div className="relative w-12 h-12 mr-4">
+                            <Image
+                              src={collab.entrepriseInfo.logo || "/img/default-company.png"}
+                              alt={collab.entrepriseInfo.name}
+                              fill
+                              className="rounded-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-lg">{collab.title}</h3>
+                            <p className="text-sm text-gray-500">{collab.entrepriseInfo.name}</p>
+                          </div>
+                        </div>
                         <p className="text-gray-600 mb-4">{collab.description}</p>
                         <p className="text-sm text-gray-500 mb-4">
-                          Complétée le: {new Date(collab.completedAt).toLocaleDateString()}
+                          Complétée le {new Date(collab.completedAt).toLocaleDateString()}
                         </p>
-                        {collab.entrepriseRating && (
+                        {collab.rating ? (
                           <div className="border-t border-gray-200 pt-4 mt-4">
-                            <p className="font-semibold mb-3">Évaluation de l&apos;entreprise:</p>
-                            <div className="flex items-center">
-                              <div className="relative w-12 h-12 mr-4">
-                                <Image
-                                  src={collab.entrepriseRating.logo || "/img/default-company.png"}
-                                  alt={collab.entrepriseRating.name}
-                                  fill
-                                  className="rounded-full object-cover"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">{collab.entrepriseRating.name}</p>
-                                <div className="flex items-center my-1">
-                                  {[...Array(5)].map((_, i) => (
-                                    <span key={i} className={i < collab.entrepriseRating.rating ? "text-yellow-400" : "text-gray-300"}>
-                                      ★
-                                    </span>
-                                  ))}
-                                </div>
-                                <p className="text-gray-600">{collab.entrepriseRating.comment}</p>
-                              </div>
+                            <p className="font-semibold mb-2">Votre avis :</p>
+                            <div className="flex items-center mb-2">
+                              <Rating value={collab.rating.rating} readOnly />
                             </div>
+                            <p className="text-gray-600 italic">&ldquo;{collab.rating.comment}&rdquo;</p>
                           </div>
+                        ) : isCurrentUser && (
+                          <button
+                            onClick={() => {
+                              setSelectedCollaboration(collab);
+                              setIsModalOpen(true);
+                            }}
+                            style={{ backgroundColor: "#90579F" }}
+                            className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
+                          >
+                            Laisser un avis
+                          </button>
                         )}
                       </div>
                     ))
@@ -409,95 +508,72 @@ export default function Ugc({ params }: { params: { id: string } }) {
                   )}
                 </div>
               </div>
-
-              {isCurrentUser && (
-                <div className="mt-10 border-t border-gray-200">
-                  <h2 className="text-2xl font-semibold text-gray-800 text-center my-6">
-                    Mes candidatures récentes
-                  </h2>
-                  <div className="px-6">
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-                      {profile.candidatures?.slice(0, 3).map((candidature) => (
-                        <div
-                          key={candidature._id}
-                          className="bg-white rounded-lg shadow-md overflow-hidden"
-                        >
-                          <div className="p-6">
-                            <div className="flex items-center mb-4">
-                              <div className="relative w-16 h-16 mr-4">
-                                <Image
-                                  src={candidature.offerInfo.entrepriseInfo.logo || "/img/default-company.png"}
-                                  alt={`Logo de ${candidature.offerInfo.entrepriseInfo.name}`}
-                                  fill
-                                  className="rounded-full object-cover"
-                                />
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-semibold">
-                                  {candidature.offerInfo.name}
-                                </h3>
-                                <p className="text-gray-600">
-                                  {candidature.offerInfo.entrepriseInfo.name}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-2">
-                              <p className="text-gray-600">{candidature.offerInfo.category}</p>
-                              <p className="text-purple-600 font-semibold mt-2">
-                                {candidature.offerInfo.reward}
-                              </p>
-                            </div>
-                            <div className="flex justify-between items-center mt-4">
-                              <span className={`text-sm font-medium ${getStatusColor(candidature.status)}`}>
-                                {getStatusText(candidature.status)}
-                              </span>
-                              <Link href={`/ugc/offer/${candidature.offerCode}`}>
-                                <button
-                                  style={{ backgroundColor: "#90579F" }}
-                                  className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
-                                >
-                                  Voir l&apos;offre
-                                </button>
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {profile.candidatures && profile.candidatures.length > 3 && (
-                      <div className="text-center mb-8">
-                        <Link href="/ugc/candidatures">
-                          <button
-                            style={{ backgroundColor: "#90579F" }}
-                            className="text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
-                          >
-                            Voir toutes mes candidatures
-                          </button>
-                        </Link>
-                      </div>
-                    )}
-                    {(profile.candidatures && profile.candidatures.length === 0) && (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">
-                          Vous n&apos;avez pas encore postulé à des offres.
-                        </p>
-                        <Link href="/ugc/offers">
-                          <button
-                            style={{ backgroundColor: "#90579F" }}
-                            className="text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200 mt-4"
-                          >
-                            Voir les offres disponibles
-                          </button>
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </section>
+      
+      {/* Modal pour laisser un avis */}
+      {isModalOpen && selectedCollaboration && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">
+              Laisser un avis pour {selectedCollaboration.entrepriseInfo.name}
+            </h3>
+            
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                {error}
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Note
+              </label>
+              <Rating
+                value={newRating.rating}
+                onChange={(_, value) => setNewRating(prev => ({ ...prev, rating: value || 0 }))}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Commentaire
+              </label>
+              <textarea
+                className="w-full p-2 border rounded-md"
+                rows={4}
+                value={newRating.comment}
+                onChange={(e) => setNewRating(prev => ({ ...prev, comment: e.target.value }))}
+                placeholder="Votre expérience avec cette entreprise..."
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setSelectedCollaboration(null);
+                  setNewRating({ rating: 0, comment: "" });
+                  setError(null);
+                }}
+                className="px-4 py-2 border rounded-md hover:bg-gray-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleRatingSubmit}
+                disabled={submitting}
+                style={{ backgroundColor: "#90579F" }}
+                className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200 disabled:opacity-50"
+              >
+                {submitting ? "Envoi..." : "Envoyer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <Navbar />
     </>

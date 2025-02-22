@@ -27,10 +27,11 @@ const LoginPage = () => {
                 // Stocker l'userId et le token dans le localStorage
                 localStorage.setItem("userId", data.userId);
                 localStorage.setItem("token", data.token);
+                localStorage.setItem("userCode", data.code);
                 
                 // Redirection en fonction du type d'utilisateur
                 if (window.location.pathname.includes('/ugc')) {
-                    router.push('/ugc/offers');
+                    router.push(`/ugc/profile/${data.code}`);
                 } else {
                     router.push('/entreprise/offers');
                 }

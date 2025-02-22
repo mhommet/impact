@@ -39,11 +39,41 @@ export async function POST(req: Request) {
             expiresIn: '1h',
         });
 
+        // Récupérer le code UGC si c'est un utilisateur UGC
+        let code = null;
+        if (type === 'ugc') {
+            const ugc = await db.collection('ugc').findOne({ userId: user._id.toString() });
+            if (!ugc) {
+                // Créer un nouveau profil UGC si aucun n'existe
+                const newUgc = {
+                    userId: user._id.toString(),
+                    code: user._id.toString(), // Utiliser l'ID comme code par défaut
+                    name: "",
+                    description: "",
+                    location: "",
+                    title: "",
+                    profileImage: "https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png",
+                    socialLinks: {},
+                    portfolio: {
+                        contracts: 0,
+                        photos: 0,
+                        comments: 0
+                    },
+                    createdAt: new Date()
+                };
+                await db.collection('ugc').insertOne(newUgc);
+                code = newUgc.code;
+            } else {
+                code = ugc.code;
+            }
+        }
+
         // Retourne le token dans un cookie HTTP et l'userId dans la réponse
         const response = NextResponse.json({ 
             success: true,
             userId: user._id,
-            token: token
+            token: token,
+            code: code
         });
         response.cookies.set('token', token, {
             httpOnly: true,

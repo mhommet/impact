@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "../../../../../../lib/mongodb";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not defined");
-}
-
-const secretKey = new TextEncoder().encode(JWT_SECRET);
+import { ObjectId } from "mongodb";
+import { OfferStatus } from "@/types/offer";
 
 export async function GET(
   req: NextRequest,
@@ -18,13 +11,28 @@ export async function GET(
     const client = await clientPromise;
     const db = client.db("impact");
 
-    // Récupérer les candidatures complétées de l'UGC
+    // Log pour vérifier l'ID reçu
+    console.log("Recherche des collaborations pour l'UGC:", params.id);
+
+    // Vérifier d'abord si on a des candidatures pour cet UGC
+    const candidatures = await db.collection("candidatures").find({
+      ugcId: params.id
+    }).toArray();
+    console.log("Candidatures trouvées:", candidatures);
+
+    // Vérifier les candidatures avec le statut COMPLETED
+    const completedCandidatures = await db.collection("candidatures").find({
+      ugcId: params.id,
+      status: OfferStatus.COMPLETED
+    }).toArray();
+    console.log("Candidatures complétées:", completedCandidatures);
+
     const collaborations = await db.collection("candidatures")
       .aggregate([
         {
           $match: {
             ugcId: params.id,
-            status: "completed"
+            status: "accepted"
           }
         },
         {
@@ -36,24 +44,31 @@ export async function GET(
           }
         },
         {
+          $unwind: "$offer"
+        },
+        {
           $lookup: {
             from: "entreprise",
-            localField: "entrepriseId",
+            localField: "offer.entrepriseId",
             foreignField: "code",
-            as: "entreprise"
+            as: "entrepriseInfo"
           }
+        },
+        {
+          $unwind: "$entrepriseInfo"
         },
         {
           $project: {
             _id: 1,
-            title: { $arrayElemAt: ["$offer.title", 0] },
-            description: { $arrayElemAt: ["$offer.description", 0] },
-            completedAt: "$completedAt",
-            entrepriseRating: {
-              rating: "$entrepriseRating",
-              comment: "$entrepriseComment",
-              name: { $arrayElemAt: ["$entreprise.name", 0] },
-              logo: { $arrayElemAt: ["$entreprise.logo", 0] }
+            title: "$offer.name",
+            description: "$offer.description",
+            completedAt: "$updatedAt",
+            offerCode: 1,
+            entrepriseId: "$entrepriseInfo.code",
+            entrepriseInfo: {
+              name: "$entrepriseInfo.name",
+              logo: "$entrepriseInfo.logo",
+              code: "$entrepriseInfo.code"
             }
           }
         },
@@ -66,9 +81,7 @@ export async function GET(
       ])
       .toArray();
 
-    if (!collaborations) {
-      return NextResponse.json({ message: "Aucune collaboration trouvée" }, { status: 404 });
-    }
+    console.log("Résultat final des collaborations:", collaborations);
 
     return NextResponse.json(collaborations);
   } catch (e) {

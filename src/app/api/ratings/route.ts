@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       const db = client.db("impact");
 
       // Verify that the offer exists
-      const offer = await db.collection("offres").findOne({ _id: new ObjectId(offerId) });
+      const offer = await db.collection("offres").findOne({ code: offerId });
       if (!offer) {
         return NextResponse.json({ message: "Offre non trouvée" }, { status: 404 });
       }
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       // Mettre à jour le champ approprié dans l'offre
       const ratingField = type === 'ugc' ? 'entrepriseRating' : 'ugcRating';
       await db.collection("offres").updateOne(
-        { _id: new ObjectId(offerId) },
+        { code: offerId },
         {
           $set: {
             [ratingField]: {
