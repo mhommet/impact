@@ -243,7 +243,7 @@ export default function CompletedCollaborations() {
           {collaborations.length === 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500">
-                Vous n'avez pas encore de collaborations complétées.
+                Vous n&apos;avez pas encore de collaborations complétées.
               </p>
             </div>
           )}

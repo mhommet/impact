@@ -76,14 +76,14 @@ export default function Resources() {
             <div className="bg-purple-50 p-6 rounded-lg">
               <p className="text-gray-700">
                 Une fois votre auto-entreprise créée et votre numéro SIRET obtenu, 
-                revenez sur notre plateforme pour finaliser votre inscription en tant qu'UGC.
+                revenez sur notre plateforme pour finaliser votre inscription en tant qu&apos;UGC.
               </p>
               <Link href="/ugc/register">
                 <button
                   style={{ backgroundColor: "#90579F" }}
                   className="mt-4 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
                 >
-                  Retour à l'inscription
+                  Retour à l&apos;inscription
                 </button>
               </Link>
             </div>
