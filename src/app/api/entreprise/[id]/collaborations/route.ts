@@ -1,84 +1,83 @@
-import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "../../../../../../lib/mongodb";
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+import clientPromise from '../../../../../../lib/mongodb';
+
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const client = await clientPromise;
-    const db = client.db("impact");
+    const db = client.db('impact');
 
     // Récupérer les collaborations récentes (candidatures acceptées)
-    const collaborations = await db.collection("candidatures")
+    const collaborations = await db
+      .collection('candidatures')
       .aggregate([
         {
           $match: {
-            status: "accepted"
-          }
+            status: 'accepted',
+          },
         },
         {
           $lookup: {
-            from: "offres",
-            localField: "offerCode",
-            foreignField: "code",
-            as: "offer"
-          }
+            from: 'offres',
+            localField: 'offerCode',
+            foreignField: 'code',
+            as: 'offer',
+          },
         },
         {
-          $unwind: "$offer"
+          $unwind: '$offer',
         },
         {
           $match: {
-            "offer.entrepriseId": params.id
-          }
+            'offer.entrepriseId': params.id,
+          },
         },
         {
           $lookup: {
-            from: "ugc",
-            localField: "ugcId",
-            foreignField: "code",
-            as: "ugcInfo"
-          }
+            from: 'ugc',
+            localField: 'ugcId',
+            foreignField: 'code',
+            as: 'ugcInfo',
+          },
         },
         {
-          $unwind: "$ugcInfo"
+          $unwind: '$ugcInfo',
         },
         // Grouper par UGC pour éviter les doublons
         {
-          $sort: { updatedAt: -1 }
+          $sort: { updatedAt: -1 },
         },
         {
           $group: {
-            _id: "$ugcId",
-            lastCollaboration: { $first: "$$ROOT" }
-          }
+            _id: '$ugcId',
+            lastCollaboration: { $first: '$$ROOT' },
+          },
         },
         {
           $project: {
-            _id: "$lastCollaboration._id",
-            completedAt: "$lastCollaboration.updatedAt",
-            offerName: "$lastCollaboration.offer.name",
+            _id: '$lastCollaboration._id',
+            completedAt: '$lastCollaboration.updatedAt',
+            offerName: '$lastCollaboration.offer.name',
             ugcInfo: {
-              code: "$lastCollaboration.ugcInfo.code",
-              name: "$lastCollaboration.ugcInfo.name",
-              profileImage: "$lastCollaboration.ugcInfo.profileImage",
-              title: "$lastCollaboration.ugcInfo.title"
-            }
-          }
+              code: '$lastCollaboration.ugcInfo.code',
+              name: '$lastCollaboration.ugcInfo.name',
+              profileImage: '$lastCollaboration.ugcInfo.profileImage',
+              title: '$lastCollaboration.ugcInfo.title',
+            },
+          },
         },
         {
-          $sort: { completedAt: -1 }
+          $sort: { completedAt: -1 },
         },
         {
-          $limit: 5
-        }
+          $limit: 5,
+        },
       ])
       .toArray();
 
     return NextResponse.json(collaborations);
   } catch (e) {
-    console.error("Erreur lors de la récupération des collaborations:", e);
-    return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
+    console.error('Erreur lors de la récupération des collaborations:', e);
+    return NextResponse.json({ message: 'Erreur serveur' }, { status: 500 });
   }
-} 
+}

@@ -1,13 +1,18 @@
-"use client";
-import React, { useState } from "react";
-import "../../../globals.css";
-import TopBar from "../../../components/topBar";
-import Navbar from "../../../components/navbar";
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
+'use client';
+
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import React, { useState } from 'react';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import { useAuth } from '@/hooks/useAuth';
+
+import Navbar from '../../../components/navbar';
+import TopBar from '../../../components/topBar';
+import '../../../globals.css';
 
 interface AddressSuggestion {
   display_name: string;
@@ -23,15 +28,15 @@ export default function NewOffer() {
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
 
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    description: "",
-    reward: "",
-    location: "",
+    name: '',
+    category: '',
+    description: '',
+    reward: '',
+    location: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -58,16 +63,16 @@ export default function NewOffer() {
     const timeout = setTimeout(async () => {
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?` + 
-          new URLSearchParams({
-            format: 'json',
-            q: searchTerm,
-            countrycodes: 'fr',
-            addressdetails: '1',
-            limit: '5',
-            featuretype: 'city,street,house',
-            'accept-language': 'fr'
-          })
+          `https://nominatim.openstreetmap.org/search?` +
+            new URLSearchParams({
+              format: 'json',
+              q: searchTerm,
+              countrycodes: 'fr',
+              addressdetails: '1',
+              limit: '5',
+              featuretype: 'city,street,house',
+              'accept-language': 'fr',
+            })
         );
         const data = await response.json();
         setAddressSuggestions(data);
@@ -87,19 +92,19 @@ export default function NewOffer() {
       .slice(0, 3) // Prendre les 3 premiers éléments (numéro, rue, ville)
       .join(',')
       .trim();
-      
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      location: address
+      location: address,
     }));
     setShowSuggestions(false);
   };
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      location: value
+      location: value,
     }));
     handleLocationSearch(value);
   };
@@ -107,50 +112,50 @@ export default function NewOffer() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError("");
+    setError('');
 
     // Validation côté client
     if (!formData.name || formData.name.length < 3) {
-      setError("Le nom de l&apos;offre doit contenir au moins 3 caractères");
+      setError('Le nom de l&apos;offre doit contenir au moins 3 caractères');
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.category) {
-      setError("Veuillez sélectionner une catégorie");
+      setError('Veuillez sélectionner une catégorie');
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.description || formData.description.length < 10) {
-      setError("La description doit contenir au moins 10 caractères");
+      setError('La description doit contenir au moins 10 caractères');
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.reward) {
-      setError("Veuillez indiquer la rémunération proposée");
+      setError('Veuillez indiquer la rémunération proposée');
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const response = await fetch("/api/offers", {
-        method: "POST",
+      const response = await fetch('/api/offers', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de l&apos;offre");
+        throw new Error('Erreur lors de la création de l&apos;offre');
       }
 
-      router.push("/entreprise/offers");
+      router.push('/entreprise/offers');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
     }
@@ -166,16 +171,10 @@ export default function NewOffer() {
               <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600" />
             </button>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Créer une nouvelle offre
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Créer une nouvelle offre</h1>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
           <div>
@@ -278,10 +277,10 @@ export default function NewOffer() {
             <button
               type="submit"
               disabled={isSubmitting}
-              style={{ backgroundColor: "#90579F" }}
+              style={{ backgroundColor: '#90579F' }}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
             >
-              {isSubmitting ? "Publication en cours..." : "Publier l'offre"}
+              {isSubmitting ? 'Publication en cours...' : "Publier l'offre"}
             </button>
           </div>
         </form>
@@ -289,4 +288,4 @@ export default function NewOffer() {
       <Navbar />
     </div>
   );
-} 
+}

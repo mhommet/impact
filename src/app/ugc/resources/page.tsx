@@ -1,8 +1,11 @@
-"use client";
-import TopBar from "@/app/components/topBar";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+'use client';
+
+import { faArrowLeft, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import Link from 'next/link';
+
+import TopBar from '@/app/components/topBar';
 
 export default function Resources() {
   return (
@@ -22,9 +25,7 @@ export default function Resources() {
 
           <div className="space-y-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Sites officiels
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Sites officiels</h2>
               <div className="space-y-4">
                 <a
                   href="https://www.economie.gouv.fr/cedef/micro-entrepreneur-auto-entrepreneur"
@@ -48,9 +49,7 @@ export default function Resources() {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Tutoriels vidéo
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Tutoriels vidéo</h2>
               <div className="space-y-4">
                 <a
                   href="https://www.youtube.com/watch?v=5tdgDKq8PKg"
@@ -75,12 +74,12 @@ export default function Resources() {
 
             <div className="bg-purple-50 p-6 rounded-lg">
               <p className="text-gray-700">
-                Une fois votre auto-entreprise créée et votre numéro SIRET obtenu, 
-                revenez sur notre plateforme pour finaliser votre inscription en tant qu&apos;UGC.
+                Une fois votre auto-entreprise créée et votre numéro SIRET obtenu, revenez sur notre
+                plateforme pour finaliser votre inscription en tant qu&apos;UGC.
               </p>
               <Link href="/ugc/register">
                 <button
-                  style={{ backgroundColor: "#90579F" }}
+                  style={{ backgroundColor: '#90579F' }}
                   className="mt-4 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
                 >
                   Retour à l&apos;inscription
@@ -92,4 +91,4 @@ export default function Resources() {
       </div>
     </>
   );
-} 
+}

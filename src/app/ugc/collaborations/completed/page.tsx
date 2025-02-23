@@ -1,10 +1,14 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import TopBar from "@/app/components/topBar";
-import Navbar from "@/app/components/navbar";
-import Image from "next/image";
-import { Rating } from "@mui/material";
-import { useRouter } from "next/navigation";
+'use client';
+
+import { Rating } from '@mui/material';
+
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+import Navbar from '@/app/components/navbar';
+import TopBar from '@/app/components/topBar';
 
 interface Collaboration {
   _id: string;
@@ -27,27 +31,29 @@ export default function CompletedCollaborations() {
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [ratings, setRatings] = useState<{ [key: string]: { rating: number; comment: string } }>({});
+  const [ratings, setRatings] = useState<{ [key: string]: { rating: number; comment: string } }>(
+    {}
+  );
   const [submitting, setSubmitting] = useState<{ [key: string]: boolean }>({});
   const router = useRouter();
 
   useEffect(() => {
     const fetchCollaborations = async () => {
       try {
-        const userCode = localStorage.getItem("userCode");
+        const userCode = localStorage.getItem('userCode');
         if (!userCode) {
-          router.push("/ugc/login");
+          router.push('/ugc/login');
           return;
         }
 
         const response = await fetch(`/api/ugc/${userCode}/collaborations`);
         if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des collaborations");
+          throw new Error('Erreur lors de la récupération des collaborations');
         }
         const data = await response.json();
         setCollaborations(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Une erreur est survenue");
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       } finally {
         setLoading(false);
       }
@@ -57,56 +63,56 @@ export default function CompletedCollaborations() {
   }, [router]);
 
   const handleRatingChange = (collaborationId: string, value: number | null) => {
-    setRatings(prev => ({
+    setRatings((prev) => ({
       ...prev,
       [collaborationId]: {
         ...prev[collaborationId],
-        rating: value || 0
-      }
+        rating: value || 0,
+      },
     }));
   };
 
   const handleCommentChange = (collaborationId: string, comment: string) => {
-    setRatings(prev => ({
+    setRatings((prev) => ({
       ...prev,
       [collaborationId]: {
         ...prev[collaborationId],
-        comment
-      }
+        comment,
+      },
     }));
   };
 
   const submitRating = async (collaboration: Collaboration) => {
     const rating = ratings[collaboration._id];
     if (!rating || !rating.rating || !rating.comment) {
-      setError("Veuillez fournir une note et un commentaire");
+      setError('Veuillez fournir une note et un commentaire');
       return;
     }
 
-    setSubmitting(prev => ({ ...prev, [collaboration._id]: true }));
+    setSubmitting((prev) => ({ ...prev, [collaboration._id]: true }));
 
     try {
       // Log pour déboguer
-      console.log("Collaboration complète:", collaboration);
+      console.log('Collaboration complète:', collaboration);
       console.log("Envoi de l'avis avec les données:", {
         offerId: collaboration.offerCode,
         toId: collaboration.entrepriseId,
         rating: rating.rating,
         comment: rating.comment,
-        type: "entreprise"
+        type: 'entreprise',
       });
 
-      const response = await fetch("/api/ratings", {
-        method: "POST",
+      const response = await fetch('/api/ratings', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           offerId: collaboration.offerCode,
           toId: collaboration.entrepriseId,
           rating: rating.rating,
           comment: rating.comment,
-          type: "entreprise"
+          type: 'entreprise',
         }),
       });
 
@@ -116,30 +122,30 @@ export default function CompletedCollaborations() {
       }
 
       // Mettre à jour la liste des collaborations
-      setCollaborations(prevCollabs =>
-        prevCollabs.map(collab =>
+      setCollaborations((prevCollabs) =>
+        prevCollabs.map((collab) =>
           collab._id === collaboration._id
             ? {
                 ...collab,
                 entrepriseRating: {
                   rating: rating.rating,
-                  comment: rating.comment
-                }
+                  comment: rating.comment,
+                },
               }
             : collab
         )
       );
 
       // Réinitialiser le formulaire
-      setRatings(prev => {
+      setRatings((prev) => {
         const newRatings = { ...prev };
         delete newRatings[collaboration._id];
         return newRatings;
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
-      setSubmitting(prev => ({ ...prev, [collaboration._id]: false }));
+      setSubmitting((prev) => ({ ...prev, [collaboration._id]: false }));
     }
   };
 
@@ -155,45 +161,30 @@ export default function CompletedCollaborations() {
     <>
       <TopBar />
       <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Collaborations Complétées
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Collaborations Complétées</h1>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
         <div className="space-y-6">
           {collaborations.map((collaboration) => (
-            <div
-              key={collaboration._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
-            >
+            <div key={collaboration._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="relative w-16 h-16 mr-4">
                     <Image
-                      src={collaboration.entrepriseInfo.logo || "/img/default-company.png"}
+                      src={collaboration.entrepriseInfo.logo || '/img/default-company.png'}
                       alt={`Logo de ${collaboration.entrepriseInfo.name}`}
                       fill
                       className="rounded-full object-cover"
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      {collaboration.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      {collaboration.entrepriseInfo.name}
-                    </p>
+                    <h3 className="text-lg font-semibold">{collaboration.title}</h3>
+                    <p className="text-gray-600">{collaboration.entrepriseInfo.name}</p>
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-500 mt-2">
-                  {collaboration.description}
-                </p>
+                <p className="text-sm text-gray-500 mt-2">{collaboration.description}</p>
 
                 <div className="text-sm text-gray-500 mt-2">
                   Complétée le {new Date(collaboration.completedAt).toLocaleDateString()}
@@ -222,16 +213,16 @@ export default function CompletedCollaborations() {
                       <textarea
                         className="w-full p-2 border rounded-md"
                         placeholder="Votre commentaire..."
-                        value={ratings[collaboration._id]?.comment || ""}
+                        value={ratings[collaboration._id]?.comment || ''}
                         onChange={(e) => handleCommentChange(collaboration._id, e.target.value)}
                       />
                       <button
                         onClick={() => submitRating(collaboration)}
                         disabled={submitting[collaboration._id]}
-                        style={{ backgroundColor: "#90579F" }}
+                        style={{ backgroundColor: '#90579F' }}
                         className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200 disabled:opacity-50"
                       >
-                        {submitting[collaboration._id] ? "Envoi..." : "Envoyer l'avis"}
+                        {submitting[collaboration._id] ? 'Envoi...' : "Envoyer l'avis"}
                       </button>
                     </div>
                   </div>
@@ -252,4 +243,4 @@ export default function CompletedCollaborations() {
       <Navbar />
     </>
   );
-} 
+}

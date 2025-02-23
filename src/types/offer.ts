@@ -2,7 +2,7 @@ export enum OfferStatus {
   CREATED = 'created',
   IN_PROGRESS = 'in_progress',
   PENDING_VALIDATION = 'pending_validation',
-  COMPLETED = 'completed'
+  COMPLETED = 'completed',
 }
 
 export interface Rating {
@@ -21,6 +21,14 @@ export interface EntrepriseRating extends Rating {
   ugcId: string;
 }
 
+export interface Media {
+  _id: string;
+  type: 'image' | 'video';
+  url: string;
+  createdAt: string;
+  description?: string;
+}
+
 export interface Offer {
   _id: string;
   code: string;
@@ -33,6 +41,7 @@ export interface Offer {
   completedAt?: string;
   entrepriseId: string;
   candidatesCount: number;
+  medias?: Media[];
   ugcInfo?: {
     name: string;
     profileImage: string;
@@ -57,4 +66,4 @@ export interface CompletedOffer extends Offer {
   completedAt: string;
   ugcRating: Rating;
   entrepriseRating: Rating;
-} 
+}

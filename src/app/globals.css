@@ -3,11 +3,11 @@
 @tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
-html{
+html {
   background-color: rgb(231, 231, 231);
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
-body{
+body {
   overflow-y: auto;
 }

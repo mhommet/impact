@@ -1,17 +1,21 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import TopBar from "@/app/components/topBar";
-import Navbar from "@/app/components/navbar";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
+'use client';
+
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
+
+import Navbar from '@/app/components/navbar';
+import TopBar from '@/app/components/topBar';
 
 interface Candidature {
   _id: string;
   ugcId: string;
   offerCode: string;
-  status: "pending" | "accepted" | "rejected";
+  status: 'pending' | 'accepted' | 'rejected';
   createdAt: string;
   ugcInfo: {
     name: string;
@@ -31,12 +35,12 @@ export default function Candidatures({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/candidatures?offerCode=${params.id}`);
         if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des candidatures");
+          throw new Error('Erreur lors de la récupération des candidatures');
         }
         const data = await response.json();
         setCandidatures(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Une erreur est survenue");
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       } finally {
         setLoading(false);
       }
@@ -45,7 +49,10 @@ export default function Candidatures({ params }: { params: { id: string } }) {
     fetchCandidatures();
   }, [params.id]);
 
-  const updateCandidatureStatus = async (candidatureId: string, newStatus: "pending" | "accepted" | "rejected") => {
+  const updateCandidatureStatus = async (
+    candidatureId: string,
+    newStatus: 'pending' | 'accepted' | 'rejected'
+  ) => {
     setUpdating(candidatureId);
     try {
       const response = await fetch('/api/candidatures/status', {
@@ -55,7 +62,7 @@ export default function Candidatures({ params }: { params: { id: string } }) {
         },
         body: JSON.stringify({
           candidatureId,
-          status: newStatus
+          status: newStatus,
         }),
       });
 
@@ -64,11 +71,11 @@ export default function Candidatures({ params }: { params: { id: string } }) {
       }
 
       // Mettre à jour l'état local avec le type correct
-      setCandidatures(candidatures.map(candidature => 
-        candidature._id === candidatureId 
-          ? { ...candidature, status: newStatus }
-          : candidature
-      ));
+      setCandidatures(
+        candidatures.map((candidature) =>
+          candidature._id === candidatureId ? { ...candidature, status: newStatus } : candidature
+        )
+      );
     } catch (error) {
       console.error('Erreur:', error);
       setError('Erreur lors de la mise à jour du statut');
@@ -95,51 +102,39 @@ export default function Candidatures({ params }: { params: { id: string } }) {
               <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600" />
             </button>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Candidatures reçues
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Candidatures reçues</h1>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {candidatures.map((candidature) => (
-            <div
-              key={candidature._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
-            >
+            <div key={candidature._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="relative w-16 h-16 mr-4">
                     <Image
-                      src={candidature.ugcInfo.profileImage || "https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png"}
+                      src={
+                        candidature.ugcInfo.profileImage ||
+                        'https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png'
+                      }
                       alt={`Photo de ${candidature.ugcInfo.name}`}
                       fill
                       className="rounded-full object-cover"
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      {candidature.ugcInfo.name}
-                    </h3>
+                    <h3 className="text-lg font-semibold">{candidature.ugcInfo.name}</h3>
                     <p className="text-gray-600">{candidature.ugcInfo.title}</p>
-                    <p className="text-sm text-gray-500">
-                      Statut: {candidature.status}
-                    </p>
+                    <p className="text-sm text-gray-500">Statut: {candidature.status}</p>
                   </div>
                 </div>
                 <div className="flex flex-col space-y-2 mt-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      Statut: {candidature.status}
-                    </span>
+                    <span className="text-sm text-gray-500">Statut: {candidature.status}</span>
                     <Link href={`/ugc/profile/${candidature.ugcId}`}>
                       <button
-                        style={{ backgroundColor: "#90579F" }}
+                        style={{ backgroundColor: '#90579F' }}
                         className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200"
                       >
                         Voir le profil
@@ -171,9 +166,7 @@ export default function Candidatures({ params }: { params: { id: string } }) {
 
           {candidatures.length === 0 && (
             <div className="col-span-full text-center py-8">
-              <p className="text-gray-500">
-                Aucune candidature reçue pour cette offre.
-              </p>
+              <p className="text-gray-500">Aucune candidature reçue pour cette offre.</p>
             </div>
           )}
         </div>
@@ -181,4 +174,4 @@ export default function Candidatures({ params }: { params: { id: string } }) {
       <Navbar />
     </>
   );
-} 
+}

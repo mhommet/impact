@@ -1,14 +1,18 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Head from "next/head";
-import Image from "next/image";
-import Navbar from "@/app/components/navbar";
-import TopBar from "@/app/components/topBar";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/navigation";
-import { Rating } from "@mui/material";
+'use client';
+
+import { faArrowLeft, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Rating } from '@mui/material';
+
+import React, { useEffect, useState } from 'react';
+
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import Navbar from '@/app/components/navbar';
+import TopBar from '@/app/components/topBar';
 
 interface EntrepriseProfile {
   code: string;
@@ -61,17 +65,19 @@ export default function Entreprise({ params }: { params: { id: string } }) {
         // Récupérer le profil de l'entreprise
         const response = await fetch(`/api/entreprise?id=${params.id}`);
         if (!response.ok) {
-          throw new Error("Erreur lors de la récupération du profil");
+          throw new Error('Erreur lors de la récupération du profil');
         }
         const data = await response.json();
         setProfile(data);
 
         // Vérifier si c'est le profil de l'utilisateur courant
-        const storedUserCode = localStorage.getItem("userCode");
+        const storedUserCode = localStorage.getItem('userCode');
         setIsCurrentUser(storedUserCode === params.id);
 
         // Récupérer les avis (limités aux 5 plus récents)
-        const ratingsResponse = await fetch(`/api/ratings?userId=${params.id}&type=entreprise&limit=5`);
+        const ratingsResponse = await fetch(
+          `/api/ratings?userId=${params.id}&type=entreprise&limit=5`
+        );
         if (ratingsResponse.ok) {
           const ratingsData = await ratingsResponse.json();
           setRatings(ratingsData);
@@ -84,7 +90,7 @@ export default function Entreprise({ params }: { params: { id: string } }) {
           setCollaborations(collaborationsData);
         }
       } catch (error) {
-        console.error("Erreur:", error);
+        console.error('Erreur:', error);
       }
     };
 
@@ -108,7 +114,7 @@ export default function Entreprise({ params }: { params: { id: string } }) {
         />
       </Head>
       <TopBar />
-      <button 
+      <button
         onClick={() => router.back()}
         className="absolute top-20 left-4 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
       >
@@ -122,10 +128,13 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                 <div className="w-full px-4 flex justify-center">
                   <div className="relative w-40 h-40 -mt-16">
                     <Image
-                      src={profile.logo || "https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png"}
+                      src={
+                        profile.logo ||
+                        'https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png'
+                      }
                       alt="Logo entreprise"
                       fill
-                      style={{ objectFit: "cover" }}
+                      style={{ objectFit: 'cover' }}
                       className="shadow-xl rounded-full border-none"
                       priority
                     />
@@ -135,7 +144,7 @@ export default function Entreprise({ params }: { params: { id: string } }) {
               {isCurrentUser && (
                 <Link href="/entreprise/profile/edit">
                   <button
-                    style={{ backgroundColor: "#90579F" }}
+                    style={{ backgroundColor: '#90579F' }}
                     className="text-white p-3 rounded-full w-12 h-12 flex items-center justify-center hover:bg-purple-700 transition-colors duration-200"
                   >
                     <FontAwesomeIcon icon={faPencilAlt} />
@@ -153,7 +162,7 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                 </div>
 
                 <div className="mb-2 text-gray-700 mt-4">{profile.category}</div>
-                
+
                 {profile.website && (
                   <a
                     href={profile.website}
@@ -205,7 +214,10 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                 <div className="flex flex-wrap gap-6 justify-center px-6">
                   {collaborations && collaborations.length > 0 ? (
                     collaborations.map((collab) => (
-                      <div key={collab._id} className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-64">
+                      <div
+                        key={collab._id}
+                        className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-64"
+                      >
                         <div className="relative w-20 h-20 mb-2">
                           <Image
                             src={collab.ugcInfo.profileImage}
@@ -215,10 +227,12 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                           />
                         </div>
                         <h3 className="font-semibold text-center">{collab.ugcInfo.name}</h3>
-                        <p className="text-sm text-gray-500 text-center mb-2">{collab.ugcInfo.title}</p>
+                        <p className="text-sm text-gray-500 text-center mb-2">
+                          {collab.ugcInfo.title}
+                        </p>
                         <Link href={`/ugc/profile/${collab.ugcInfo.code}`}>
                           <button
-                            style={{ backgroundColor: "#90579F" }}
+                            style={{ backgroundColor: '#90579F' }}
                             className="text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors duration-200"
                           >
                             Voir le profil

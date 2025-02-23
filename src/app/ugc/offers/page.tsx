@@ -1,20 +1,19 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import "../../globals.css";
-import Image from "next/image";
-import Navbar from "../../components/navbar";
-import TopBar from "../../components/topBar";
-import "@fortawesome/fontawesome-svg-core/styles.css";
-import Link from "next/link";
-import {
-  faFilter,
-  faHeart,
-  faLocation,
-  faSort,
-  faStar,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { loginFetch } from "@/helpers/loginFetch";
+'use client';
+
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { faFilter, faHeart, faLocation, faSort, faStar } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
+
+import { loginFetch } from '@/helpers/loginFetch';
+
+import Navbar from '../../components/navbar';
+import TopBar from '../../components/topBar';
+import '../../globals.css';
 
 interface Offer {
   id: string;
@@ -40,44 +39,48 @@ const getRestaurantImage = (index: number) => {
 
 const App = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [filteredOffers, setFilteredOffers] = useState<Offer[]>([]);
   const [showCategoryFilter, setShowCategoryFilter] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [isGeolocActive, setIsGeolocActive] = useState(false);
   const [maxDistance, setMaxDistance] = useState(1000);
   const [showDistanceFilter, setShowDistanceFilter] = useState(false);
-  const [cityCoordinatesCache, setCityCoordinatesCache] = useState<{[key: string]: Coordinates}>({});
+  const [cityCoordinatesCache, setCityCoordinatesCache] = useState<{ [key: string]: Coordinates }>(
+    {}
+  );
   const [allOffers, setAllOffers] = useState<Offer[]>([]);
   const [ugcLocation, setUgcLocation] = useState<string | null>(null);
 
   // Get unique categories
-  const categories = Array.from(new Set(offers.map(offer => offer.category)));
+  const categories = Array.from(new Set(offers.map((offer) => offer.category)));
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    console.log("Position utilisateur:", {lat: lat1, lon: lon1});
-    console.log("Position offre:", {lat: lat2, lon: lon2});
-    
+    console.log('Position utilisateur:', { lat: lat1, lon: lon1 });
+    console.log('Position offre:', { lat: lat2, lon: lon2 });
+
     const R = 6371; // Rayon de la Terre en km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = Math.round(R * c);
-    
+
     console.log(`Distance calculée entre ${lat1},${lon1} et ${lat2},${lon2}: ${distance}km`);
     return distance;
   };
 
   const getCityCoordinates = async (address: string): Promise<Coordinates> => {
     if (cityCoordinatesCache[address]) {
-      console.log("Utilisation du cache pour", address, cityCoordinatesCache[address]);
+      console.log('Utilisation du cache pour', address, cityCoordinatesCache[address]);
       return cityCoordinatesCache[address];
     }
 
@@ -88,28 +91,26 @@ const App = () => {
         countrycodes: 'fr',
         addressdetails: '1',
         limit: '1',
-        'accept-language': 'fr'
+        'accept-language': 'fr',
       });
 
-      console.log("URL de recherche:", `https://nominatim.openstreetmap.org/search?${params}`);
-      
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?${params}`
-      );
+      console.log('URL de recherche:', `https://nominatim.openstreetmap.org/search?${params}`);
+
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
       const data = await response.json();
-      
-      console.log("Réponse Nominatim complète:", data);
-      
+
+      console.log('Réponse Nominatim complète:', data);
+
       if (data && data[0]) {
         const coords = {
           lat: parseFloat(data[0].lat),
-          lon: parseFloat(data[0].lon)
+          lon: parseFloat(data[0].lon),
         };
-        console.log("Coordonnées trouvées pour", address, ":", coords);
-        setCityCoordinatesCache(prev => ({ ...prev, [address]: coords }));
+        console.log('Coordonnées trouvées pour', address, ':', coords);
+        setCityCoordinatesCache((prev) => ({ ...prev, [address]: coords }));
         return coords;
       }
-      throw new Error("Adresse non trouvée");
+      throw new Error('Adresse non trouvée');
     } catch (error) {
       console.error("Erreur lors de la géolocalisation de l'adresse:", error);
       throw error;
@@ -128,7 +129,9 @@ const App = () => {
         setFilteredOffers(data);
       } catch (error) {
         console.error('Erreur:', error);
-        setError("Une erreur est survenue lors de la récupération des offres. Veuillez réessayer plus tard.");
+        setError(
+          'Une erreur est survenue lors de la récupération des offres. Veuillez réessayer plus tard.'
+        );
         setAllOffers([]);
         setOffers([]);
         setFilteredOffers([]);
@@ -143,10 +146,10 @@ const App = () => {
     setIsLoading(true);
     try {
       const data = await loginFetch('/api/ugc/current');
-      console.log("Données UGC reçues:", data);
-      
+      console.log('Données UGC reçues:', data);
+
       if (!data || !data.location) {
-        setError("Veuillez définir votre localisation dans votre profil");
+        setError('Veuillez définir votre localisation dans votre profil');
         setIsGeolocActive(false);
         return;
       }
@@ -155,8 +158,8 @@ const App = () => {
       await processGeolocation(data.location);
       setIsGeolocActive(true);
     } catch (error) {
-      console.error("Erreur lors de la récupération de la localisation:", error);
-      setError("Impossible de récupérer votre localisation");
+      console.error('Erreur lors de la récupération de la localisation:', error);
+      setError('Impossible de récupérer votre localisation');
       setIsGeolocActive(false);
     } finally {
       setIsLoading(false);
@@ -165,54 +168,55 @@ const App = () => {
 
   const processGeolocation = async (location: string) => {
     try {
-      console.log("Récupération des coordonnées pour:", location);
+      console.log('Récupération des coordonnées pour:', location);
       const coordinates = await getCityCoordinates(location);
-      console.log("Coordonnées obtenues:", coordinates);
+      console.log('Coordonnées obtenues:', coordinates);
       setUserLocation(coordinates);
       await updateOffersWithDistance(coordinates);
     } catch (error) {
-      console.error("Erreur lors de la géolocalisation:", error);
-      setError("Impossible de déterminer votre localisation");
+      console.error('Erreur lors de la géolocalisation:', error);
+      setError('Impossible de déterminer votre localisation');
       setIsGeolocActive(false);
     }
   };
 
   const updateOffersWithDistance = async (userCoords: Coordinates) => {
-    console.log("Position UGC:", userCoords);
+    console.log('Position UGC:', userCoords);
 
     const offersWithDistances = await Promise.all(
-      allOffers.filter(offer => offer.location).map(async (offer) => {
-        try {
-          console.log(`Calcul distance pour l'offre "${offer.name}" à ${offer.location}`);
-          const coordinates = await getCityCoordinates(offer.location);
-          console.log(`Coordonnées obtenues pour ${offer.name}:`, coordinates);
+      allOffers
+        .filter((offer) => offer.location)
+        .map(async (offer) => {
+          try {
+            console.log(`Calcul distance pour l'offre "${offer.name}" à ${offer.location}`);
+            const coordinates = await getCityCoordinates(offer.location);
+            console.log(`Coordonnées obtenues pour ${offer.name}:`, coordinates);
 
-          const distance = calculateDistance(
-            userCoords.lat,
-            userCoords.lon,
-            coordinates.lat,
-            coordinates.lon
-          );
-          
-          console.log(`Distance finale pour ${offer.name}: ${distance}km`);
-          return { ...offer, distance };
-        } catch (error) {
-          console.error(`Erreur pour l'offre ${offer.name}:`, error);
-          return null;
-        }
-      })
+            const distance = calculateDistance(
+              userCoords.lat,
+              userCoords.lon,
+              coordinates.lat,
+              coordinates.lon
+            );
+
+            console.log(`Distance finale pour ${offer.name}: ${distance}km`);
+            return { ...offer, distance };
+          } catch (error) {
+            console.error(`Erreur pour l'offre ${offer.name}:`, error);
+            return null;
+          }
+        })
     );
 
     // Filtrer les offres nulles et celles dépassant la distance maximale
     const validOffers = offersWithDistances
-      .filter((offer): offer is Offer & { distance: number } => 
-        offer !== null && 
-        offer.distance !== undefined && 
-        offer.distance <= maxDistance
+      .filter(
+        (offer): offer is Offer & { distance: number } =>
+          offer !== null && offer.distance !== undefined && offer.distance <= maxDistance
       )
       .sort((a, b) => a.distance - b.distance);
 
-    console.log("Offres triées finales:", validOffers);
+    console.log('Offres triées finales:', validOffers);
     setOffers(validOffers);
     setFilteredOffers(validOffers);
   };
@@ -246,8 +250,8 @@ const App = () => {
 
   // Reset filters
   const resetFilters = () => {
-    setSelectedCategory("");
-    setSearchTerm("");
+    setSelectedCategory('');
+    setSearchTerm('');
   };
 
   const disableGeolocation = () => {
@@ -269,14 +273,12 @@ const App = () => {
             className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#182F53] via-[#544697] to-[#90579F] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
             style={{
               clipPath:
-                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
             }}
           />
         </div>
         <div>
-          <h3 className="text-gray-900 text-xl font-bold">
-            Les annonces à la une
-          </h3>
+          <h3 className="text-gray-900 text-xl font-bold">Les annonces à la une</h3>
           <div className="flex items-center justify-between space-x-4 mt-5">
             {Array.isArray(offers) && offers.length > 0 && (
               <>
@@ -287,16 +289,16 @@ const App = () => {
                     className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full"
                   >
                     <div className="md:flex">
-                    <div className="md:flex-shrink-0 h-48 md:h-auto w-full overflow-hidden">
-                      <Image
-                        width={400}
-                        height={300}
-                        className="h-full w-full object-cover md:w-full"
-                        src={getRestaurantImage(3)}
-                        alt="Restaurant image"
-                        priority
-                      />
-                    </div>
+                      <div className="md:flex-shrink-0 h-48 md:h-auto w-full overflow-hidden">
+                        <Image
+                          width={400}
+                          height={300}
+                          className="h-full w-full object-cover md:w-full"
+                          src={getRestaurantImage(3)}
+                          alt="Restaurant image"
+                          priority
+                        />
+                      </div>
                     </div>
                     <div className="p-8">
                       <div className="flex justify-between items-center">
@@ -323,12 +325,10 @@ const App = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-gray-400">
-                        {offers[offers.length - 1].category}
-                      </div>
+                      <div className="mt-2 text-gray-400">{offers[offers.length - 1].category}</div>
                       <div className="mt-2 flex justify-between items-center">
                         <button
-                          style={{ backgroundColor: "#90579F" }}
+                          style={{ backgroundColor: '#90579F' }}
                           className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
                         >
                           Voir le brief
@@ -366,18 +366,18 @@ const App = () => {
               <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
                 <span className="text-gray-600">
                   <FontAwesomeIcon icon={faSort} />
-                </span>{" "}
+                </span>{' '}
                 Trier
               </button>
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowCategoryFilter(!showCategoryFilter)}
                   className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${selectedCategory ? 'bg-purple-100' : ''}`}
                 >
                   <span className="text-gray-600">
                     <FontAwesomeIcon icon={faFilter} />
-                  </span>{" "}
-                  {selectedCategory || "Filtrer"}
+                  </span>{' '}
+                  {selectedCategory || 'Filtrer'}
                 </button>
                 {showCategoryFilter && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1">
@@ -400,7 +400,7 @@ const App = () => {
                 )}
               </div>
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowDistanceFilter(!showDistanceFilter)}
                   className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${isGeolocActive ? 'bg-purple-100' : ''}`}
                 >
@@ -422,23 +422,23 @@ const App = () => {
                 )}
               </div>
               {isGeolocActive ? (
-                <button 
+                <button
                   onClick={disableGeolocation}
                   className="text-white bg-purple-600 px-2 py-1 flex items-center rounded-md"
                 >
                   <span className="text-white">
                     <FontAwesomeIcon icon={faLocation} />
-                  </span>{" "}
+                  </span>{' '}
                   Désactiver la géoloc
                 </button>
               ) : (
-                <button 
+                <button
                   onClick={handleGeolocation}
                   className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md"
                 >
                   <span className="text-gray-600">
                     <FontAwesomeIcon icon={faLocation} />
-                  </span>{" "}
+                  </span>{' '}
                   Me géolocaliser
                 </button>
               )}
@@ -451,7 +451,7 @@ const App = () => {
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                   {selectedCategory}
                   <button
-                    onClick={() => setSelectedCategory("")}
+                    onClick={() => setSelectedCategory('')}
                     className="ml-1 hover:text-purple-900"
                   >
                     ×
@@ -461,10 +461,7 @@ const App = () => {
               {searchTerm && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                   Recherche: {searchTerm}
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="ml-1 hover:text-purple-900"
-                  >
+                  <button onClick={() => setSearchTerm('')} className="ml-1 hover:text-purple-900">
                     ×
                   </button>
                 </span>
@@ -481,10 +478,7 @@ const App = () => {
         {isGeolocActive && (
           <div className="mt-4 bg-purple-100 text-purple-800 px-4 py-2 rounded-md flex items-center justify-between">
             <span>Géolocalisation active - Les offres sont triées par distance</span>
-            <button 
-              onClick={handleGeolocation}
-              className="text-purple-600 hover:text-purple-800"
-            >
+            <button onClick={handleGeolocation} className="text-purple-600 hover:text-purple-800">
               Réinitialiser
             </button>
           </div>
@@ -495,18 +489,25 @@ const App = () => {
               <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
               <h2 className="text-center text-white text-xl font-semibold">Chargement...</h2>
               <p className="w-1/3 text-center text-white">
-                Les offres sont en train de charger, cela peut prendre quelques secondes, veuillez garder la page ouverte.
+                Les offres sont en train de charger, cela peut prendre quelques secondes, veuillez
+                garder la page ouverte.
               </p>
             </div>
           ) : error ? (
             <div className="col-span-full text-center py-8">
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <div
+                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                role="alert"
+              >
                 <strong className="font-bold">Erreur ! </strong>
                 <span className="block sm:inline">{error}</span>
               </div>
             </div>
           ) : (
-            <ul role="list" className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full">
+            <ul
+              role="list"
+              className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full"
+            >
               {filteredOffers.length > 0 ? (
                 filteredOffers.map((offer, index) => (
                   <Link key={offer.id} href={`/ugc/offer/${offer.code}`}>
@@ -552,7 +553,7 @@ const App = () => {
                           </div>
                           <div className="mt-2 flex justify-between items-center">
                             <button
-                              style={{ backgroundColor: "#90579F" }}
+                              style={{ backgroundColor: '#90579F' }}
                               className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
                             >
                               Voir le brief
@@ -571,7 +572,9 @@ const App = () => {
               ) : (
                 <div className="col-span-full text-center py-8">
                   <p className="text-gray-500">
-                    {searchTerm ? "Aucune offre ne correspond à votre recherche." : "Aucune offre disponible pour le moment."}
+                    {searchTerm
+                      ? 'Aucune offre ne correspond à votre recherche.'
+                      : 'Aucune offre disponible pour le moment.'}
                   </p>
                 </div>
               )}
@@ -587,7 +590,7 @@ const App = () => {
           className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
           style={{
             clipPath:
-              "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+              'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
           }}
         />
       </div>

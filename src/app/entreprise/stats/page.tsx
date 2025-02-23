@@ -1,9 +1,12 @@
-"use client";
-import "../../globals.css";
-import Image from "next/image";
-import Navbar from "../../components/navbar";
-import TopBar from "../../components/topBar";
-import "@fortawesome/fontawesome-svg-core/styles.css";
+'use client';
+
+import '@fortawesome/fontawesome-svg-core/styles.css';
+
+import Image from 'next/image';
+
+import Navbar from '../../components/navbar';
+import TopBar from '../../components/topBar';
+import '../../globals.css';
 
 const Stats = () => {
   return (
@@ -26,9 +29,15 @@ const Stats = () => {
           />
         </div>
         <br />
-        <h3 className="font-bold text-center text-black">Nombre total d&apos;impressions : <span className="text-green-500">5,773</span></h3>
-        <h3 className="font-bold text-center text-black">Nombre total de clics : <span className="text-green-500">3,773</span></h3>
-        <h3 className="font-bold text-center text-black">Nombre total de vues : <span className="text-green-500">2,773</span></h3>
+        <h3 className="font-bold text-center text-black">
+          Nombre total d&apos;impressions : <span className="text-green-500">5,773</span>
+        </h3>
+        <h3 className="font-bold text-center text-black">
+          Nombre total de clics : <span className="text-green-500">3,773</span>
+        </h3>
+        <h3 className="font-bold text-center text-black">
+          Nombre total de vues : <span className="text-green-500">2,773</span>
+        </h3>
       </div>
     </div>
   );

@@ -1,14 +1,18 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import TopBar from "@/app/components/topBar";
-import Navbar from "@/app/components/navbar";
-import { useAuth } from "@/hooks/useAuth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import { jwtDecode } from "jwt-decode";
+'use client';
+
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { jwtDecode } from 'jwt-decode';
+
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import Navbar from '@/app/components/navbar';
+import TopBar from '@/app/components/topBar';
+import { useAuth } from '@/hooks/useAuth';
 
 interface JwtPayload {
   userId: string;
@@ -45,22 +49,22 @@ export default function EditProfile() {
   useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [profile, setProfile] = useState<UgcProfile>({
-    code: "",
-    name: "",
-    description: "",
-    location: "",
-    title: "",
-    profileImage: "",
+    code: '',
+    name: '',
+    description: '',
+    location: '',
+    title: '',
+    profileImage: '',
     socialLinks: {},
     portfolio: {
       contracts: 0,
       photos: 0,
-      comments: 0
-    }
+      comments: 0,
+    },
   });
 
   // Chargement du profil
@@ -73,7 +77,7 @@ export default function EditProfile() {
           setProfile(data);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement du profil:", error);
+        console.error('Erreur lors du chargement du profil:', error);
       }
     };
     fetchProfile();
@@ -81,19 +85,19 @@ export default function EditProfile() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name.startsWith("social.")) {
-      const socialNetwork = name.split(".")[1];
-      setProfile(prev => ({
+    if (name.startsWith('social.')) {
+      const socialNetwork = name.split('.')[1];
+      setProfile((prev) => ({
         ...prev,
         socialLinks: {
           ...prev.socialLinks,
-          [socialNetwork]: value
-        }
+          [socialNetwork]: value,
+        },
       }));
     } else {
-      setProfile(prev => ({
+      setProfile((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -118,18 +122,18 @@ export default function EditProfile() {
   };
 
   const handleLocationSelect = (suggestion: AddressSuggestion) => {
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
-      location: suggestion.display_name
+      location: suggestion.display_name,
     }));
     setShowSuggestions(false);
   };
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
-      location: value
+      location: value,
     }));
     handleLocationSearch(value);
   };
@@ -137,30 +141,30 @@ export default function EditProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError("");
+    setError('');
 
     try {
-      const response = await fetch("/api/ugc", {
-        method: "POST",
+      const response = await fetch('/api/ugc', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(profile),
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour du profil");
+        throw new Error('Erreur lors de la mise à jour du profil');
       }
 
       // Récupérer l'userId depuis le localStorage
-      const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem('userId');
       if (userId) {
         router.push(`/ugc/profile/${userId}`);
       } else {
-        throw new Error("UserId non trouvé");
+        throw new Error('UserId non trouvé');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
     }
@@ -176,16 +180,10 @@ export default function EditProfile() {
               <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600" />
             </button>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Modifier mon profil
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Modifier mon profil</h1>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
           <div>
@@ -280,7 +278,7 @@ export default function EditProfile() {
 
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Réseaux sociaux</h3>
-            
+
             <div>
               <label htmlFor="social.instagram" className="block text-sm font-medium text-gray-700">
                 Instagram
@@ -289,7 +287,7 @@ export default function EditProfile() {
                 type="text"
                 id="social.instagram"
                 name="social.instagram"
-                value={profile.socialLinks.instagram || ""}
+                value={profile.socialLinks.instagram || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 placeholder="@votre_compte"
@@ -304,7 +302,7 @@ export default function EditProfile() {
                 type="text"
                 id="social.tiktok"
                 name="social.tiktok"
-                value={profile.socialLinks.tiktok || ""}
+                value={profile.socialLinks.tiktok || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 placeholder="@votre_compte"
@@ -319,7 +317,7 @@ export default function EditProfile() {
                 type="text"
                 id="social.pinterest"
                 name="social.pinterest"
-                value={profile.socialLinks.pinterest || ""}
+                value={profile.socialLinks.pinterest || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 placeholder="@votre_compte"
@@ -334,7 +332,7 @@ export default function EditProfile() {
                 type="text"
                 id="social.youtube"
                 name="social.youtube"
-                value={profile.socialLinks.youtube || ""}
+                value={profile.socialLinks.youtube || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 placeholder="@votre_compte"
@@ -346,10 +344,10 @@ export default function EditProfile() {
             <button
               type="submit"
               disabled={isSubmitting}
-              style={{ backgroundColor: "#90579F" }}
+              style={{ backgroundColor: '#90579F' }}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
             >
-              {isSubmitting ? "Enregistrement..." : "Enregistrer les modifications"}
+              {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </button>
           </div>
         </form>
@@ -357,4 +355,4 @@ export default function EditProfile() {
       <Navbar />
     </div>
   );
-} 
+}

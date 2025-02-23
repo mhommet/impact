@@ -1,13 +1,18 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import TopBar from "@/app/components/topBar";
-import Navbar from "@/app/components/navbar";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons";
-import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
-import Image from "next/image";
-import { OfferStatus } from "@/types/offer";
+'use client';
+
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { faArrowLeft, faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
+
+import { OfferStatus } from '@/types/offer';
+
+import Navbar from '@/app/components/navbar';
+import TopBar from '@/app/components/topBar';
 
 interface Offer {
   _id: string;
@@ -42,6 +47,13 @@ interface Offer {
       title: string;
     };
   }>;
+  medias?: Array<{
+    _id: string;
+    type: string;
+    url: string;
+    description?: string;
+    createdAt: string;
+  }>;
 }
 
 export default function OfferDetails({ params }: { params: { id: string } }) {
@@ -50,7 +62,7 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
 
   useEffect(() => {
@@ -67,7 +79,7 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
           setComment(data.entrepriseRating.comment);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Une erreur est survenue");
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       } finally {
         setLoading(false);
       }
@@ -86,7 +98,7 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
         },
         body: JSON.stringify({
           candidatureId,
-          status: newStatus
+          status: newStatus,
         }),
       });
 
@@ -95,15 +107,13 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
       }
 
       // Mettre à jour l'état local
-      setOffer(prevOffer => {
+      setOffer((prevOffer) => {
         if (!prevOffer) return null;
         return {
           ...prevOffer,
-          candidatures: prevOffer.candidatures?.map(candidature =>
-            candidature._id === candidatureId
-              ? { ...candidature, status: newStatus }
-              : candidature
-          )
+          candidatures: prevOffer.candidatures?.map((candidature) =>
+            candidature._id === candidatureId ? { ...candidature, status: newStatus } : candidature
+          ),
         };
       });
     } catch (error) {
@@ -119,14 +129,14 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
       console.error('No offer data available');
       return;
     }
-    
-    const acceptedCandidature = offer.candidatures?.find(c => c.status === 'accepted');
+
+    const acceptedCandidature = offer.candidatures?.find((c) => c.status === 'accepted');
     console.log('Found accepted candidature:', acceptedCandidature);
-    
+
     if (!acceptedCandidature || !acceptedCandidature.ugcId) {
       console.error('Invalid candidature data:', {
         exists: !!acceptedCandidature,
-        hasUgcId: !!acceptedCandidature?.ugcId
+        hasUgcId: !!acceptedCandidature?.ugcId,
       });
       setError('Impossible de trouver les informations du UGC');
       return;
@@ -139,42 +149,45 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
         toId: acceptedCandidature.ugcId,
         rating,
         comment,
-        type: 'ugc'
+        type: 'ugc',
       };
-      
+
       console.log('Sending rating request with data:', requestData);
 
       const response = await fetch('/api/ratings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
       console.log('Response from server:', data);
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Erreur lors de la soumission de la note');
       }
 
       // Mettre à jour l'état local
-      setOffer(prev => prev ? {
-        ...prev,
-        entrepriseRating: {
-          rating,
-          comment,
-          createdAt: new Date().toISOString()
-        }
-      } : null);
+      setOffer((prev) =>
+        prev
+          ? {
+              ...prev,
+              entrepriseRating: {
+                rating,
+                comment,
+                createdAt: new Date().toISOString(),
+              },
+            }
+          : null
+      );
 
       // Clear the form after successful submission
       setRating(0);
       setComment('');
       setError(null);
-
     } catch (error) {
       console.error('Erreur détaillée:', error);
       setError(error instanceof Error ? error.message : 'Erreur lors de la soumission de la note');
@@ -199,7 +212,7 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
     );
   }
 
-  const acceptedCandidature = offer.candidatures?.find(c => c.status === 'accepted');
+  const acceptedCandidature = offer.candidatures?.find((c) => c.status === 'accepted');
 
   return (
     <>
@@ -212,50 +225,66 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                 <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600" />
               </button>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Détails de l&apos;offre
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Détails de l&apos;offre</h1>
           </div>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
             <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                {offer.name}
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">{offer.name}</h2>
               <div className="flex flex-wrap gap-2 mb-4">
-                {offer.category.split(" ").map((word, index) => (
+                {offer.category.split(' ').map((word, index) => (
                   <span
                     key={index}
-                    style={{ backgroundColor: "#90579F" }}
+                    style={{ backgroundColor: '#90579F' }}
                     className="text-white px-3 py-1 rounded-full text-sm"
                   >
                     {word}
                   </span>
                 ))}
               </div>
-              <p className="text-purple-600 font-semibold mb-4">
-                {offer.reward}
-              </p>
+              <p className="text-purple-600 font-semibold mb-4">{offer.reward}</p>
             </div>
             <div className="border-t border-gray-200 pt-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Description
-              </h3>
-              <p className="text-gray-600 whitespace-pre-line">
-                {offer.description}
-              </p>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
+              <p className="text-gray-600 whitespace-pre-line">{offer.description}</p>
             </div>
             <div className="mt-4 text-sm text-gray-500">
               Publiée le {new Date(offer.createdAt).toLocaleDateString()}
             </div>
+
+            {/* Section des médias */}
+            {offer.medias && offer.medias.length > 0 && (
+              <div className="mt-8 border-t border-gray-200 pt-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Médias de l&apos;offre</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {offer.medias.map((media) => (
+                    <div key={media._id} className="relative">
+                      {media.type === 'image' ? (
+                        <Image
+                          src={media.url}
+                          alt={media.description || 'Image'}
+                          width={300}
+                          height={300}
+                          className="rounded-lg object-cover"
+                        />
+                      ) : (
+                        <video src={media.url} controls className="rounded-lg w-full" />
+                      )}
+                      {media.description && (
+                        <p className="mt-2 text-sm text-gray-600">{media.description}</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Ajouté le {new Date(media.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Section de notation pour les offres complétées */}
             {offer.status === OfferStatus.COMPLETED && acceptedCandidature && (
@@ -321,7 +350,7 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                     <button
                       onClick={handleSubmitRating}
                       disabled={submittingRating || rating === 0 || !comment}
-                      style={{ backgroundColor: "#90579F" }}
+                      style={{ backgroundColor: '#90579F' }}
                       className="px-4 py-2 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
                     >
                       {submittingRating ? 'Envoi...' : 'Envoyer la note'}
@@ -332,78 +361,94 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
             )}
 
             {/* Affichage des candidatures */}
-            {offer.candidatures && offer.candidatures.length > 0 && offer.status !== OfferStatus.COMPLETED && (
-              <div className="mt-8 border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Candidatures ({offer.candidatures.length})
-                </h3>
-                <div className="space-y-4">
-                  {offer.candidatures.map((candidature) => (
-                    <div key={candidature._id} className="flex items-start p-4 bg-gray-50 rounded-lg">
-                      <div className="relative w-12 h-12 mr-4">
-                        <Image
-                          src={candidature.ugcInfo.profileImage}
-                          alt={`Photo de ${candidature.ugcInfo.name}`}
-                          fill
-                          className="rounded-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-grow">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-semibold">{candidature.ugcInfo.name}</h4>
-                            <p className="text-gray-600">{candidature.ugcInfo.title}</p>
-                            <p className="text-sm text-gray-500">
-                              Candidature envoyée le {new Date(candidature.createdAt).toLocaleDateString()}
-                            </p>
-                            <span className={`inline-block px-2 py-1 text-sm rounded mt-2 ${
-                              candidature.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              candidature.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {candidature.status === 'pending' ? 'En attente' :
-                               candidature.status === 'accepted' ? 'Acceptée' : 'Refusée'}
-                            </span>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Link href={`/ugc/profile/${candidature.ugcInfo._id}`} className="flex items-center space-x-4">
-                              <button
-                                style={{ backgroundColor: "#90579F" }}
-                                className="px-3 py-1 text-white text-sm rounded hover:bg-purple-700 transition-colors duration-200"
+            {offer.candidatures &&
+              offer.candidatures.length > 0 &&
+              offer.status !== OfferStatus.COMPLETED && (
+                <div className="mt-8 border-t border-gray-200 pt-4">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    Candidatures ({offer.candidatures.length})
+                  </h3>
+                  <div className="space-y-4">
+                    {offer.candidatures.map((candidature) => (
+                      <div
+                        key={candidature._id}
+                        className="flex items-start p-4 bg-gray-50 rounded-lg"
+                      >
+                        <div className="relative w-12 h-12 mr-4">
+                          <Image
+                            src={candidature.ugcInfo.profileImage}
+                            alt={`Photo de ${candidature.ugcInfo.name}`}
+                            fill
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-semibold">{candidature.ugcInfo.name}</h4>
+                              <p className="text-gray-600">{candidature.ugcInfo.title}</p>
+                              <p className="text-sm text-gray-500">
+                                Candidature envoyée le{' '}
+                                {new Date(candidature.createdAt).toLocaleDateString()}
+                              </p>
+                              <span
+                                className={`inline-block px-2 py-1 text-sm rounded mt-2 ${
+                                  candidature.status === 'pending'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : candidature.status === 'accepted'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-red-100 text-red-800'
+                                }`}
                               >
-                                Voir le profil
-                              </button>
-                            </Link>
-                            {candidature.status === 'pending' && (
-                              <>
+                                {candidature.status === 'pending'
+                                  ? 'En attente'
+                                  : candidature.status === 'accepted'
+                                    ? 'Acceptée'
+                                    : 'Refusée'}
+                              </span>
+                            </div>
+                            <div className="flex space-x-2">
+                              <Link
+                                href={`/ugc/profile/${candidature.ugcInfo._id}`}
+                                className="flex items-center space-x-4"
+                              >
                                 <button
-                                  onClick={() => handleUpdateStatus(candidature._id, 'accepted')}
-                                  disabled={updating === candidature._id}
-                                  className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors duration-200 disabled:opacity-50"
+                                  style={{ backgroundColor: '#90579F' }}
+                                  className="px-3 py-1 text-white text-sm rounded hover:bg-purple-700 transition-colors duration-200"
                                 >
-                                  {updating === candidature._id ? 'En cours...' : 'Accepter'}
+                                  Voir le profil
                                 </button>
-                                <button
-                                  onClick={() => handleUpdateStatus(candidature._id, 'rejected')}
-                                  disabled={updating === candidature._id}
-                                  className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors duration-200 disabled:opacity-50"
-                                >
-                                  {updating === candidature._id ? 'En cours...' : 'Refuser'}
-                                </button>
-                              </>
-                            )}
+                              </Link>
+                              {candidature.status === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => handleUpdateStatus(candidature._id, 'accepted')}
+                                    disabled={updating === candidature._id}
+                                    className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors duration-200 disabled:opacity-50"
+                                  >
+                                    {updating === candidature._id ? 'En cours...' : 'Accepter'}
+                                  </button>
+                                  <button
+                                    onClick={() => handleUpdateStatus(candidature._id, 'rejected')}
+                                    disabled={updating === candidature._id}
+                                    className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors duration-200 disabled:opacity-50"
+                                  >
+                                    {updating === candidature._id ? 'En cours...' : 'Refuser'}
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>
       <Navbar />
     </>
   );
-} 
+}

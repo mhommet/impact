@@ -1,16 +1,22 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import "../../globals.css";
-import Image from "next/image";
-import Navbar from "../../components/navbar";
-import TopBar from "../../components/topBar";
-import { useAuth } from "@/hooks/useAuth";
-import { loginFetch } from "@/helpers/loginFetch";
-import Link from "next/link";
+'use client';
+
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import React, { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Offer, OfferStatus } from "@/types/offer";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+
+import { Offer, OfferStatus } from '@/types/offer';
+
+import { loginFetch } from '@/helpers/loginFetch';
+import { useAuth } from '@/hooks/useAuth';
+
+import Navbar from '../../components/navbar';
+import TopBar from '../../components/topBar';
+import '../../globals.css';
 
 const App = () => {
   useAuth();
@@ -26,7 +32,7 @@ const App = () => {
       setLoading(true);
       setError(null);
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (!token) {
           setError("Token d'authentification manquant");
           router.push('/entreprise/login');
@@ -37,8 +43,14 @@ const App = () => {
         // Séparer les offres actives et complétées
         setActiveOffers(data.filter((offer: Offer) => offer.status !== OfferStatus.COMPLETED));
         setCompletedOffers(data.filter((offer: Offer) => offer.status === OfferStatus.COMPLETED));
-        console.log('Offres actives:', data.filter((offer: Offer) => offer.status !== OfferStatus.COMPLETED));
-        console.log('Offres complétées:', data.filter((offer: Offer) => offer.status === OfferStatus.COMPLETED));
+        console.log(
+          'Offres actives:',
+          data.filter((offer: Offer) => offer.status !== OfferStatus.COMPLETED)
+        );
+        console.log(
+          'Offres complétées:',
+          data.filter((offer: Offer) => offer.status === OfferStatus.COMPLETED)
+        );
       } catch (err) {
         const error = err as Error;
         console.error('Erreur:', error);
@@ -63,11 +75,11 @@ const App = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           offerId,
-          status: newStatus
+          status: newStatus,
         }),
       });
 
@@ -78,14 +90,15 @@ const App = () => {
       // Mettre à jour l'état local
       if (newStatus === OfferStatus.COMPLETED) {
         // Déplacer l'offre des actives vers les complétées
-        setActiveOffers(prevOffers => prevOffers.filter(offer => offer._id !== offerId));
-        setCompletedOffers(prevOffers => [...prevOffers, { ...activeOffers.find(o => o._id === offerId)!, status: newStatus }]);
+        setActiveOffers((prevOffers) => prevOffers.filter((offer) => offer._id !== offerId));
+        setCompletedOffers((prevOffers) => [
+          ...prevOffers,
+          { ...activeOffers.find((o) => o._id === offerId)!, status: newStatus },
+        ]);
       } else {
-        setActiveOffers(prevOffers =>
-          prevOffers.map(offer =>
-            offer._id === offerId
-              ? { ...offer, status: newStatus }
-              : offer
+        setActiveOffers((prevOffers) =>
+          prevOffers.map((offer) =>
+            offer._id === offerId ? { ...offer, status: newStatus } : offer
           )
         );
       }
@@ -140,11 +153,9 @@ const App = () => {
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {offer.name}
-            </h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{offer.name}</h3>
             <div className="flex flex-wrap gap-2 mb-2">
-              {offer.category.split(" ").map((cat, index) => (
+              {offer.category.split(' ').map((cat, index) => (
                 <span
                   key={index}
                   className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
@@ -154,11 +165,7 @@ const App = () => {
               ))}
             </div>
           </div>
-          <span
-            className={`px-2 py-1 rounded-full text-sm ${getStatusBadgeClass(
-              offer.status
-            )}`}
-          >
+          <span className={`px-2 py-1 rounded-full text-sm ${getStatusBadgeClass(offer.status)}`}>
             {getStatusText(offer.status)}
           </span>
         </div>
@@ -167,11 +174,11 @@ const App = () => {
 
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500">
-            {offer.candidatesCount} candidature{offer.candidatesCount !== 1 && "s"}
+            {offer.candidatesCount} candidature{offer.candidatesCount !== 1 && 's'}
           </span>
           <Link href={`/entreprise/offers/${offer._id}`}>
             <button
-              style={{ backgroundColor: "#90579F" }}
+              style={{ backgroundColor: '#90579F' }}
               className="px-4 py-2 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
             >
               Voir les détails
@@ -210,7 +217,7 @@ const App = () => {
           <h1 className="text-2xl font-bold text-gray-900">Vos annonces en ligne</h1>
           <Link href="/entreprise/offers/new">
             <button
-              style={{ backgroundColor: "#90579F" }}
+              style={{ backgroundColor: '#90579F' }}
               className="flex items-center px-4 py-2 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
             >
               <FontAwesomeIcon icon={faPlus} className="mr-2" />
@@ -219,11 +226,7 @@ const App = () => {
           </Link>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {activeOffers.map((offer) => (

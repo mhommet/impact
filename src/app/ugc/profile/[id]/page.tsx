@@ -1,23 +1,22 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Head from "next/head";
-import Image from "next/image";
-import Navbar from "@/app/components/navbar";
-import TopBar from "@/app/components/topBar";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { config } from "@fortawesome/fontawesome-svg-core";
-import "@fortawesome/fontawesome-svg-core/styles.css";
-import {
-  faInstagram,
-  faTiktok,
-  faPinterest,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
-import { faPencilAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/navigation";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { Card, CardContent, Typography, Rating, Box, Avatar, Grid, Divider } from '@mui/material';
+'use client';
+
+import { config } from '@fortawesome/fontawesome-svg-core';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { faInstagram, faPinterest, faTiktok, faYoutube } from '@fortawesome/free-brands-svg-icons';
+import { faArrowLeft, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Avatar, Box, Card, CardContent, Divider, Grid, Rating, Typography } from '@mui/material';
+
+import React, { useEffect, useState } from 'react';
+
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import Navbar from '@/app/components/navbar';
+import TopBar from '@/app/components/topBar';
 
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's imported above
 
@@ -44,7 +43,7 @@ interface UgcProfile {
 interface Candidature {
   _id: string;
   offerCode: string;
-  status: "pending" | "accepted" | "rejected";
+  status: 'pending' | 'accepted' | 'rejected';
   createdAt: string;
   offerInfo: {
     name: string;
@@ -124,7 +123,10 @@ export default function Ugc({ params }: { params: { id: string } }) {
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
   const [selectedCollaboration, setSelectedCollaboration] = useState<Collaboration | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newRating, setNewRating] = useState<{ rating: number; comment: string }>({ rating: 0, comment: "" });
+  const [newRating, setNewRating] = useState<{ rating: number; comment: string }>({
+    rating: 0,
+    comment: '',
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -150,7 +152,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
         setProfile(data);
 
         // Vérifier si c'est le profil de l'utilisateur courant
-        const storedUserCode = localStorage.getItem("userCode");
+        const storedUserCode = localStorage.getItem('userCode');
         console.log('Stored user code:', storedUserCode, 'Current profile id:', params.id);
         setIsCurrentUser(storedUserCode === params.id);
       } catch (error) {
@@ -180,23 +182,23 @@ export default function Ugc({ params }: { params: { id: string } }) {
   const handleRatingSubmit = async () => {
     if (!selectedCollaboration) return;
     if (!newRating.rating || !newRating.comment) {
-      setError("Veuillez fournir une note et un commentaire");
+      setError('Veuillez fournir une note et un commentaire');
       return;
     }
 
     setSubmitting(true);
     try {
-      const response = await fetch("/api/ratings", {
-        method: "POST",
+      const response = await fetch('/api/ratings', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           offerId: selectedCollaboration.offerCode,
           toId: selectedCollaboration.entrepriseInfo.code,
           rating: newRating.rating,
           comment: newRating.comment,
-          type: "entreprise"
+          type: 'entreprise',
         }),
       });
 
@@ -206,15 +208,15 @@ export default function Ugc({ params }: { params: { id: string } }) {
       }
 
       // Mettre à jour la collaboration dans la liste
-      setCollaborations(prevCollabs =>
-        prevCollabs.map(collab =>
+      setCollaborations((prevCollabs) =>
+        prevCollabs.map((collab) =>
           collab._id === selectedCollaboration._id
             ? {
                 ...collab,
                 rating: {
                   rating: newRating.rating,
-                  comment: newRating.comment
-                }
+                  comment: newRating.comment,
+                },
               }
             : collab
         )
@@ -223,10 +225,10 @@ export default function Ugc({ params }: { params: { id: string } }) {
       // Fermer le modal et réinitialiser
       setIsModalOpen(false);
       setSelectedCollaboration(null);
-      setNewRating({ rating: 0, comment: "" });
+      setNewRating({ rating: 0, comment: '' });
     } catch (err) {
       console.error('Error submitting rating:', err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setSubmitting(false);
     }
@@ -275,7 +277,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
         />
       </Head>
       <TopBar />
-      <button 
+      <button
         onClick={() => router.back()}
         className="absolute top-20 left-4 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
       >
@@ -289,10 +291,13 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 <div className="w-full px-4 flex justify-center">
                   <div className="relative w-40 h-40 -mt-16">
                     <Image
-                      src={profile.profileImage || "https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png"}
+                      src={
+                        profile.profileImage ||
+                        'https://tg-stockach.de/wp-content/uploads/2020/12/5f4d0f15338e20133dc69e95_dummy-profile-pic-300x300.png'
+                      }
                       alt="Photo de profil"
                       fill
-                      style={{ objectFit: "cover" }}
+                      style={{ objectFit: 'cover' }}
                       className="shadow-xl rounded-full border-none"
                       priority
                     />
@@ -302,7 +307,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
               {isCurrentUser && (
                 <Link href="/ugc/profile/edit">
                   <button
-                    style={{ backgroundColor: "#90579F" }}
+                    style={{ backgroundColor: '#90579F' }}
                     className="text-white p-3 rounded-full w-12 h-12 flex items-center justify-center hover:bg-purple-700 transition-colors duration-200"
                   >
                     <FontAwesomeIcon icon={faPencilAlt as IconProp} />
@@ -327,10 +332,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                       rel="noopener noreferrer"
                       className="text-pink-600 hover:text-pink-700"
                     >
-                      <FontAwesomeIcon
-                        icon={faInstagram as IconProp}
-                        size="2x"
-                      />
+                      <FontAwesomeIcon icon={faInstagram as IconProp} size="2x" />
                     </a>
                   )}
                   {profile.socialLinks?.tiktok && (
@@ -350,10 +352,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                       rel="noopener noreferrer"
                       className="text-red-600 hover:text-red-700"
                     >
-                      <FontAwesomeIcon
-                        icon={faPinterest as IconProp}
-                        size="2x"
-                      />
+                      <FontAwesomeIcon icon={faPinterest as IconProp} size="2x" />
                     </a>
                   )}
                   {profile.socialLinks?.youtube && (
@@ -371,9 +370,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
               <div className="mt-10 py-10 border-t border-gray-200 text-center">
                 <div className="flex flex-wrap justify-center">
                   <div className="w-full lg:w-9/12 px-4">
-                    <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                      {profile.bio}
-                    </p>
+                    <p className="mb-4 text-lg leading-relaxed text-gray-800">{profile.bio}</p>
                   </div>
                 </div>
               </div>
@@ -406,10 +403,13 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 <div className="flex flex-wrap gap-6 justify-center px-6 pb-10">
                   {collaborations.length > 0 ? (
                     collaborations.map((collab) => (
-                      <div key={collab._id} className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-64">
+                      <div
+                        key={collab._id}
+                        className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-64"
+                      >
                         <div className="relative w-20 h-20 mb-2">
                           <Image
-                            src={collab.entrepriseInfo.logo || "/img/default-company.png"}
+                            src={collab.entrepriseInfo.logo || '/img/default-company.png'}
                             alt={collab.entrepriseInfo.name}
                             fill
                             className="rounded-full object-cover"
@@ -419,7 +419,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                         <p className="text-sm text-gray-500 text-center mb-2">{collab.title}</p>
                         <Link href={`/entreprise/profile/${collab.entrepriseInfo.code}`}>
                           <button
-                            style={{ backgroundColor: "#90579F" }}
+                            style={{ backgroundColor: '#90579F' }}
                             className="text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition-colors duration-200"
                           >
                             Voir le profil
@@ -461,7 +461,10 @@ export default function Ugc({ params }: { params: { id: string } }) {
                         </div>
                         <div className="flex items-center mb-2">
                           {[...Array(5)].map((_, i) => (
-                            <span key={i} className={i < rating.rating ? "text-yellow-400" : "text-gray-300"}>
+                            <span
+                              key={i}
+                              className={i < rating.rating ? 'text-yellow-400' : 'text-gray-300'}
+                            >
                               ★
                             </span>
                           ))}
@@ -480,7 +483,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
           </div>
         </div>
       </section>
-      
+
       {/* Modal pour laisser un avis */}
       {isModalOpen && selectedCollaboration && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -488,32 +491,24 @@ export default function Ugc({ params }: { params: { id: string } }) {
             <h3 className="text-lg font-semibold mb-4">
               Laisser un avis pour {selectedCollaboration.entrepriseInfo.name}
             </h3>
-            
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-                {error}
-              </div>
-            )}
+
+            {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>}
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Note
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Note</label>
               <Rating
                 value={newRating.rating}
-                onChange={(_, value) => setNewRating(prev => ({ ...prev, rating: value || 0 }))}
+                onChange={(_, value) => setNewRating((prev) => ({ ...prev, rating: value || 0 }))}
               />
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Commentaire
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Commentaire</label>
               <textarea
                 className="w-full p-2 border rounded-md"
                 rows={4}
                 value={newRating.comment}
-                onChange={(e) => setNewRating(prev => ({ ...prev, comment: e.target.value }))}
+                onChange={(e) => setNewRating((prev) => ({ ...prev, comment: e.target.value }))}
                 placeholder="Votre expérience avec cette entreprise..."
               />
             </div>
@@ -523,7 +518,7 @@ export default function Ugc({ params }: { params: { id: string } }) {
                 onClick={() => {
                   setIsModalOpen(false);
                   setSelectedCollaboration(null);
-                  setNewRating({ rating: 0, comment: "" });
+                  setNewRating({ rating: 0, comment: '' });
                   setError(null);
                 }}
                 className="px-4 py-2 border rounded-md hover:bg-gray-50"
@@ -533,16 +528,16 @@ export default function Ugc({ params }: { params: { id: string } }) {
               <button
                 onClick={handleRatingSubmit}
                 disabled={submitting}
-                style={{ backgroundColor: "#90579F" }}
+                style={{ backgroundColor: '#90579F' }}
                 className="text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors duration-200 disabled:opacity-50"
               >
-                {submitting ? "Envoi..." : "Envoyer"}
+                {submitting ? 'Envoi...' : 'Envoyer'}
               </button>
             </div>
           </div>
         </div>
       )}
-      
+
       <Navbar />
     </>
   );

@@ -1,94 +1,96 @@
 .gallery {
-    --s: 50vh; /* control the size */
-    --g: 0;   /* control the gap - set to 0 to remove space between images */
-    display: grid;
-    gap: var(--g);
-    width: 100vw;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    overflow: hidden; /* To ensure nothing overflows the gallery bounds */
+  --s: 50vh; /* control the size */
+  --g: 0; /* control the gap - set to 0 to remove space between images */
+  display: grid;
+  gap: var(--g);
+  width: 100vw;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  overflow: hidden; /* To ensure nothing overflows the gallery bounds */
 }
 
 .gallery .image-container {
-    position: relative;
-    width: 100%; /* Full width of the column */
-    height: var(--s);
-    cursor: pointer;
-    transition: .5s;
+  position: relative;
+  width: 100%; /* Full width of the column */
+  height: var(--s);
+  cursor: pointer;
+  transition: 0.5s;
 }
 
 .gallery .image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .gallery .image-container:hover {
-    transform: scale(1.05); /* Optional: A subtle zoom effect on hover */
+  transform: scale(1.05); /* Optional: A subtle zoom effect on hover */
 }
 
 .gallery .image-container:first-child {
-    height: 100vh;
-    place-self: start;
+  height: 100vh;
+  place-self: start;
 }
 
 .gallery .image-container:last-child {
-    height: 100vh;
-    place-self: end;
+  height: 100vh;
+  place-self: end;
 }
 
 .gallery .image-container .image-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white; /* Text color */
-    /* Add more styling as needed */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white; /* Text color */
+  /* Add more styling as needed */
 }
 
 h1 {
-    text-align: center;
-    font-family: system-ui, sans-serif;
-    font-size: 3rem;
-    text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  font-size: 3rem;
+  text-shadow:
+    -1px -1px 1px rgba(255, 255, 255, 0.1),
+    1px 1px 1px rgba(0, 0, 0, 0.5);
 }
 
-.btn-outline-light{
-    background-color: #544697;
-    border-radius: 10px;
-    border: none;
-    &:hover{
-        color: #544687;
-        background-color: #fff;
-    }
+.btn-outline-light {
+  background-color: #544697;
+  border-radius: 10px;
+  border: none;
+  &:hover {
+    color: #544687;
+    background-color: #fff;
+  }
 }
 
 h1 span:first-child {
-    color: #af3817;
+  color: #af3817;
 }
 
 h1 span:last-child {
-    color: #0b3fa1;
+  color: #0b3fa1;
 }
 
-
 @media (max-width: 768px) {
-    .gallery .image-container:first-child, .gallery .image-container:last-child {
-        height: 25vh;
-    }
-    h1 {
-        font-size: 2rem;
-        text-align: center;
-    }
-    .gallery {
-        grid-template-columns: 1fr; /* One column on small screens */
-    }
-    /* Re center the images to be more visible on small screens */
-    /* cut images in half width and re center to have both squares
+  .gallery .image-container:first-child,
+  .gallery .image-container:last-child {
+    height: 25vh;
+  }
+  h1 {
+    font-size: 2rem;
+    text-align: center;
+  }
+  .gallery {
+    grid-template-columns: 1fr; /* One column on small screens */
+  }
+  /* Re center the images to be more visible on small screens */
+  /* cut images in half width and re center to have both squares
     in view on small screens */
-    .gallery .image-container:first-child, .gallery .image-container:last-child {
-        height: 45vh;
-        place-self: center;
-        width: 50vh;
-    }
-
+  .gallery .image-container:first-child,
+  .gallery .image-container:last-child {
+    height: 45vh;
+    place-self: center;
+    width: 50vh;
+  }
 }

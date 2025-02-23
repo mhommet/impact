@@ -1,4 +1,3 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendar,
   faChartLine,
@@ -6,10 +5,13 @@ import {
   faMessage,
   faSearch,
   faUser,
-} from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { jwtDecode } from 'jwt-decode';
+
+import { useEffect, useState } from 'react';
+
+import Link from 'next/link';
 
 interface CustomJwtPayload {
   userId: string;
@@ -19,33 +21,33 @@ interface CustomJwtPayload {
 }
 
 export default function Navbar() {
-  const [path, setPath] = useState("");
+  const [path, setPath] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setPath(window.location.pathname);
     // Récupérer l'userId depuis le localStorage
-    const storedUserId = localStorage.getItem("userId");
+    const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setUserId(storedUserId);
     }
   }, []);
 
   // Protection contre les valeurs null/undefined
-  const profileLink = userId 
-    ? path.startsWith("/ugc") 
+  const profileLink = userId
+    ? path.startsWith('/ugc')
       ? `/ugc/profile/${userId}`
       : `/entreprise/profile/${userId}`
-    : path.startsWith("/ugc") 
-      ? "/ugc/profile/edit"
-      : "/entreprise/profile/edit";
+    : path.startsWith('/ugc')
+      ? '/ugc/profile/edit'
+      : '/entreprise/profile/edit';
 
-  if (path.startsWith("/ugc")) {
+  if (path.startsWith('/ugc')) {
     return (
       <div
         className="fixed z-50 h-20 w-screen bottom-0"
         style={{
-          background: "linear-gradient(to right, #0D1828, rgb(88, 45, 100))",
+          background: 'linear-gradient(to right, #0D1828, rgb(88, 45, 100))',
         }}
       >
         <div className="grid h-full grid-cols-4 justify-center items-center">
@@ -80,12 +82,12 @@ export default function Navbar() {
         </div>
       </div>
     );
-  } else if (path.startsWith("/entreprise")) {
+  } else if (path.startsWith('/entreprise')) {
     return (
       <div
         className="fixed z-50 h-20 w-screen bottom-0"
         style={{
-          background: "linear-gradient(to right, #0D1828, rgb(88, 45, 100))",
+          background: 'linear-gradient(to right, #0D1828, rgb(88, 45, 100))',
         }}
       >
         <div className="grid h-full grid-cols-5 justify-center items-center">
