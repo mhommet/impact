@@ -2,9 +2,9 @@
 
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Timeout } from 'bun';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import React from 'react';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -26,7 +26,7 @@ export default function NewOffer() {
   const router = useRouter();
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState<Timeout>();
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -54,12 +54,26 @@ export default function NewOffer() {
       clearTimeout(searchTimeout);
     }
 
+    if (searchTerm.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    // Attendre 300ms après la dernière frappe avant de lancer la recherche
     const timeout = setTimeout(async () => {
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            searchTerm
-          )}&countrycodes=fr`
+          `https://nominatim.openstreetmap.org/search?` +
+            new URLSearchParams({
+              format: 'json',
+              q: searchTerm,
+              countrycodes: 'fr',
+              addressdetails: '1',
+              limit: '5',
+              featuretype: 'city,street,house',
+              'accept-language': 'fr',
+            })
         );
         const data = await response.json();
         setAddressSuggestions(data);
@@ -67,7 +81,7 @@ export default function NewOffer() {
       } catch (error) {
         console.error("Erreur lors de la recherche d'adresse:", error);
       }
-    }, 300) as unknown as Timeout;
+    }, 300) as unknown as NodeJS.Timeout;
 
     setSearchTimeout(timeout);
   };
