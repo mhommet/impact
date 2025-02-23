@@ -1,27 +1,27 @@
 if (!self.define) {
   let e,
-    s = {};
-  const n = (n, i) => (
-    (n = new URL(n + '.js', i).href),
-    s[n] ||
-      new Promise((s) => {
+    n = {};
+  const s = (s, a) => (
+    (s = new URL(s + '.js', a).href),
+    n[s] ||
+      new Promise((n) => {
         if ('document' in self) {
           const e = document.createElement('script');
-          (e.src = n), (e.onload = s), document.head.appendChild(e);
-        } else (e = n), importScripts(n), s();
+          (e.src = s), (e.onload = n), document.head.appendChild(e);
+        } else (e = s), importScripts(s), n();
       }).then(() => {
-        let e = s[n];
-        if (!e) throw new Error(`Module ${n} didn’t register its module`);
+        let e = n[s];
+        if (!e) throw new Error(`Module ${s} didn’t register its module`);
         return e;
       })
   );
-  self.define = (i, a) => {
+  self.define = (a, i) => {
     const c = e || ('document' in self ? document.currentScript.src : '') || location.href;
-    if (s[c]) return;
+    if (n[c]) return;
     let t = {};
-    const r = (e) => n(e, c),
-      o = { module: { uri: c }, exports: t, require: r };
-    s[c] = Promise.all(i.map((e) => o[e] || r(e))).then((e) => (a(...e), t));
+    const r = (e) => s(e, c),
+      u = { module: { uri: c }, exports: t, require: r };
+    n[c] = Promise.all(a.map((e) => u[e] || r(e))).then((e) => (i(...e), t));
   };
 }
 define(['./workbox-4754cb34'], function (e) {
@@ -31,148 +31,156 @@ define(['./workbox-4754cb34'], function (e) {
     e.clientsClaim(),
     e.precacheAndRoute(
       [
-        { url: '/_next/app-build-manifest.json', revision: '48b80ae5b1fd7219d583e0d38611fb78' },
-        { url: '/_next/static/chunks/214-fca7d19b60a7370f.js', revision: 'mx1BSKeonIIl-Ju4IP_Bd' },
-        { url: '/_next/static/chunks/449-b80c3626bda7afc7.js', revision: 'mx1BSKeonIIl-Ju4IP_Bd' },
-        { url: '/_next/static/chunks/538-6139c95092b7234b.js', revision: 'mx1BSKeonIIl-Ju4IP_Bd' },
-        { url: '/_next/static/chunks/69-8ba2c75f91961bb3.js', revision: 'mx1BSKeonIIl-Ju4IP_Bd' },
+        { url: '/_next/app-build-manifest.json', revision: '423facd8ea1da2d4e65d818fb1223344' },
+        {
+          url: '/_next/static/1GuyV5wvyanCn8jJFOKNS/_buildManifest.js',
+          revision: 'b98e19c30f4739f7ab94c1cafcc756dd',
+        },
+        {
+          url: '/_next/static/1GuyV5wvyanCn8jJFOKNS/_ssgManifest.js',
+          revision: 'b6652df95db52feb4daf4eca35380933',
+        },
+        { url: '/_next/static/chunks/214-fca7d19b60a7370f.js', revision: '1GuyV5wvyanCn8jJFOKNS' },
+        { url: '/_next/static/chunks/449-b80c3626bda7afc7.js', revision: '1GuyV5wvyanCn8jJFOKNS' },
+        { url: '/_next/static/chunks/538-6139c95092b7234b.js', revision: '1GuyV5wvyanCn8jJFOKNS' },
+        { url: '/_next/static/chunks/69-8ba2c75f91961bb3.js', revision: '1GuyV5wvyanCn8jJFOKNS' },
         {
           url: '/_next/static/chunks/69b09407-18b093481be36608.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
-        { url: '/_next/static/chunks/792-1d83fc71a49e4786.js', revision: 'mx1BSKeonIIl-Ju4IP_Bd' },
+        { url: '/_next/static/chunks/792-1d83fc71a49e4786.js', revision: '1GuyV5wvyanCn8jJFOKNS' },
         {
           url: '/_next/static/chunks/870fdd6f-5d4abe0b4f022631.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/app/_not-found-7030cd40acdaae4f.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/construction/page-617c3c4ec4402704.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/construction/page-fed4dd388b1c6ecc.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/home/page-9386933e4720e38a.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/home/page-240048ae5efd3c9e.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/app/entreprise/login/page-dc0e5ca72436a0c4.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/candidatures/page-f3624d387b1000f2.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/candidatures/page-f44927bad6b323ea.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/page-2fea96e98d85ec4d.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/page-df4c40f8b84c4254.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/new/page-967afa9973e33049.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/offers/new/page-ad6b6ea69287f1de.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/page-ccf56ae938eef1ac.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/offers/page-68c0a4baaaf146e8.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/profile/%5Bid%5D/page-a3f916d18a502779.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/profile/%5Bid%5D/page-91353f640749b839.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/profile/edit/page-ff0ae582415d3b2c.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/profile/edit/page-6ac9641c4a8b9d0f.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/app/entreprise/register/page-f953a8e72ebb1fe9.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/stats/page-1e7442a751a5e1b2.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/entreprise/stats/page-c4f6b752811db055.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/app/layout-53f45309a3269a3f.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/mentions-legales/page-e6000acd9287f184.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/mentions-legales/page-c3c9f9857d850488.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/page-1378f0d5bab3316f.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/page-6ed20a6aed4c1916.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/candidatures/page-b79c05e64ea55bad.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/candidatures/page-6b40147b0b1e06b5.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/collaborations/completed/page-08998a6fbd316878.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/collaborations/completed/page-16909c566fd8a3ae.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/home/page-b06a4821919b1fd1.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/home/page-78acc4708efaf499.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/app/ugc/login/page-73a34da4c656ce9a.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/offer/%5Bid%5D/page-723ec7ec85fca195.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/offer/%5Bid%5D/page-8c79dcf67355ecaf.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/offers/page-179165cc57500fe4.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/offers/page-c0016b2f0d69000e.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/profile/%5Bid%5D/page-b314c97b9d9af7a8.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/profile/%5Bid%5D/page-2f3e0338794b4b4f.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/profile/edit/page-4c761f2764d965b2.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/profile/edit/page-da2506001824ead7.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/app/ugc/register/page-53842cb65a66e710.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
-          url: '/_next/static/chunks/app/ugc/resources/page-4f160e10d9ade7bd.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/app/ugc/resources/page-3b6d301e10b8d0b3.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/fd9d1056-c184c5246ef850bc.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/framework-f66176bb897dc684.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
-        { url: '/_next/static/chunks/main-0ee927dd19426709.js', revision: 'mx1BSKeonIIl-Ju4IP_Bd' },
+        { url: '/_next/static/chunks/main-0ee927dd19426709.js', revision: '1GuyV5wvyanCn8jJFOKNS' },
         {
           url: '/_next/static/chunks/main-app-b6c8feab3ef6694f.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/pages/_app-75f6107b0260711c.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/pages/_error-3cb9820ce48c08b4.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         {
           url: '/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js',
           revision: '837c0df77fd5009c9e46d446188ecfd0',
         },
         {
-          url: '/_next/static/chunks/webpack-3fe5617da79616d5.js',
-          revision: 'mx1BSKeonIIl-Ju4IP_Bd',
+          url: '/_next/static/chunks/webpack-78d66dba3656c591.js',
+          revision: '1GuyV5wvyanCn8jJFOKNS',
         },
         { url: '/_next/static/css/1d13aebdc03d7a71.css', revision: '1d13aebdc03d7a71' },
         { url: '/_next/static/css/59996bdb2e04e5fb.css', revision: '59996bdb2e04e5fb' },
@@ -209,14 +217,6 @@ define(['./workbox-4754cb34'], function (e) {
         {
           url: '/_next/static/media/logo.8a76ed43.png',
           revision: 'bb8e5209725ac6336083513b17bb61c4',
-        },
-        {
-          url: '/_next/static/mx1BSKeonIIl-Ju4IP_Bd/_buildManifest.js',
-          revision: 'b98e19c30f4739f7ab94c1cafcc756dd',
-        },
-        {
-          url: '/_next/static/mx1BSKeonIIl-Ju4IP_Bd/_ssgManifest.js',
-          revision: 'b6652df95db52feb4daf4eca35380933',
         },
         { url: '/icons/favicon.ico', revision: '489d66ce600269b27154cc1f6c5993b8' },
         { url: '/icons/icon-16x16.png', revision: '9755fc37677e2f8f64e0e8893ecd8f4e' },
@@ -255,10 +255,10 @@ define(['./workbox-4754cb34'], function (e) {
         cacheName: 'start-url',
         plugins: [
           {
-            cacheWillUpdate: async ({ request: e, response: s, event: n, state: i }) =>
-              s && 'opaqueredirect' === s.type
-                ? new Response(s.body, { status: 200, statusText: 'OK', headers: s.headers })
-                : s,
+            cacheWillUpdate: async ({ request: e, response: n, event: s, state: a }) =>
+              n && 'opaqueredirect' === n.type
+                ? new Response(n.body, { status: 200, statusText: 'OK', headers: n.headers })
+                : n,
           },
         ],
       }),
@@ -361,8 +361,8 @@ define(['./workbox-4754cb34'], function (e) {
     e.registerRoute(
       ({ url: e }) => {
         if (!(self.origin === e.origin)) return !1;
-        const s = e.pathname;
-        return !s.startsWith('/api/auth/') && !!s.startsWith('/api/');
+        const n = e.pathname;
+        return !n.startsWith('/api/auth/') && !!n.startsWith('/api/');
       },
       new e.NetworkFirst({
         cacheName: 'apis',
