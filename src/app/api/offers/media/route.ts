@@ -149,7 +149,16 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const mediaId = req.url.split('/').pop();
+    // Extraire l'ID du média de l'URL de manière plus robuste
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split('/');
+    const mediaId = pathParts[pathParts.length - 1];
+
+    console.log('URL complète:', req.url);
+    console.log('Chemin:', url.pathname);
+    console.log('Parties du chemin:', pathParts);
+    console.log('ID du média extrait:', mediaId);
+
     if (!mediaId) {
       return new NextResponse('ID du média manquant', { status: 400 });
     }
@@ -157,21 +166,67 @@ export async function GET(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db('impact');
 
-    const media = await db.collection('medias').findOne({
-      _id: new ObjectId(mediaId),
-    });
-
-    if (!media) {
-      return new NextResponse('Média non trouvé', { status: 404 });
+    // Vérifier si la collection existe et contient des données
+    const collections = await db.listCollections({ name: 'medias' }).toArray();
+    if (collections.length === 0) {
+      console.error('La collection "medias" n\'existe pas');
+      return new NextResponse('Collection de médias non trouvée', { status: 500 });
     }
 
-    // Retourner le fichier avec le bon type MIME
-    return new NextResponse(media.data, {
-      headers: {
-        'Content-Type': media.contentType,
-        'Content-Disposition': `inline; filename="${media.filename}"`,
-      },
-    });
+    // Compter le nombre total de médias
+    const totalMedias = await db.collection('medias').countDocuments();
+    console.log('Nombre total de médias dans la collection:', totalMedias);
+
+    try {
+      // Essayer de convertir l'ID en ObjectId
+      const objectId = new ObjectId(mediaId);
+      console.log('ObjectId créé avec succès:', objectId);
+
+      const media = await db.collection('medias').findOne({
+        _id: objectId,
+      });
+
+      if (!media) {
+        console.log('Média non trouvé pour ID:', mediaId);
+
+        // Récupérer quelques médias pour vérifier la structure
+        const sampleMedias = await db.collection('medias').find().limit(2).toArray();
+        console.log(
+          'Échantillon de médias disponibles:',
+          sampleMedias.map((m) => ({ id: m._id.toString(), type: m.contentType }))
+        );
+
+        return new NextResponse('Média non trouvé', { status: 404 });
+      }
+
+      console.log('Média trouvé:', {
+        id: media._id.toString(),
+        type: media.contentType,
+        filename: media.filename,
+        size: media.data ? media.data.length : 0,
+      });
+
+      // Vérifier que les données sont bien un Buffer
+      if (!media.data) {
+        console.error('Les données du média sont manquantes');
+        return new NextResponse('Données du média manquantes', { status: 500 });
+      }
+
+      // Convertir en Buffer si ce n'est pas déjà le cas
+      const buffer = media.data instanceof Buffer ? media.data : Buffer.from(media.data);
+
+      // Retourner le fichier avec le bon type MIME
+      return new Response(buffer, {
+        headers: {
+          'Content-Type': media.contentType || 'application/octet-stream',
+          'Content-Disposition': `inline; filename="${media.filename || 'file'}"`,
+          'Cache-Control': 'public, max-age=31536000', // Cache d'un an
+        },
+      });
+    } catch (error) {
+      console.error("Erreur lors de la conversion de l'ID en ObjectId:", error);
+      return new NextResponse('ID de média invalide', { status: 400 });
+    }
   } catch (error) {
     console.error('Erreur lors de la récupération du média:', error);
     return new NextResponse('Erreur serveur', { status: 500 });

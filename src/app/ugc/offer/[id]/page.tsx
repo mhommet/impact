@@ -2,6 +2,7 @@
 
 import {
   faArrowLeft,
+  faDownload,
   faHeart,
   faImage,
   faUpload,
@@ -281,18 +282,30 @@ export default function Offer({ params }: { params: { id: string } }) {
                         <div key={media._id} className="relative">
                           {media.type === 'image' ? (
                             <Image
-                              src={media.url}
+                              src={`/api/offers/media/raw/${media._id}`}
                               alt={media.description || 'Image'}
-                              width={300}
-                              height={300}
-                              className="rounded-lg object-cover"
+                              className="rounded-lg object-cover w-full h-auto"
                             />
                           ) : (
-                            <video src={media.url} controls className="rounded-lg w-full" />
+                            <video
+                              src={`/api/offers/media/raw/${media._id}`}
+                              controls
+                              className="rounded-lg w-full"
+                            />
                           )}
-                          {media.description && (
-                            <p className="mt-2 text-sm text-gray-600">{media.description}</p>
-                          )}
+                          <div className="flex justify-between items-center mt-2">
+                            {media.description && (
+                              <p className="text-sm text-gray-600">{media.description}</p>
+                            )}
+                            <a
+                              href={`/api/offers/media/download/${media._id}`}
+                              download
+                              className="flex items-center text-sm text-purple-600 hover:text-purple-800"
+                            >
+                              <FontAwesomeIcon icon={faDownload} className="mr-1" />
+                              Télécharger
+                            </a>
+                          </div>
                         </div>
                       ))}
                     </div>

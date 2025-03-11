@@ -53,11 +53,6 @@ export async function GET(req: NextRequest) {
           })
           .toArray();
 
-        console.log('Offres trouvées (sans agrégation):', simpleOffers.length);
-        if (simpleOffers.length > 0) {
-          console.log("Exemple d'offre:", simpleOffers[0]);
-        }
-
         const offers = await db
           .collection('offres')
           .aggregate([
@@ -99,11 +94,6 @@ export async function GET(req: NextRequest) {
             },
           ])
           .toArray();
-
-        console.log(`Nombre d'offres trouvées (avec agrégation): ${offers.length}`);
-        if (offers.length > 0) {
-          console.log("Exemple d'offre avec agrégation:", offers);
-        }
 
         // Pour chaque offre, compter le nombre de candidatures
         const offersWithCandidatesCount = await Promise.all(

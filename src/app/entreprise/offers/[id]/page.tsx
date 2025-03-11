@@ -1,7 +1,13 @@
 'use client';
 
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
-import { faArrowLeft, faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowLeft,
+  faCheck,
+  faDownload,
+  faStar as faStarSolid,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import React, { useEffect, useState } from 'react';
@@ -64,6 +70,7 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
+  const [updatingOfferStatus, setUpdatingOfferStatus] = useState(false);
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -196,6 +203,38 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleUpdateOfferStatus = async (newStatus: OfferStatus) => {
+    setUpdatingOfferStatus(true);
+    try {
+      const response = await fetch('/api/offers/status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          offerId: params.id,
+          status: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la mise à jour du statut de l'offre");
+      }
+
+      // Rafraîchir les données de l'offre
+      const updatedOfferResponse = await fetch(`/api/offer?id=${params.id}`);
+      if (!updatedOfferResponse.ok) {
+        throw new Error("Erreur lors de la récupération de l'offre mise à jour");
+      }
+      const updatedOffer = await updatedOfferResponse.json();
+      setOffer(updatedOffer);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } finally {
+      setUpdatingOfferStatus(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -227,9 +266,67 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">Détails de l&apos;offre</h1>
           </div>
+          <div>
+            <span
+              className={`px-3 py-1 rounded-full text-sm ${
+                offer.status === OfferStatus.CREATED
+                  ? 'bg-blue-100 text-blue-800'
+                  : offer.status === OfferStatus.IN_PROGRESS
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : offer.status === OfferStatus.PENDING_VALIDATION
+                      ? 'bg-orange-100 text-orange-800'
+                      : offer.status === OfferStatus.COMPLETED
+                        ? 'bg-green-100 text-green-800'
+                        : ''
+              }`}
+            >
+              {offer.status === OfferStatus.CREATED
+                ? 'Créée'
+                : offer.status === OfferStatus.IN_PROGRESS
+                  ? 'En cours'
+                  : offer.status === OfferStatus.PENDING_VALIDATION
+                    ? 'En attente de validation'
+                    : offer.status === OfferStatus.COMPLETED
+                      ? 'Terminée'
+                      : offer.status}
+            </span>
+          </div>
         </div>
 
         {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
+
+        {/* Section de validation pour les offres en attente */}
+        {offer.status === OfferStatus.PENDING_VALIDATION && (
+          <div className="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-orange-800 mb-2">
+              Cette offre est en attente de validation
+            </h3>
+            <p className="text-orange-700 mb-4">
+              L&apos;UGC a soumis son travail pour validation. Veuillez vérifier les médias fournis
+              et valider ou rejeter l&apos;offre.
+            </p>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => handleUpdateOfferStatus(OfferStatus.COMPLETED)}
+                disabled={updatingOfferStatus}
+                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                <FontAwesomeIcon icon={faCheck} className="mr-2" />
+                {updatingOfferStatus ? 'Validation en cours...' : "Valider l'offre"}
+              </button>
+              <button
+                onClick={() => handleUpdateOfferStatus(OfferStatus.IN_PROGRESS)}
+                disabled={updatingOfferStatus}
+                className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                <FontAwesomeIcon icon={faTimes} className="mr-2" />
+                {updatingOfferStatus
+                  ? 'Rejet en cours...'
+                  : 'Rejeter et demander des modifications'}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
@@ -265,18 +362,32 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                     <div key={media._id} className="relative">
                       {media.type === 'image' ? (
                         <Image
-                          src={media.url}
+                          src={`/api/offers/media/raw/${media._id}`}
                           alt={media.description || 'Image'}
                           width={300}
                           height={300}
-                          className="rounded-lg object-cover"
+                          className="rounded-lg object-cover w-full h-auto"
                         />
                       ) : (
-                        <video src={media.url} controls className="rounded-lg w-full" />
+                        <video
+                          src={`/api/offers/media/raw/${media._id}`}
+                          controls
+                          className="rounded-lg w-full"
+                        />
                       )}
-                      {media.description && (
-                        <p className="mt-2 text-sm text-gray-600">{media.description}</p>
-                      )}
+                      <div className="flex justify-between items-center mt-2">
+                        {media.description && (
+                          <p className="text-sm text-gray-600">{media.description}</p>
+                        )}
+                        <a
+                          href={`/api/offers/media/download/${media._id}`}
+                          download
+                          className="flex items-center text-sm text-purple-600 hover:text-purple-800"
+                        >
+                          <FontAwesomeIcon icon={faDownload} className="mr-1" />
+                          Télécharger
+                        </a>
+                      </div>
                       <p className="text-xs text-gray-500 mt-1">
                         Ajouté le {new Date(media.createdAt).toLocaleDateString()}
                       </p>
@@ -297,7 +408,6 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                     <Image
                       src={acceptedCandidature.ugcInfo.profileImage}
                       alt={`Photo de ${acceptedCandidature.ugcInfo.name}`}
-                      fill
                       className="rounded-full object-cover"
                     />
                   </div>
@@ -378,7 +488,6 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                           <Image
                             src={candidature.ugcInfo.profileImage}
                             alt={`Photo de ${candidature.ugcInfo.name}`}
-                            fill
                             className="rounded-full object-cover"
                           />
                         </div>

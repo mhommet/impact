@@ -52,8 +52,24 @@ export async function POST(req: NextRequest) {
       const db = client.db('impact');
 
       // Verify that the offer exists
-      const offer = await db.collection('offres').findOne({ code: offerId });
+      let offer;
+      try {
+        // Essayer d'abord avec _id (si c'est un ObjectId valide)
+        const { ObjectId } = require('mongodb');
+        if (ObjectId.isValid(offerId)) {
+          offer = await db.collection('offres').findOne({ _id: new ObjectId(offerId) });
+        }
+      } catch (error) {
+        console.log('Erreur lors de la recherche par ObjectId:', error);
+      }
+
+      // Si l'offre n'est pas trouvée par _id, essayer avec le code
       if (!offer) {
+        offer = await db.collection('offres').findOne({ code: offerId });
+      }
+
+      if (!offer) {
+        console.log('Offre non trouvée avec ID/code:', offerId);
         return NextResponse.json({ message: 'Offre non trouvée' }, { status: 404 });
       }
 
@@ -87,18 +103,24 @@ export async function POST(req: NextRequest) {
 
       // Mettre à jour le champ approprié dans l'offre
       const ratingField = type === 'ugc' ? 'entrepriseRating' : 'ugcRating';
-      await db.collection('offres').updateOne(
-        { code: offerId },
-        {
-          $set: {
-            [ratingField]: {
-              rating,
-              comment,
-              createdAt: new Date(),
-            },
+
+      // Utiliser le même identifiant que celui utilisé pour trouver l'offre
+      const updateQuery: { _id?: any; code?: string } = {};
+      if (offer._id) {
+        updateQuery._id = offer._id;
+      } else if (offer.code) {
+        updateQuery.code = offer.code;
+      }
+
+      await db.collection('offres').updateOne(updateQuery, {
+        $set: {
+          [ratingField]: {
+            rating,
+            comment,
+            createdAt: new Date(),
           },
-        }
-      );
+        },
+      });
 
       return NextResponse.json({ message: 'Avis enregistré avec succès' });
     } catch (error) {

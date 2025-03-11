@@ -26,51 +26,69 @@ export async function PUT(req: NextRequest) {
       return new NextResponse('Non autorisé', { status: 401 });
     }
 
-    try {
-      const { payload } = await jwtVerify(token, secretKey);
-      if (payload.type !== 'entreprise') {
-        return new NextResponse('Non autorisé - Entreprises uniquement', { status: 403 });
-      }
+    const { payload } = await jwtVerify(token, secretKey);
+    const { offerId, status } = await req.json();
 
-      const data = await req.json();
-      const { offerId, status } = data;
+    if (!offerId || !status) {
+      return new NextResponse('Données manquantes', { status: 400 });
+    }
 
-      if (!offerId || !status || !Object.values(OfferStatus).includes(status)) {
-        return new NextResponse('Données invalides', { status: 400 });
-      }
+    const client = await clientPromise;
+    const db = client.db('impact');
 
-      const client = await clientPromise;
-      const db = client.db('impact');
-
-      // Vérifier que l'offre appartient à l'entreprise
+    // Vérifier si l'utilisateur est autorisé à modifier cette offre
+    if (payload.type === 'entreprise') {
+      // Logique pour les entreprises
       const offer = await db.collection('offres').findOne({
         _id: new ObjectId(offerId),
         entrepriseId: payload.userId,
       });
 
       if (!offer) {
+        return new NextResponse('Offre non trouvée ou non autorisée', { status: 404 });
+      }
+
+      // Mettre à jour le statut de l'offre
+      await db
+        .collection('offres')
+        .updateOne({ _id: new ObjectId(offerId) }, { $set: { status, updatedAt: new Date() } });
+
+      return NextResponse.json({ success: true });
+    } else if (payload.type === 'ugc') {
+      // Logique pour les UGC - ils ne peuvent soumettre que pour validation
+      if (status !== 'pending_validation') {
+        return new NextResponse('Statut non autorisé pour UGC', { status: 403 });
+      }
+
+      // Vérifier si l'UGC a une candidature acceptée pour cette offre
+      const offer = await db.collection('offres').findOne({
+        _id: new ObjectId(offerId),
+      });
+
+      if (!offer) {
         return new NextResponse('Offre non trouvée', { status: 404 });
       }
 
-      // Mettre à jour le statut
-      const updateData: any = {
-        status,
-      };
+      const candidature = await db.collection('candidatures').findOne({
+        ugcId: payload.userId,
+        offerCode: offer.code,
+      });
 
-      // Si l'offre est terminée, ajouter la date de complétion
-      if (status === OfferStatus.COMPLETED) {
-        updateData.completedAt = new Date().toISOString();
+      if (!candidature) {
+        return new NextResponse('Candidature non trouvée', { status: 404 });
       }
 
-      await db.collection('offres').updateOne({ _id: new ObjectId(offerId) }, { $set: updateData });
+      // Mettre à jour le statut de l'offre
+      await db
+        .collection('offres')
+        .updateOne({ _id: new ObjectId(offerId) }, { $set: { status, updatedAt: new Date() } });
 
-      return NextResponse.json({ message: 'Statut mis à jour avec succès' });
-    } catch (error) {
-      console.error('Erreur de token:', error);
-      return new NextResponse('Token invalide', { status: 401 });
+      return NextResponse.json({ success: true });
     }
+
+    return new NextResponse("Type d'utilisateur non autorisé", { status: 403 });
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du statut:', error);
+    console.error('Erreur:', error);
     return new NextResponse('Erreur serveur', { status: 500 });
   }
 }

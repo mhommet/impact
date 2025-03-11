@@ -15,6 +15,8 @@ const nextConfig = withPWA({
         hostname: '**',
       },
     ],
+    domains: ['localhost'],
+    unoptimized: true,
   },
 });
 
