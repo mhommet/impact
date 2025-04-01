@@ -41,6 +41,7 @@ export interface Offer {
   completedAt?: string;
   entrepriseId: string;
   candidatesCount: number;
+  tags?: string[];
   medias?: Media[];
   ugcInfo?: {
     name: string;

@@ -11,17 +11,17 @@ if (!self.define) {
         } else (e = i), importScripts(i), s();
       }).then(() => {
         let e = s[i];
-        if (!e) throw new Error(`Module ${i} didn't register its module`);
+        if (!e) throw new Error(`Module ${i} didn’t register its module`);
         return e;
       })
   );
   self.define = (n, a) => {
     const c = e || ('document' in self ? document.currentScript.src : '') || location.href;
     if (s[c]) return;
-    let t = {};
-    const r = (e) => i(e, c),
-      o = { module: { uri: c }, exports: t, require: r };
-    s[c] = Promise.all(n.map((e) => o[e] || r(e))).then((e) => (a(...e), t));
+    let r = {};
+    const t = (e) => i(e, c),
+      u = { module: { uri: c }, exports: r, require: t };
+    s[c] = Promise.all(n.map((e) => u[e] || t(e))).then((e) => (a(...e), r));
   };
 }
 define(['./workbox-4754cb34'], function (e) {
@@ -31,169 +31,175 @@ define(['./workbox-4754cb34'], function (e) {
     e.clientsClaim(),
     e.precacheAndRoute(
       [
-        { url: '/_next/app-build-manifest.json', revision: '3d9332589005c28010b3506dbb7d3ebd' },
+        { url: '/_next/app-build-manifest.json', revision: '46f0432d25890c234870f746e56ea7ea' },
         {
-          url: '/_next/static/WCKigKKeTVZ9Rn5kwVNk2/_buildManifest.js',
+          url: '/_next/static/SObxpRr4uNLU_e0NEigSl/_buildManifest.js',
           revision: 'b98e19c30f4739f7ab94c1cafcc756dd',
         },
         {
-          url: '/_next/static/WCKigKKeTVZ9Rn5kwVNk2/_ssgManifest.js',
+          url: '/_next/static/SObxpRr4uNLU_e0NEigSl/_ssgManifest.js',
           revision: 'b6652df95db52feb4daf4eca35380933',
         },
-        { url: '/_next/static/chunks/397-70e4abd09847ff02.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
-        { url: '/_next/static/chunks/449-b80c3626bda7afc7.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
-        { url: '/_next/static/chunks/538-6139c95092b7234b.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
-        { url: '/_next/static/chunks/69-8ba2c75f91961bb3.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
+        { url: '/_next/static/chunks/301-6c8e4dfecd54ae9a.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
+        { url: '/_next/static/chunks/35-48d2689b058d4b9b.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
+        { url: '/_next/static/chunks/397-70e4abd09847ff02.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
+        { url: '/_next/static/chunks/449-b80c3626bda7afc7.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
+        { url: '/_next/static/chunks/538-6139c95092b7234b.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
+        { url: '/_next/static/chunks/69-8ba2c75f91961bb3.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
         {
           url: '/_next/static/chunks/69b09407-18b093481be36608.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
-        { url: '/_next/static/chunks/703-537105fba40d1fd2.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
-        { url: '/_next/static/chunks/792-1d83fc71a49e4786.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
+        { url: '/_next/static/chunks/703-537105fba40d1fd2.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
+        { url: '/_next/static/chunks/792-1d83fc71a49e4786.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
         {
           url: '/_next/static/chunks/870fdd6f-bf227669973d45c8.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/app/_not-found-7030cd40acdaae4f.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/construction/page-c4068ebe61ccaa2f.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/construction/page-76f6ce2da9244b72.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/home/page-d21a7085fb710bee.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/home/page-2cf0b8ede2556a28.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/app/entreprise/login/page-dc0e5ca72436a0c4.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/candidatures/page-de44db5ea6c5eeed.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/candidatures/page-3fbd5b27de8deae3.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/page-06bf16df5b083215.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/offers/%5Bid%5D/page-9694132235e2e513.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/new/page-19fe7d21a28da6df.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/offers/new/page-0c5e4c1b8f063b06.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/offers/page-40ea63d9d19d70ab.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/offers/page-a5e9c4c3e5781b11.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/profile/%5Bid%5D/page-632e6d6cfbfe6d3b.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/profile/%5Bid%5D/page-b6280c12d0f1a376.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/profile/edit/page-e1520affbfc6a939.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/profile/edit/page-c4877ff2f5d32638.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/app/entreprise/register/page-f953a8e72ebb1fe9.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/entreprise/stats/page-e6013ca465fd64e5.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/entreprise/stats/page-3851cc51b606fda1.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/layout-f2462037eacc6d07.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/layout-61003065b1cbe253.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/mentions-legales/page-a57758720cc18726.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/mentions-legales/page-bed16da8387c7a96.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/page-0c0ea13e61b91e75.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/notifications/page-c8788912b176ab24.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/test-image/%5Bid%5D/page-1d7ebc70621230bd.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/page-1c84f4dd66b5a2b8.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/candidatures/page-cff78b630139320c.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/test-image/%5Bid%5D/page-2f86ac65e85ecc76.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/collaborations/completed/page-c4a945b89aba1e62.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/candidatures/page-61eb33d2f3b5996c.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/home/page-551127292a5d5d05.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/collaborations/completed/page-9defd10c978ef48f.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
+        },
+        {
+          url: '/_next/static/chunks/app/ugc/home/page-32023d54fbca7a82.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/app/ugc/login/page-73a34da4c656ce9a.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/offer/%5Bid%5D/page-6736efd7c9c1ba28.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/offer/%5Bid%5D/page-d6a209ac4920bbe7.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/offers/current/page-b82893b12be8c4b2.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/offers/current/page-d3bde66476a137df.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/offers/page-035f6c1997d39c1d.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/offers/page-dfc1bb7319837742.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/profile/%5Bid%5D/page-3701af8ede2fd083.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/profile/%5Bid%5D/page-a840c5adfc288e6a.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/profile/edit/page-64fced97fa010b16.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/profile/edit/page-4ba201436adaee2f.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/app/ugc/register/page-53842cb65a66e710.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
-          url: '/_next/static/chunks/app/ugc/resources/page-0303c52150c410a7.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/app/ugc/resources/page-b194c1aa82dfeed8.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/fd9d1056-c184c5246ef850bc.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/framework-f66176bb897dc684.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
+        { url: '/_next/static/chunks/main-4492e0630808a0f0.js', revision: 'SObxpRr4uNLU_e0NEigSl' },
         {
           url: '/_next/static/chunks/main-app-b6c8feab3ef6694f.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
-        { url: '/_next/static/chunks/main-be0623ee93b022fa.js', revision: 'WCKigKKeTVZ9Rn5kwVNk2' },
         {
           url: '/_next/static/chunks/pages/_app-75f6107b0260711c.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/pages/_error-3cb9820ce48c08b4.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         {
           url: '/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js',
           revision: '837c0df77fd5009c9e46d446188ecfd0',
         },
         {
-          url: '/_next/static/chunks/webpack-47157b1f3be5b93c.js',
-          revision: 'WCKigKKeTVZ9Rn5kwVNk2',
+          url: '/_next/static/chunks/webpack-9e8e9a8700185cb6.js',
+          revision: 'SObxpRr4uNLU_e0NEigSl',
         },
         { url: '/_next/static/css/1d13aebdc03d7a71.css', revision: '1d13aebdc03d7a71' },
-        { url: '/_next/static/css/2120f76ca4be52c7.css', revision: '2120f76ca4be52c7' },
         { url: '/_next/static/css/59996bdb2e04e5fb.css', revision: '59996bdb2e04e5fb' },
+        { url: '/_next/static/css/f79c36e6e59cce1e.css', revision: 'f79c36e6e59cce1e' },
         {
           url: '/_next/static/media/logo.8a76ed43.png',
           revision: 'bb8e5209725ac6336083513b17bb61c4',
@@ -372,74 +378,4 @@ define(['./workbox-4754cb34'], function (e) {
       }),
       'GET'
     );
-
-  // Gestion des notifications push
-  self.addEventListener('push', function (event) {
-    if (event.data) {
-      try {
-        const data = event.data.json();
-
-        const options = {
-          body: data.message || 'Nouvelle notification',
-          icon: '/icons/icon-96x96.png',
-          badge: '/icons/icon-32x32.png',
-          data: {
-            url: data.actionUrl || '/',
-          },
-          vibrate: [100, 50, 100],
-          actions: [
-            {
-              action: 'open',
-              title: 'Voir',
-            },
-            {
-              action: 'close',
-              title: 'Fermer',
-            },
-          ],
-        };
-
-        event.waitUntil(self.registration.showNotification(data.title || 'IMPACT', options));
-      } catch (error) {
-        console.error('Erreur lors du traitement de la notification push:', error);
-      }
-    }
-  });
-
-  // Gestion du clic sur la notification
-  self.addEventListener('notificationclick', function (event) {
-    event.notification.close();
-
-    if (event.action === 'close') {
-      return;
-    }
-
-    // Ouvrir l'URL spécifiée dans les données de la notification
-    const urlToOpen =
-      event.notification.data && event.notification.data.url
-        ? event.notification.data.url
-        : '/notifications';
-
-    event.waitUntil(
-      clients
-        .matchAll({
-          type: 'window',
-          includeUncontrolled: true,
-        })
-        .then(function (clientList) {
-          // Si un onglet est déjà ouvert avec l'URL, le focaliser
-          for (let i = 0; i < clientList.length; i++) {
-            const client = clientList[i];
-            if (client.url === urlToOpen && 'focus' in client) {
-              return client.focus();
-            }
-          }
-
-          // Sinon, ouvrir un nouvel onglet
-          if (clients.openWindow) {
-            return clients.openWindow(urlToOpen);
-          }
-        })
-    );
-  });
 });

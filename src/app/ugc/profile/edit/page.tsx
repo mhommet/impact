@@ -32,6 +32,7 @@ interface UgcProfile {
   location: string;
   title: string;
   profileImage: string;
+  skills?: string[];
   socialLinks: {
     instagram?: string;
     tiktok?: string;
@@ -59,6 +60,7 @@ export default function EditProfile() {
     location: '',
     title: '',
     profileImage: '',
+    skills: [],
     socialLinks: {},
     portfolio: {
       contracts: 0,
@@ -66,6 +68,7 @@ export default function EditProfile() {
       comments: 0,
     },
   });
+  const [newTag, setNewTag] = useState('');
 
   // Chargement du profil
   useEffect(() => {
@@ -136,6 +139,31 @@ export default function EditProfile() {
       location: value,
     }));
     handleLocationSearch(value);
+  };
+
+  const handleTagChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTag(e.target.value);
+  };
+
+  const addTag = () => {
+    if (newTag.trim() === '') return;
+
+    if (profile.skills?.includes(newTag.trim())) {
+      return;
+    }
+
+    setProfile((prev) => ({
+      ...prev,
+      skills: [...(prev.skills || []), newTag.trim()],
+    }));
+    setNewTag('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setProfile((prev) => ({
+      ...prev,
+      skills: (prev.skills || []).filter((skill) => skill !== tagToRemove),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -337,6 +365,67 @@ export default function EditProfile() {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 placeholder="@votre_compte"
               />
+            </div>
+          </div>
+
+          <div className="bg-white shadow overflow-hidden rounded-lg mt-6">
+            <div className="px-4 py-5 sm:px-6">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Tags</h3>
+              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                Ajoutez vos tags pour améliorer les correspondances avec les offres
+              </p>
+            </div>
+            <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={handleTagChange}
+                  placeholder="Nouveau tag"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                >
+                  Ajouter
+                </button>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {profile.skills?.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-2 flex-shrink-0 inline-flex text-purple-500 hover:text-purple-700"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 

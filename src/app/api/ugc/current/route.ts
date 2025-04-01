@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
           location: '',
           title: '',
           profileImage: DEFAULT_PROFILE_IMAGE,
+          skills: [],
           socialLinks: {},
           portfolio: {
             contracts: 0,
@@ -65,6 +66,10 @@ export async function GET(req: NextRequest) {
 
         await db.collection('ugc').insertOne(newUgc);
         ugc = newUgc;
+      } else if (!ugc.skills) {
+        // S'assurer que le champ skills existe pour les profils existants
+        await db.collection('ugc').updateOne({ code: ugcId }, { $set: { skills: [] } });
+        ugc.skills = [];
       }
 
       return NextResponse.json(ugc);

@@ -82,9 +82,11 @@ export async function POST(req: NextRequest) {
         code: ugcId, // Utiliser l'ID du token comme code
         name: data.name,
         description: data.description,
+        bio: data.bio,
         location: data.location,
         title: data.title,
         profileImage: data.profileImage,
+        skills: data.skills || [], // Ajouter les compétences
         socialLinks: data.socialLinks || {},
         portfolio: data.portfolio || {
           contracts: 0,

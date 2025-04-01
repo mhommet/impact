@@ -53,6 +53,17 @@ export async function GET(req: NextRequest) {
           })
           .toArray();
 
+        // Débogage - Vérifier les offres brutes récupérées directement
+        console.log(
+          'Offres brutes récupérées (sample):',
+          simpleOffers.slice(0, 2).map((offer) => ({
+            name: offer.name,
+            tags: offer.tags,
+            tagsType: offer.tags ? typeof offer.tags : 'undefined',
+            isArray: offer.tags ? Array.isArray(offer.tags) : false,
+          }))
+        );
+
         const offers = await db
           .collection('offres')
           .aggregate([
@@ -84,6 +95,7 @@ export async function GET(req: NextRequest) {
                 description: 1,
                 category: 1,
                 reward: 1,
+                tags: 1,
                 createdAt: 1,
                 entrepriseId: 1,
                 location: 1,
@@ -94,6 +106,17 @@ export async function GET(req: NextRequest) {
             },
           ])
           .toArray();
+
+        // Débogage après l'agrégation
+        console.log(
+          'Offres après agrégation (sample):',
+          offers.slice(0, 2).map((offer) => ({
+            name: offer.name,
+            tags: offer.tags,
+            tagsType: offer.tags ? typeof offer.tags : 'undefined',
+            isArray: offer.tags ? Array.isArray(offer.tags) : false,
+          }))
+        );
 
         // Pour chaque offre, compter le nombre de candidatures
         const offersWithCandidatesCount = await Promise.all(
@@ -208,6 +231,34 @@ export async function POST(req: NextRequest) {
       return new NextResponse('Données manquantes', { status: 400 });
     }
 
+    // Débogage des tags
+    console.log("Données de l'offre reçues:", {
+      name: offerData.name,
+      tags: offerData.tags,
+      tagsType: offerData.tags ? typeof offerData.tags : 'undefined',
+      isArray: offerData.tags ? Array.isArray(offerData.tags) : false,
+    });
+
+    // Assurer que les tags sont proprement formatés (tableau de chaînes non vides)
+    let processedTags = [];
+
+    if (offerData.tags && Array.isArray(offerData.tags)) {
+      processedTags = offerData.tags
+        .filter((tag: any) => tag && typeof tag === 'string' && tag.trim() !== '') // Garder uniquement les chaînes non vides
+        .map((tag: string) => tag.toLowerCase().trim()); // Normaliser les tags
+    }
+
+    // Si la catégorie est restaurant et qu'il n'y a pas déjà un tag "restauration"
+    if (
+      offerData.category &&
+      offerData.category.toLowerCase() === 'restaurant' &&
+      !processedTags.some((tag: string) => tag.includes('restaur'))
+    ) {
+      processedTags.push('restauration');
+    }
+
+    console.log('Tags traités avant enregistrement:', processedTags);
+
     // Générer un code unique pour l'offre (timestamp + random)
     const code = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -218,6 +269,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
       entrepriseId,
       status: OfferStatus.CREATED,
+      tags: processedTags, // Utiliser les tags traités
       completedAt: null,
       ugcRating: null,
       entrepriseRating: null,
