@@ -3,11 +3,12 @@
 import { faBell, faHeart, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 
+import NotificationsList from './NotificationsList';
 import logo from './logo.png';
 
 const redirect = () => {
@@ -16,10 +17,67 @@ const redirect = () => {
 
 const TopBar = () => {
   const [path, setPath] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const buttonRef = useRef<HTMLSpanElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setPath(window.location.pathname);
+    fetchUnreadCount();
+
+    // Mettre à jour le nombre de notifications non lues toutes les 30 secondes
+    const interval = setInterval(fetchUnreadCount, 30000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationsOpen &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [notificationsOpen]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch('/api/notifications/count', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération du nombre de notifications');
+      }
+
+      const data = await response.json();
+      setUnreadCount(data.unreadCount || 0);
+    } catch (err) {
+      console.error('Erreur lors de la récupération du nombre de notifications:', err);
+    }
+  };
+
+  const toggleNotifications = () => {
+    setNotificationsOpen(!notificationsOpen);
+  };
+
+  const closeNotifications = () => {
+    setNotificationsOpen(false);
+  };
 
   return (
     <div
@@ -48,11 +106,23 @@ const TopBar = () => {
             <FontAwesomeIcon icon={faHeart} />
           </span>
         </Link>
-        <Link href="/construction">
-          <span className="text-2xl">
+        <div className="relative">
+          <span
+            ref={buttonRef}
+            onClick={toggleNotifications}
+            className="text-2xl cursor-pointer relative"
+          >
             <FontAwesomeIcon icon={faBell} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-600 rounded-full">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </span>
-        </Link>
+          <div ref={menuRef}>
+            <NotificationsList isOpen={notificationsOpen} onClose={closeNotifications} />
+          </div>
+        </div>
       </div>
     </div>
   );

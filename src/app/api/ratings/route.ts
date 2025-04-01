@@ -1,9 +1,11 @@
 import { jwtVerify } from 'jose';
+import { ObjectId } from 'mongodb';
 
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '../../../../lib/mongodb';
+import { notifyNewRating } from '../../../../lib/notification';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +57,6 @@ export async function POST(req: NextRequest) {
       let offer;
       try {
         // Essayer d'abord avec _id (si c'est un ObjectId valide)
-        const { ObjectId } = require('mongodb');
         if (ObjectId.isValid(offerId)) {
           offer = await db.collection('offres').findOne({ _id: new ObjectId(offerId) });
         }
@@ -88,6 +89,18 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Récupérer les informations sur l'utilisateur qui émet l'avis
+      const fromUserCollection = payload.type === 'ugc' ? 'ugc' : 'entreprises';
+      const fromUser = await db.collection(fromUserCollection).findOne({
+        code: payload.userId,
+      });
+
+      if (!fromUser) {
+        return NextResponse.json({ message: 'Utilisateur émetteur non trouvé' }, { status: 404 });
+      }
+
+      const fromUserName = fromUser.name || (payload.type === 'ugc' ? 'UGC' : 'Entreprise');
+
       // Créer le nouvel avis
       const newRating = {
         offerId,
@@ -99,7 +112,7 @@ export async function POST(req: NextRequest) {
         createdAt: new Date(),
       };
 
-      await db.collection('ratings').insertOne(newRating);
+      const result = await db.collection('ratings').insertOne(newRating);
 
       // Mettre à jour le champ approprié dans l'offre
       const ratingField = type === 'ugc' ? 'entrepriseRating' : 'ugcRating';
@@ -121,6 +134,16 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+
+      // Envoyer une notification à l'utilisateur évalué
+      await notifyNewRating(
+        result.insertedId.toString(),
+        rating,
+        toId,
+        type,
+        fromUserName,
+        offer.title
+      );
 
       return NextResponse.json({ message: 'Avis enregistré avec succès' });
     } catch (error) {

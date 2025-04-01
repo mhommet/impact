@@ -11,7 +11,7 @@ if (!self.define) {
         } else (e = i), importScripts(i), s();
       }).then(() => {
         let e = s[i];
-        if (!e) throw new Error(`Module ${i} didn’t register its module`);
+        if (!e) throw new Error(`Module ${i} didn't register its module`);
         return e;
       })
   );
@@ -372,4 +372,74 @@ define(['./workbox-4754cb34'], function (e) {
       }),
       'GET'
     );
+
+  // Gestion des notifications push
+  self.addEventListener('push', function (event) {
+    if (event.data) {
+      try {
+        const data = event.data.json();
+
+        const options = {
+          body: data.message || 'Nouvelle notification',
+          icon: '/icons/icon-96x96.png',
+          badge: '/icons/icon-32x32.png',
+          data: {
+            url: data.actionUrl || '/',
+          },
+          vibrate: [100, 50, 100],
+          actions: [
+            {
+              action: 'open',
+              title: 'Voir',
+            },
+            {
+              action: 'close',
+              title: 'Fermer',
+            },
+          ],
+        };
+
+        event.waitUntil(self.registration.showNotification(data.title || 'IMPACT', options));
+      } catch (error) {
+        console.error('Erreur lors du traitement de la notification push:', error);
+      }
+    }
+  });
+
+  // Gestion du clic sur la notification
+  self.addEventListener('notificationclick', function (event) {
+    event.notification.close();
+
+    if (event.action === 'close') {
+      return;
+    }
+
+    // Ouvrir l'URL spécifiée dans les données de la notification
+    const urlToOpen =
+      event.notification.data && event.notification.data.url
+        ? event.notification.data.url
+        : '/notifications';
+
+    event.waitUntil(
+      clients
+        .matchAll({
+          type: 'window',
+          includeUncontrolled: true,
+        })
+        .then(function (clientList) {
+          // Si un onglet est déjà ouvert avec l'URL, le focaliser
+          for (let i = 0; i < clientList.length; i++) {
+            const client = clientList[i];
+            if (client.url === urlToOpen && 'focus' in client) {
+              return client.focus();
+            }
+          }
+
+          // Sinon, ouvrir un nouvel onglet
+          if (clients.openWindow) {
+            return clients.openWindow(urlToOpen);
+          }
+        })
+    );
+  });
 });

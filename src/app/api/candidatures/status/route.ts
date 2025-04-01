@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { OfferStatus } from '@/types/offer';
 
 import clientPromise from '../../../../../lib/mongodb';
+import { notifyCandidatureStatusChange } from '../../../../../lib/notification';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,6 +51,12 @@ export async function PUT(req: NextRequest) {
       return new NextResponse('Candidature non trouvée', { status: 404 });
     }
 
+    // Récupérer l'offre pour obtenir le nom
+    const offer = await db.collection('offres').findOne({ code: candidature.offerCode });
+    if (!offer) {
+      return new NextResponse('Offre non trouvée', { status: 404 });
+    }
+
     // Mettre à jour le statut de la candidature
     const result = await db
       .collection('candidatures')
@@ -64,6 +71,17 @@ export async function PUT(req: NextRequest) {
       await db
         .collection('offres')
         .updateOne({ code: candidature.offerCode }, { $set: { status: OfferStatus.IN_PROGRESS } });
+    }
+
+    // Envoyer une notification à l'UGC concernant le changement de statut de sa candidature
+    if (status === 'accepted' || status === 'rejected') {
+      await notifyCandidatureStatusChange(
+        candidatureId,
+        offer.title || 'Untitled Offer',
+        status as 'accepted' | 'rejected',
+        candidature.ugcId,
+        candidature.offerCode
+      );
     }
 
     return NextResponse.json({ message: 'Statut mis à jour avec succès' });
