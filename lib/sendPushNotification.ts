@@ -91,7 +91,12 @@ export async function sendPushNotificationToUser(
         return true;
       } catch (error) {
         // Si l'abonnement n'est plus valide, le supprimer
-        if (error.statusCode === 404 || error.statusCode === 410) {
+        if (
+          error &&
+          typeof error === 'object' &&
+          'statusCode' in error &&
+          (error.statusCode === 404 || error.statusCode === 410)
+        ) {
           await db.collection('push_subscriptions').deleteOne({ _id: subscription._id });
           console.log(`Abonnement push supprimé pour ${userId} (${userType}) : plus valide`);
         } else {

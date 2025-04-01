@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useEffect, useRef, useState } from 'react';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -131,7 +132,7 @@ export default function CurrentOffers() {
                     )}
                   </div>
                   {offer.entrepriseInfo?.logo && (
-                    <img
+                    <Image
                       src={offer.entrepriseInfo.logo}
                       alt="Logo entreprise"
                       width={60}
@@ -185,10 +186,12 @@ export default function CurrentOffers() {
                         {offer.medias.map((media) => (
                           <div key={media._id} className="relative">
                             {media.type === 'image' ? (
-                              <img
+                              <Image
                                 src={`/api/offers/media/raw/${media._id}`}
                                 alt={media.description || 'Image'}
                                 className="rounded-lg object-cover w-full h-auto"
+                                width={100}
+                                height={100}
                               />
                             ) : (
                               <video

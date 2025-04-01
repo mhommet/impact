@@ -13,7 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -146,7 +146,7 @@ const App = () => {
     }
   };
 
-  const fetchOffers = async () => {
+  const fetchOffers = useCallback(async () => {
     setIsLoading(true);
     setError('');
     try {
@@ -299,12 +299,12 @@ const App = () => {
       setAllOffers([]);
       setIsLoading(false);
     }
-  };
+  }, [userTags]);
 
   // Appeler fetchOffers au chargement du composant
   useEffect(() => {
     fetchOffers();
-  }, []);
+  }, [fetchOffers]);
 
   useEffect(() => {
     fetchCurrentOffers();

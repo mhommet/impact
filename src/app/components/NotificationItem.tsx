@@ -33,7 +33,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMar
 
   const handleClick = () => {
     if (!notification.read) {
-      onMarkAsRead(notification._id);
+      if (notification._id) {
+        onMarkAsRead(notification._id);
+      }
     }
   };
 

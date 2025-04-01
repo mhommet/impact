@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import React, { useEffect, useRef, useState } from 'react';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Media, OfferStatus } from '@/types/offer';
@@ -128,10 +129,12 @@ export default function Offer({ params }: { params: { id: string } }) {
         <>
           <div>
             <div className="relative">
-              <img
+              <Image
                 className="h-48 w-full object-cover md:w-full"
                 src={`/img/restaurant${3}.png`}
                 alt="Restaurant image"
+                width={100}
+                height={100}
               />
               <Link href="/ugc/offers">
                 <button className="absolute top-2.5 left-2.5 bg-gray-400 bg-opacity-70 rounded-full border-0 w-10 h-10 flex items-center justify-center text-lg p-0">
@@ -281,10 +284,12 @@ export default function Offer({ params }: { params: { id: string } }) {
                       {offer.medias.map((media) => (
                         <div key={media._id} className="relative">
                           {media.type === 'image' ? (
-                            <img
+                            <Image
                               src={`/api/offers/media/raw/${media._id}`}
                               alt={media.description || 'Image'}
                               className="rounded-lg object-cover w-full h-auto"
+                              width={100}
+                              height={100}
                             />
                           ) : (
                             <video
