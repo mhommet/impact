@@ -408,7 +408,9 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                     <Image
                       src={acceptedCandidature.ugcInfo.profileImage}
                       alt={`Photo de ${acceptedCandidature.ugcInfo.name}`}
-                      className="rounded-full object-cover"
+                      width={48}
+                      height={48}
+                      className="rounded-full object-cover w-full h-full"
                     />
                   </div>
                   <div>
@@ -488,7 +490,9 @@ export default function OfferDetails({ params }: { params: { id: string } }) {
                           <Image
                             src={candidature.ugcInfo.profileImage}
                             alt={`Photo de ${candidature.ugcInfo.name}`}
-                            className="rounded-full object-cover"
+                            width={48}
+                            height={48}
+                            className="rounded-full object-cover w-full h-full"
                           />
                         </div>
                         <div className="flex-grow">

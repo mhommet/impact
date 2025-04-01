@@ -16,8 +16,12 @@ html {
     'Open Sans',
     'Helvetica Neue',
     sans-serif;
+  overflow-x: hidden;
 }
 
 body {
   overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }

@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useEffect, useRef, useState } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -132,7 +131,7 @@ export default function CurrentOffers() {
                     )}
                   </div>
                   {offer.entrepriseInfo?.logo && (
-                    <Image
+                    <img
                       src={offer.entrepriseInfo.logo}
                       alt="Logo entreprise"
                       width={60}
@@ -153,7 +152,7 @@ export default function CurrentOffers() {
                         onChange={(e) => setMediaDescription(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       />
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <input
                           ref={fileInputRef}
                           type="file"
@@ -167,13 +166,13 @@ export default function CurrentOffers() {
                         />
                         <label
                           htmlFor={`file-${offer._id}`}
-                          className="cursor-pointer inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                          className="cursor-pointer inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 whitespace-nowrap"
                         >
                           <FontAwesomeIcon icon={faUpload} className="mr-2" />
                           Ajouter un média
                         </label>
                         {uploadingOffer === offer.code && (
-                          <span className="text-gray-600">Upload en cours...</span>
+                          <span className="text-gray-600 ml-2">Upload en cours...</span>
                         )}
                       </div>
                     </div>
@@ -186,7 +185,7 @@ export default function CurrentOffers() {
                         {offer.medias.map((media) => (
                           <div key={media._id} className="relative">
                             {media.type === 'image' ? (
-                              <Image
+                              <img
                                 src={`/api/offers/media/raw/${media._id}`}
                                 alt={media.description || 'Image'}
                                 className="rounded-lg object-cover w-full h-auto"

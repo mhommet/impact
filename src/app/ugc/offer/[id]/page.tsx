@@ -13,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
 import { Media, OfferStatus } from '@/types/offer';
@@ -129,9 +128,7 @@ export default function Offer({ params }: { params: { id: string } }) {
         <>
           <div>
             <div className="relative">
-              <Image
-                width={100}
-                height={100}
+              <img
                 className="h-48 w-full object-cover md:w-full"
                 src={`/img/restaurant${3}.png`}
                 alt="Restaurant image"
@@ -232,7 +229,7 @@ export default function Offer({ params }: { params: { id: string } }) {
             {offer?.status === OfferStatus.IN_PROGRESS && (
               <div className="mt-8 border-t border-gray-200 pt-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Ajouter des médias</h3>
-                <div className="space-y-4">
+                <div className="max-w-lg space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Description du média
@@ -249,25 +246,28 @@ export default function Offer({ params }: { params: { id: string } }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Fichier (image ou vidéo)
                     </label>
-                    <div className="space-y-2">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
-                        onChange={handleMediaUpload}
-                        disabled={uploadingMedia}
-                        className="block w-full text-sm text-gray-500
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-full file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-purple-50 file:text-purple-700
-                          hover:file:bg-purple-100"
-                      />
-                      <p className="text-sm text-gray-500">
-                        Formats acceptés : JPEG, PNG, GIF, WEBP, MP4, WEBM, QuickTime
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Taille maximale : 5 Mo pour les images, 50 Mo pour les vidéos
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex items-center">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
+                          onChange={handleMediaUpload}
+                          disabled={uploadingMedia}
+                          className="w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-purple-600 file:text-white
+                            hover:file:bg-purple-700"
+                        />
+                        {uploadingMedia && (
+                          <span className="ml-2 text-gray-600">Envoi en cours...</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Formats : JPEG, PNG, GIF, WEBP, MP4, WEBM, QuickTime | Max : 5 Mo (images),
+                        50 Mo (vidéos)
                       </p>
                     </div>
                   </div>
@@ -281,7 +281,7 @@ export default function Offer({ params }: { params: { id: string } }) {
                       {offer.medias.map((media) => (
                         <div key={media._id} className="relative">
                           {media.type === 'image' ? (
-                            <Image
+                            <img
                               src={`/api/offers/media/raw/${media._id}`}
                               alt={media.description || 'Image'}
                               className="rounded-lg object-cover w-full h-auto"

@@ -23,7 +23,7 @@ const TopBar = () => {
 
   return (
     <div
-      className="sticky top-0 left-0 right-0 text-white px-8 flex items-center justify-between h-20 w-screen z-10"
+      className="sticky top-0 left-0 right-0 text-white px-8 flex items-center justify-between h-20 w-full z-10"
       style={{ background: 'linear-gradient(to right, #182F53, #90579F)' }}
     >
       <Image

@@ -366,9 +366,9 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div className="relative overflow-x-hidden">
       <TopBar />
-      <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
+      <div className="relative isolate px-4 sm:px-6 pt-5 lg:px-8 mb-40">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Offres en cours</h1>
         {loadingCurrentOffers ? (
           <div className="text-center mt-8">Chargement des offres en cours...</div>
@@ -377,9 +377,12 @@ const App = () => {
         ) : currentOffers.length === 0 ? (
           <p className="text-center text-gray-500 mt-8">Aucune offre en cours</p>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-3xl mx-auto">
             {currentOffers.map((offer) => (
-              <div key={offer._id} className="bg-white rounded-lg shadow-md p-6">
+              <div
+                key={offer._id}
+                className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden"
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-800">{offer.name}</h2>
@@ -392,14 +395,14 @@ const App = () => {
                     <Image
                       src={offer.entrepriseInfo.logo}
                       alt="Logo entreprise"
+                      className="rounded-full w-[60px] h-[60px]"
                       width={60}
                       height={60}
-                      className="rounded-full"
                     />
                   )}
                 </div>
                 <div className="mt-4 space-y-4">
-                  <div>
+                  <div className="max-w-lg">
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Ajouter des médias</h3>
                     <div className="space-y-3">
                       <input
@@ -409,7 +412,7 @@ const App = () => {
                         onChange={(e) => setMediaDescription(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       />
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <input
                           ref={fileInputRef}
                           type="file"
@@ -423,13 +426,13 @@ const App = () => {
                         />
                         <label
                           htmlFor={`file-${offer._id}`}
-                          className="cursor-pointer inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                          className="cursor-pointer inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 whitespace-nowrap"
                         >
                           <FontAwesomeIcon icon={faUpload} className="mr-2" />
                           Ajouter un média
                         </label>
                         {uploadingOffer === offer.code && (
-                          <span className="text-gray-600">Upload en cours...</span>
+                          <span className="text-gray-600 ml-2">Upload en cours...</span>
                         )}
                       </div>
                     </div>
@@ -446,6 +449,8 @@ const App = () => {
                                 src={`/api/offers/media/raw/${media._id}`}
                                 alt={media.description || 'Image'}
                                 className="rounded-lg object-cover w-full h-auto"
+                                width={100}
+                                height={100}
                               />
                             ) : (
                               <video
@@ -498,7 +503,8 @@ const App = () => {
             ))}
           </div>
         )}
-        <div className="relative isolate px-6 pt-5 lg:px-8 mb-40">
+
+        <div className="mt-10 max-w-6xl mx-auto">
           <div
             className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
             aria-hidden="true"
@@ -511,208 +517,201 @@ const App = () => {
               }}
             />
           </div>
-          <div>
-            <h3 className="text-gray-900 text-xl font-bold">Les annonces à la une</h3>
-            <div className="flex items-center justify-between space-x-4 mt-5">
-              {Array.isArray(offers) && offers.length > 0 && (
-                <>
-                  <button className="rounded-full text-xl font-bold">&lt;</button>
-                  <Link href={`/ugc/offer/${offers[offers.length - 1].code}`}>
-                    <div
-                      key={offers[offers.length - 1].code}
-                      className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full"
-                    >
-                      <div className="md:flex">
-                        <div className="md:flex-shrink-0 h-48 md:h-auto w-full overflow-hidden">
-                          <Image
-                            width={400}
-                            height={300}
-                            className="h-full w-full object-cover md:w-full"
-                            src={getRestaurantImage(3)}
-                            alt="Restaurant image"
-                          />
+
+          <h3 className="text-gray-900 text-xl font-bold">Les annonces à la une</h3>
+          <div className="flex items-center justify-between space-x-4 mt-5 overflow-x-auto">
+            {Array.isArray(offers) && offers.length > 0 && (
+              <>
+                <button className="rounded-full text-xl font-bold shrink-0">&lt;</button>
+                <Link href={`/ugc/offer/${offers[offers.length - 1].code}`} className="w-full">
+                  <div
+                    key={offers[offers.length - 1].code}
+                    className="mx-auto bg-white rounded-lg shadow-md overflow-hidden max-w-full md:max-w-2xl lg:max-w-3xl m-5"
+                  >
+                    <div className="md:flex">
+                      <div className="md:flex-shrink-0 h-48 md:h-auto w-full overflow-hidden">
+                        <Image
+                          className="h-full w-full object-cover md:w-full"
+                          src={getRestaurantImage(3)}
+                          alt="Restaurant image"
+                          width={100}
+                          height={100}
+                        />
+                      </div>
+                    </div>
+                    <div className="p-8">
+                      <div className="flex justify-between items-center">
+                        <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
+                          {offers[offers.length - 1].name}
+                        </div>
+                        <div>
+                          <span className="inline-block text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                            <span>
+                              <FontAwesomeIcon icon={faStar} />
+                            </span>
+                          </span>
                         </div>
                       </div>
-                      <div className="p-8">
-                        <div className="flex justify-between items-center">
-                          <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
-                            {offers[offers.length - 1].name}
-                          </div>
-                          <div>
-                            <span className="inline-block text-yellow-600 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                              <span>
-                                <FontAwesomeIcon icon={faStar} />
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                        <div className="mt-2 text-gray-400">
-                          {offers[offers.length - 1].category}
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                          <button
-                            style={{ backgroundColor: '#90579F' }}
-                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
-                          >
-                            Voir le brief
-                          </button>
-                          <div>
-                            {/* Replace with your heart icon */}
-                            <span>
-                              <FontAwesomeIcon icon={faHeart} />
-                            </span>
-                          </div>
+                      <div className="mt-2 text-gray-400">{offers[offers.length - 1].category}</div>
+                      <div className="mt-2 flex justify-between items-center">
+                        <button
+                          style={{ backgroundColor: '#90579F' }}
+                          className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md"
+                        >
+                          Voir le brief
+                        </button>
+                        <div>
+                          {/* Replace with your heart icon */}
+                          <span>
+                            <FontAwesomeIcon icon={faHeart} />
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </Link>
-                  <button className="rounded-full text-xl font-bold">&gt;</button>
-                </>
+                  </div>
+                </Link>
+                <button className="rounded-full text-xl font-bold shrink-0">&gt;</button>
+              </>
+            )}
+          </div>
+
+          <h3 className="text-gray-900 text-xl font-bold mt-8">
+            Ces annonces qui pourraient vous intéresser...
+          </h3>
+          <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:items-center md:justify-between md:space-x-4 mt-5">
+            <div className="w-full md:w-1/3">
+              <input
+                type="text"
+                placeholder="Rechercher une offre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex space-x-4 relative">
+              <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
+                <span className="text-gray-600">
+                  <FontAwesomeIcon icon={faSort} />
+                </span>{' '}
+                Trier
+              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowCategoryFilter(!showCategoryFilter)}
+                  className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${selectedCategory ? 'bg-purple-100' : ''}`}
+                >
+                  <span className="text-gray-600">
+                    <FontAwesomeIcon icon={faFilter} />
+                  </span>{' '}
+                  {selectedCategory || 'Filtrer'}
+                </button>
+                {showCategoryFilter && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1">
+                    <button
+                      onClick={resetFilters}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Tous
+                    </button>
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => handleCategorySelect(category)}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => setShowDistanceFilter(!showDistanceFilter)}
+                  className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${isGeolocActive ? 'bg-purple-100' : ''}`}
+                >
+                  Distance max: {maxDistance}km
+                </button>
+                {showDistanceFilter && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 p-4">
+                    <input
+                      type="range"
+                      min="10"
+                      max="200"
+                      step="10"
+                      value={maxDistance}
+                      onChange={(e) => handleMaxDistanceChange(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="text-center mt-2">{maxDistance} km</div>
+                  </div>
+                )}
+              </div>
+              {isGeolocActive ? (
+                <button
+                  onClick={disableGeolocation}
+                  className="text-white bg-purple-600 px-2 py-1 flex items-center rounded-md"
+                >
+                  <span className="text-white">
+                    <FontAwesomeIcon icon={faLocation} />
+                  </span>{' '}
+                  Désactiver la géoloc
+                </button>
+              ) : (
+                <button
+                  onClick={handleGeolocation}
+                  className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md"
+                >
+                  <span className="text-gray-600">
+                    <FontAwesomeIcon icon={faLocation} />
+                  </span>{' '}
+                  Me géolocaliser
+                </button>
               )}
             </div>
           </div>
-          <div>
-            <h3 className="text-gray-900 text-xl font-bold mt-8">
-              Ces annonces qui pourraient vous intéresser...
-            </h3>
-            <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:items-center md:justify-between md:space-x-4 mt-5">
-              <div className="w-full md:w-1/3">
-                <input
-                  type="text"
-                  placeholder="Rechercher une offre..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
-              <div className="flex space-x-4 relative">
-                <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md">
-                  <span className="text-gray-600">
-                    <FontAwesomeIcon icon={faSort} />
-                  </span>{' '}
-                  Trier
-                </button>
-                <div className="relative">
+          {(selectedCategory || searchTerm) && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-500">Filtres actifs:</span>
+              {selectedCategory && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  {selectedCategory}
                   <button
-                    onClick={() => setShowCategoryFilter(!showCategoryFilter)}
-                    className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${selectedCategory ? 'bg-purple-100' : ''}`}
+                    onClick={() => setSelectedCategory('')}
+                    className="ml-1 hover:text-purple-900"
                   >
-                    <span className="text-gray-600">
-                      <FontAwesomeIcon icon={faFilter} />
-                    </span>{' '}
-                    {selectedCategory || 'Filtrer'}
+                    ×
                   </button>
-                  {showCategoryFilter && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1">
-                      <button
-                        onClick={resetFilters}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                      >
-                        Tous
-                      </button>
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => handleCategorySelect(category)}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowDistanceFilter(!showDistanceFilter)}
-                    className={`text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md ${isGeolocActive ? 'bg-purple-100' : ''}`}
-                  >
-                    Distance max: {maxDistance}km
+                </span>
+              )}
+              {searchTerm && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  Recherche: {searchTerm}
+                  <button onClick={() => setSearchTerm('')} className="ml-1 hover:text-purple-900">
+                    ×
                   </button>
-                  {showDistanceFilter && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 p-4">
-                      <input
-                        type="range"
-                        min="10"
-                        max="200"
-                        step="10"
-                        value={maxDistance}
-                        onChange={(e) => handleMaxDistanceChange(parseInt(e.target.value))}
-                        className="w-full"
-                      />
-                      <div className="text-center mt-2">{maxDistance} km</div>
-                    </div>
-                  )}
-                </div>
-                {isGeolocActive ? (
-                  <button
-                    onClick={disableGeolocation}
-                    className="text-white bg-purple-600 px-2 py-1 flex items-center rounded-md"
-                  >
-                    <span className="text-white">
-                      <FontAwesomeIcon icon={faLocation} />
-                    </span>{' '}
-                    Désactiver la géoloc
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleGeolocation}
-                    className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-md"
-                  >
-                    <span className="text-gray-600">
-                      <FontAwesomeIcon icon={faLocation} />
-                    </span>{' '}
-                    Me géolocaliser
-                  </button>
-                )}
-              </div>
+                </span>
+              )}
+              <button
+                onClick={resetFilters}
+                className="text-sm text-purple-600 hover:text-purple-800"
+              >
+                Réinitialiser les filtres
+              </button>
             </div>
-            {(selectedCategory || searchTerm) && (
-              <div className="mt-4 flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Filtres actifs:</span>
-                {selectedCategory && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    {selectedCategory}
-                    <button
-                      onClick={() => setSelectedCategory('')}
-                      className="ml-1 hover:text-purple-900"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {searchTerm && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    Recherche: {searchTerm}
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="ml-1 hover:text-purple-900"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                <button
-                  onClick={resetFilters}
-                  className="text-sm text-purple-600 hover:text-purple-800"
-                >
-                  Réinitialiser les filtres
-                </button>
-              </div>
-            )}
-          </div>
+          )}
           {isGeolocActive && (
             <div className="mt-4 bg-purple-100 text-purple-800 px-4 py-2 rounded-md flex items-center justify-between">
               <span>Géolocalisation active - Les offres sont triées par distance</span>
@@ -744,23 +743,23 @@ const App = () => {
             ) : (
               <ul
                 role="list"
-                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full"
+                className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 mx-auto w-full"
               >
                 {filteredOffers.length > 0 ? (
                   filteredOffers.map((offer, index) => (
                     <Link key={offer.id} href={`/ugc/offer/${offer.code}`}>
-                      <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
-                        <div className="md:flex">
-                          <div className="md:flex-shrink-0 h-48 md:h-auto">
+                      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div className="md:flex md:flex-col">
+                          <div className="h-48 md:h-auto">
                             <Image
-                              width={400}
-                              height={300}
-                              className="h-full w-full object-cover md:w-full"
+                              className="h-full w-full object-cover"
                               src={getRestaurantImage(index)}
                               alt="Restaurant image"
+                              width={300}
+                              height={200}
                             />
                           </div>
-                          <div className="p-8">
+                          <div className="p-4">
                             <div className="flex justify-between items-center">
                               <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
                                 {offer.name}
@@ -832,8 +831,8 @@ const App = () => {
             }}
           />
         </div>
-        <Navbar />
       </div>
+      <Navbar />
     </div>
   );
 };

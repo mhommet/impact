@@ -45,35 +45,37 @@ export default function Navbar() {
   if (path.startsWith('/ugc')) {
     return (
       <div
-        className="fixed z-50 h-20 w-screen bottom-0"
+        className="fixed z-50 h-20 w-full bottom-0 overflow-hidden"
         style={{
           background: 'linear-gradient(to right, #0D1828, rgb(88, 45, 100))',
         }}
       >
-        <div className="grid h-full grid-cols-4 justify-center items-center">
-          <Link href="/ugc/offers">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faHome} />
-            </span>
-          </Link>
+        <div className="max-w-screen-xl mx-auto h-full">
+          <div className="flex h-full justify-evenly items-center">
+            <Link href="/ugc/offers" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-4">
+                <FontAwesomeIcon icon={faHome} />
+              </span>
+            </Link>
 
-          <Link href="/construction">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faCalendar} />
-            </span>
-          </Link>
+            <Link href="/construction" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-4">
+                <FontAwesomeIcon icon={faCalendar} />
+              </span>
+            </Link>
 
-          <Link href="/construction">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faMessage} />
-            </span>
-          </Link>
+            <Link href="/construction" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-4">
+                <FontAwesomeIcon icon={faMessage} />
+              </span>
+            </Link>
 
-          <Link href={profileLink}>
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faUser} />
-            </span>
-          </Link>
+            <Link href={profileLink} className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-4">
+                <FontAwesomeIcon icon={faUser} />
+              </span>
+            </Link>
+          </div>
         </div>
         <div className="absolute bottom-24 w-full text-center">
           <Link href="/mentions-legales" className="text-white text-sm hover:underline">
@@ -85,41 +87,43 @@ export default function Navbar() {
   } else if (path.startsWith('/entreprise')) {
     return (
       <div
-        className="fixed z-50 h-20 w-screen bottom-0"
+        className="fixed z-50 h-20 w-full bottom-0 overflow-hidden"
         style={{
           background: 'linear-gradient(to right, #0D1828, rgb(88, 45, 100))',
         }}
       >
-        <div className="grid h-full grid-cols-5 justify-center items-center">
-          <Link href="/entreprise/offers">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faHome} />
-            </span>
-          </Link>
+        <div className="max-w-screen-xl mx-auto h-full">
+          <div className="flex h-full justify-evenly items-center">
+            <Link href="/entreprise/offers" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-3">
+                <FontAwesomeIcon icon={faHome} />
+              </span>
+            </Link>
 
-          <Link href="/construction">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faCalendar} />
-            </span>
-          </Link>
+            <Link href="/construction" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-3">
+                <FontAwesomeIcon icon={faCalendar} />
+              </span>
+            </Link>
 
-          <Link href="/construction">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faChartLine} />
-            </span>
-          </Link>
+            <Link href="/construction" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-3">
+                <FontAwesomeIcon icon={faChartLine} />
+              </span>
+            </Link>
 
-          <Link href="/construction">
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faMessage} />
-            </span>
-          </Link>
+            <Link href="/construction" className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-3">
+                <FontAwesomeIcon icon={faMessage} />
+              </span>
+            </Link>
 
-          <Link href={profileLink}>
-            <span className="icon text-3xl flex justify-center text-white">
-              <FontAwesomeIcon icon={faUser} />
-            </span>
-          </Link>
+            <Link href={profileLink} className="flex items-center justify-center h-full">
+              <span className="icon text-3xl text-white px-3">
+                <FontAwesomeIcon icon={faUser} />
+              </span>
+            </Link>
+          </div>
         </div>
         <div className="absolute bottom-24 w-full text-center">
           <Link href="/mentions-legales" className="text-white text-sm hover:underline">
