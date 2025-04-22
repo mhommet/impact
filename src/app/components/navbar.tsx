@@ -58,7 +58,7 @@ export default function Navbar() {
               </span>
             </Link>
 
-            <Link href="/construction" className="flex items-center justify-center h-full">
+            <Link href="/ugc/calendar" className="flex items-center justify-center h-full">
               <span className="icon text-3xl text-white px-4">
                 <FontAwesomeIcon icon={faCalendar} />
               </span>
@@ -100,7 +100,7 @@ export default function Navbar() {
               </span>
             </Link>
 
-            <Link href="/construction" className="flex items-center justify-center h-full">
+            <Link href="/entreprise/calendar" className="flex items-center justify-center h-full">
               <span className="icon text-3xl text-white px-3">
                 <FontAwesomeIcon icon={faCalendar} />
               </span>
